@@ -1,0 +1,15 @@
+1. install
+  Compiling this needs glib-1.2. You need to install it before doing this.
+Please refer the manual to install glib-1.2.
+
+  i) After installing glib-1.2, 
+    > tar -xvzf rccs.tar.gz
+
+  ii) type the following
+    > cd rccs/src
+
+  iii) similarly,
+    > make rccs
+
+If you cannot compile then please edit the wakefully for your configuration.
+Perhaps, glib is installed into a different place.
