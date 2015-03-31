@@ -11,5 +11,5 @@ Please refer the manual to install glib-1.2.
   iii) similarly,
     > make rccs
 
-If you cannot compile then please edit the wakefully for your configuration.
+If you cannot compile then please edit the make file for your configuration.
 Perhaps, glib is installed into a different place.
