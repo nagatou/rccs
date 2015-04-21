@@ -2087,8 +2087,7 @@ void driver1(void)
          if (ltl2ccs(formula.buf,&(seed.buf)) ==(char *)NIL)
             error(FATAL,"ltl2ccs: cannot translate the LTL formula: %s.\n",formula.buf);
          else{
-//            seed.ptr = 0; /* initialize just the pointer to seed buffer */
-            clear_in_buf(&seed);
+            seed.ptr = 0; /* initialize just the pointer to the top of seed buffer, not the clean of an input buffer.*/
             driver_loop(makenull(NIL));
          }
       }
