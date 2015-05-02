@@ -314,7 +314,7 @@ splp append_str_buf(buffer *buf,char *str)
  *  clear the buffer in_buf for
  * a source file.
  *---------------------------------------------------*
- *  void set_in_buf(seed);
+ *  void clear_in_buf(seed);
  *
  *  seed_t *str --- a pointer to the dummy input buffer.
  *****************************************************/

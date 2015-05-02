@@ -587,20 +587,6 @@ static list_t n_load(list_t args,list_t env,queue_t ch)
    }
    return(driver_loop(env));
 }
-static list_t n_abort(list_t history)
-{
-#  ifdef DEBUG_EVAL
-   printf("abort->");
-#  endif
-   if (history==(list_t)NIL)
-      return((list_t)error(FATAL,"Segmentation fault(n_abort370).\n"));
-   else{
-      if (isempty_buf(&formula))
-         return((list_t)error(FATAL,"I detect one sequence aginst the policy.\n"));
-      else
-         return((list_t)error(WARNING|ELS,"I detect one sequence aginst the property:\n %s",history));
-   }
-}
 static list_t primagnteval(element_t agent,list_t args,list_t env,queue_t ch)
 {
    token lval=NIL;

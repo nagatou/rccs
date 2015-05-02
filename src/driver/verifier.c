@@ -33,6 +33,20 @@ static void mc_back(int state_num)
  *  list_t cont -- is the same of eval.
  *  list_t history -- a list of a history on its way.
  *****************************************************/
+static list_t n_abort(list_t history)
+{
+#  ifdef DEBUG_EVAL
+   printf("n_abort->");
+#  endif
+   if (history==(list_t)NIL)
+      return((list_t)error(FATAL,"Segmentation fault(n_abort370).\n"));
+   else{
+      if (isempty_buf(&formula))
+         return((list_t)error(FATAL,"I detect one sequence aginst the policy.\n"));
+      else
+         return((list_t)error(WARNING|ELS,"I detect one sequence aginst the property:\n %s",history));
+   }
+}
 static list_t make_current_state(list_t exp,list_t cont,list_t assertion, list_t ch,list_t env)
 {
    if (exp==(list_t)NIL||cont==(list_t)NIL||assertion==(list_t)NIL||ch==(list_t)NIL)
@@ -132,7 +146,6 @@ static list_t secondDFS2(list_t exp,
                               cont,
                               history,
                               for_firstDFS,
-//                              on_stack(make_current_state(exp,cont,tmp,ch,env),for_firstDFS),
                               mark(make_current_state(exp,cont,tmp,ch,env),for_secondDFS,TRUE),
                               g_step_exec=FALSE,
                               ch,

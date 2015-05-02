@@ -510,10 +510,14 @@ static bool iseqls(list_t lsa,list_t lsb) /* B036 */
          if (isempty(lsa) || isempty(lsb))
             return((bool)FALSE);
          else{
-            if (iscmpel(car(lsa),car(lsb)))
-               return(iseqls(cdr(lsa),cdr(lsb)));
+            if (lsa==lsb)
+               return((bool)TRUE);
             else
                return((bool)FALSE);
+//            if (iscmpel(car(lsa),car(lsb)))
+//               return(iseqls(cdr(lsa),cdr(lsb)));
+//            else
+//               return((bool)FALSE);
          }
       }
    }
