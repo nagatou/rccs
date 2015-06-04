@@ -14,5 +14,9 @@ Please refer the manual to install glib-1.2.
 If you cannot compile then please edit the make file for your configuration.
 Perhaps, glib is installed into a different place.
 
+2. Licence
+  N. Nagatou keeps the copyright licence of all files in nhk#.
+Users can employ the tool according to GPL v3.
+
 --
 Copyright 2001 Naoyuki Nagatou
