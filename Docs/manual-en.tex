@@ -1,0 +1,200 @@
+\documentclass[12pt]{article}
+%%%
+\usepackage{proof}
+\usepackage{graphicx}
+\usepackage{fleqn}
+\usepackage{latexsym}
+\usepackage{listings}
+\usepackage{theorem}
+\theoremstyle{break}
+\theorembodyfont{\rm}
+\input{style}
+%----------------------------------------------------------
+\title{NHK$^{\sharp}$ User's Manual}
+\author{Noayuki Nagatou\thanks{PRESYSTEMS Inc. Copyright 2014 Naoyuki Nagatou}\\%
+\small PRESYSTEMS Inc.\\[6pt]
+\small nagatou@presystems.xyz}
+\date{}
+%----------------------------------------------------------
+\markboth{Copyright 2014 Naoyuki Nagatou}{Copyright 2014 Naoyuki Nagatou}
+
+%
+%%% ABSTRACTION
+%
+\begin{abstract}
+\end{abstract}
+
+\begin{document}
+\maketitle
+\section{Installation}
+  Compiling those files needs glib-1.2. You need to install it before doing this.
+Please refer the manual to install glib-1.2.
+  \begin{enumerate}
+\item After installing glib-1.2, \\
+    \verb|>| tar -xvzf rccs.tar.gz
+\item type the following\\
+    \verb|>| cd rccs/src
+\item  similarly,\\
+    \verb|>| make rccs
+  \end{enumerate}
+If you cannot compile then please edit the make file for your configuration.
+Perhaps, glib is installed into a different place.
+\section{Syntax of Model Description Language}
+\subsection{Primitive Types}
+RCCS has two types, integers and strings type.
+Operator {\tt +,-,/,*} are defined over these types.
+\subsection{Special Actions and Processes}
+Action {\tt key} and {\tt display} are special actions. 
+{\tt key} is used as an input action, and {\tt display} is used as an output action.
+Process {\tt ZERO} and {\tt STOP} are a special process that means do nothing, not terminate the whole.
+\subsection{Scope}
+In expression (define P (x) body), the scope of x becomes body.
+In expression (\bijection{a}(x):body), the scope of x becomes body.
+\subsection{Lexical Binding Rule}
+Dynamic binding.
+\subsection{Syntax of the Discription Language}
+\input{ss02-grm}
+\subsection{RCCS Operatinal Semantics}\label{OPERATINAL_SEMANTICS}
+\include{manual-sem}
+\section{Semantics of Property Description Language}
+\subsection{Special Processes and Port Names}
+\section{Coroutine-Like Sequencing}
+An important application of coroutine is discrete event simulation, where coroutine may be used to simulate parallel processes within the framework of a sequential program.
+\section{Syntax of Formulae}
+We use LTL to describe goal properties of processes.
+We first assume that a trace has initial states and is a finite sequence of states.
+We write the length of trace \(\sigma=s_0\,s_1\,\cdots\,s_n\) to \(|\sigma|\) in which \(|\sigma|\) is \(n+1\).
+We write the suffix of \(\sigma=s_0\,s_1\,\cdots\,s_i\,\cdots\,s_n\) starting at \(i\) as \(\suffix{\sigma}{i}=s_i\,\cdots\,s_n\), and the \(i^{\mbox{th}}\) state as \(\sigma^i\).
+
+We assume a vocabulary \(x,y,z,\cdots\) of variables for data values.
+For each state, variables are assigned to a single value.
+A state formula is any well-formed first-order formula constructed over the given variables.
+Such state formulas are evaluated on a single state to a boolean value.
+If the evaluation of state formula \(p\) becomes true over \(s\), then we write \(s\lsquarebracket p\rsquarebracket=\true\) and say that \(s\) satisfies \(p\), where $\true$ and $\false$ are truth values, denoting \(true\) and \(false\) respectively.
+Let $\varphi$ and $\psi$ be temporal formulas, a temporal formula is inductively constructed as follows:
+  \begin{itemize}
+\item a state formula is a temporal formula,
+\item the negation of a temporal formula \(\neg\varphi\) is a temporal formula,
+\item \(\varphi\vee\psi\) and \(\varphi\wedge\psi\) are temporal formulas, and
+\item \(\ltlbox\,\varphi\), \(\ltldiammond\,\varphi\), \(\ltlnext\,\varphi\), and \(\varphi\ltluntil\psi\) are temporal formulas.
+  \end{itemize}
+\section{Semantics of Formulae}
+We next define two semantics of temporal formulas over a finite trace according to \cite{Eisner:2003}.
+If trace \(\sigma\) satisfies property \(\varphi\), then we write \(\sigma\models\varphi\).
+\subsection{Strong Semantics}
+Furthermore,
+  \begin{itemize}
+\item if $p$ is a state formula, then \(\sigma\models p\) iff \(\sigma^0\lsquarebracket p\rsquarebracket=\true\) and \(|\sigma|\neq 0\),
+\item \(\sigma\models\neg\varphi\) iff \(\sigma\not\models\varphi\),
+\item \(\sigma\models\varphi\vee\psi\) iff \(\sigma\models\varphi\) or \(\sigma\models\psi\),
+\item \(\sigma\models\varphi\wedge\psi\) iff \(\sigma\models\varphi\) and \(\sigma\models\psi\),
+\item \(\sigma\models\ltlbox\varphi\) iff for all \(0\leq i<|\sigma|\), \(\suffix{\sigma}{i}\models\varphi\),
+\item \(\sigma\models\ltldiammond\varphi\) iff there exists \(0\leq i<|\sigma|\) such that \(\suffix{\sigma}{i}\models\varphi\),
+\item \(\sigma\models\ltlnext\varphi\) iff \(\sigma'\models\varphi\) where \(\sigma'=\sigma\) if \(|\sigma|=1\) and \(\sigma'=\suffix{\sigma}{1}\) if \(|\sigma|>1\),
+\item \(\sigma\models\varphi\ltluntil\psi\) iff there exists \(0\leq k<|\sigma|\) s.t. \(\sigma\models\psi\) and for all \(j<k\), \(\sigma\models\varphi\).
+  \end{itemize}
+
+A formula \(\varphi\) is satisfiable if there exists a sequence \(\sigma\) such that \(\sigma\models \varphi\).
+Given set of traces $T$ and formula \(\varphi\), \(\varphi\) is valid over $T$ if for all \(\sigma\in T\), \(\sigma\models\varphi\).
+\subsection{Weak Semantics}
+Furthermore,
+  \begin{itemize}
+\item if $p$ is a state formula, then \(\sigma\models p\) iff \(\sigma^0\lsquarebracket p\rsquarebracket=\true\) or \(|\sigma|=0\),
+\item \(\sigma\models\neg\varphi\) iff \(\sigma\not\models\varphi\),
+\item \(\sigma\models\varphi\vee\psi\) iff \(\sigma\models\varphi\) or \(\sigma\models\psi\),
+\item \(\sigma\models\varphi\wedge\psi\) iff \(\sigma\models\varphi\) and \(\sigma\models\psi\),
+\item \(\sigma\models\ltlbox\varphi\) iff for all \(0\leq i<|\sigma|\), \(\suffix{\sigma}{i}\models\varphi\),
+\item \(\sigma\models\ltldiammond\varphi\) iff there exists \(0\leq i<|\sigma|\) such that \(\suffix{\sigma}{i}\models\varphi\),
+\item \(\sigma\models\ltlnext\varphi\) iff \(\sigma'\models\varphi\) where \(\sigma'=\sigma\) if \(|\sigma|=1\) and \(\sigma'=\suffix{\sigma}{1}\) if \(|\sigma|>1\),
+\item \(\sigma\models\varphi\ltluntil\psi\) iff there exists \(0\leq k<|\sigma|\) s.t. \(\sigma\models\psi\) and for all \(j<k\), \(\sigma\models\varphi\).
+  \end{itemize}
+%
+%%% RELATIONSHIPS BETWEEN MODELS AND FORMLAE
+%
+\section{Relationships between Models and Formlae}
+In this subsection, we describe the relationship between algebraic models and LTL formulas.
+The modeling language enables us to pass values via input prefix \(\alpha(e)\) and output prefix \(\bijection{\alpha}(x)\) with the same name.
+Execution of \(\alpha(e)\) produces  value \(v\) of \(e\).
+Execution of \(\bijection{\alpha}(x)\) causes a single assignment to \(x\).
+Furthermore, the execution of two actions causes atomic assignment \(x := v\), that is, communication between two agents produces a new state by changing the values of the variables.
+This is similar to the first paragraph in Section~3.3 of \cite[page 290]{lamport84hoare}.
+
+This atomic assignment changes states, and  we represent the change as \(s[v/x]\), which denotes a change in the values of \(x\) in \(s\) to \(v\).
+A state is a mapping from variables to values.
+Assuming that \(\tt Var_E\) is a set of variables that appears in prefixes in agent \(E\) with range \(\tt V\), \(s:Var_E\rightarrow {\tt V}\).
+For example, the evaluation \(s\lsquarebracket x=y\rsquarebracket\) of \(x=y\) at \(s\) becomes \(s\lsquarebracket x\rsquarebracket=s\lsquarebracket y\rsquarebracket\), and at \(s[v/x]\), \(s[v/x]\lsquarebracket x\rsquarebracket=s[v/x]\lsquarebracket y\rsquarebracket\), i.e., \(v=s[y]\).
+
+Therefore, communication between agents produces a sequence of assignments, which then produces a sequence of state changes called a trace.
+Let a set of traces produced by agent \(E\) be \(T\).
+If for all traces \(\sigma\in T\), \(\sigma\models\varphi\), then we state that \(\varphi\) is valid over \(E\) and write \(E\models\varphi\).
+%
+%%% TRANSITION OF AUTOMATA
+%
+\subsection{Transition of Automata}
+A \buchi automaton $m$ contains of five components:
+  \begin{itemize}
+\item A finite set of states, denoted $Q$.
+\item A finite set of input symboles, denoted $\Sigma$.
+\item A transition function $\delta$ that takes a state and an input symbol, and returns a next state.
+If $q$ is a state, and $s$ is an input symbol, then \(\delta(q,a)\) returns state $p$.
+\item A start state $q_0$ is a state in $Q$.
+\item A set of accepting states $Q_{\infty}$ is a subset of $Q$.
+  \end{itemize}
+In this paper, an input symbol becomes a state of a model.
+We talk about an automaton $m$ in \emph{five-tuple} notation: \((Q,\Sigma,\delta,q_0,Q_{\infty})\).
+
+Now, we need to make the notion of the language that an automaton accepts.
+To do this, we define an extended transition function.
+The extended transition function constructed from $\delta$ is called \(\hat{\delta}\).
+We define \(\hat{\delta}\) by induction on the length of an input string $\sigma$, as follows:
+  \begin{displaymath}
+\hat{\delta}(q,\sigma)=\left\{
+      \begin{array}{ll}
+\eta & \mbox{if \(|\sigma |=0\)}\\
+\delta(\hat{\delta}(q,\sigma^{..n-1}),\sigma^{n}) & \mbox{if \(0<|\sigma |<\omega\)}.
+      \end{array}
+\right.
+  \end{displaymath}
+We define the laguage \({\cal L} (m)\) of automaton $m$.
+Let \(INF(\sigma)\) be a set of automaton states that appear infinitely often in while reading $\sigma$,
+then $\sigma$ is accepted by $m$ if and only if \(INF(\sigma)\cup Q_{\infty}\neq\emptyset\).
+Thus,
+  \begin{quotation}
+    \begin{math}
+{\cal L}(m)=\{\rho\mid \rho^0=q^0, \rho^{|\sigma|}=\hat{\delta}(\rho,\sigma)\mbox{, and }INF(\sigma)\cup Q_{\infty}\neq\emptyset\}.
+    \end{math}
+  \end{quotation}
+
+\(\eta\) depends on weak or strong semantics.
+In weak semantics, \(\eta\) is \(q\) that is regarded as an element of \(Q_{\infty}\).
+In strong semantics, \(\eta\) is \(\Lambda\), where \(\Lambda\) is inconsistency.
+%
+%%% CORRESPONDENCE
+%
+\subsection{Correspondence between Models and Formulae}
+We describe a correspondence between a model and a \buchi automaton of a formulae of a property which the model are required.
+The correspondece is expressed with Hoare triple: \{P\}$\alpha$\{P'\},
+where $P$ and $P'$ are boolean predicates, and $\alpha$ is an action which a model performs.
+
+An automaton $m$ enters an automaton state \(q_j\) if there exists a history containing program state $s$ and $m$ is transformed from \(q_i\) into \(q_j\) by reading $s$.
+We define \emph{correspondence invariant} by induction \cite{alpern:1987}.
+\begin{definition}[Correspondece Basis]
+  \begin{quotation}
+\(\forall i: q_j\in Q\mbox{ and }(Init_{\pi}\wedge T_{0j})\Rightarrow C_j\),
+  \end{quotation}
+where \(Init_{\pi}\) is the initial states of model \(\pi\).
+\end{definition}
+\begin{definition}[Correspondece Induction]
+  \begin{quotation}
+\(\forall \alpha:\forall i: \alpha\in A\cup\bijection{A}\mbox{ and }q_i\in Q\mbox{ and }
+\{C_i\}\alpha\{\wedge_{q_j\in Q}(T_{ij}\Rightarrow C_j)\}\).
+  \end{quotation}
+\end{definition}
+%
+%%% BIBLIOGRAPHY
+%
+\bibliographystyle{alpha}
+\bibliography{reference}
+
+\end{document}
+
