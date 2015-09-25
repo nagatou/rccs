@@ -1,0 +1,45 @@
+\footnotesize
+  \begin{verbatim}
+Start             ::= StartFormula
+
+StartFormula      ::= StartFormula /\ PathFormula
+                  |   StartFormula \/ PathFormula
+                  |   StartFormula -> PathFormula
+                  |   ! StartFormula
+                  |   PathFormula
+
+PathFormula       ::= <> PathFormula
+                  |   [] PathFormula
+                  |   PathFormula U StartFormula
+                  |   X PathFormula
+                  |   Proposition
+
+Proposition       ::= Proposition &  Atom
+                  |   Proposition |  Atom
+                  |   Proposition -> Atom
+                  |   ! Proposition
+                  |   Atom
+
+Atom              ::= Atom =  Exp
+                  |   Atom <  Exp
+                  |   Atom >  Exp
+                  |   Atom <= Exp
+                  |   Atom >= Exp
+                  |   Boolean
+                  |   Exp
+
+Exp               ::= Exp + Term
+                  |   Exp - Term
+                  |   Term
+
+Term              ::= Digits
+                  |   Strings
+                  |   Id
+                  |   ( StartFormula )
+
+Boolean           ::= tt
+                  |   ff
+
+Action            ::= Id
+                  |   ~ Id
+  \end{verbatim}

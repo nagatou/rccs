@@ -10,7 +10,7 @@
 \theorembodyfont{\rm}
 \input{style}
 %----------------------------------------------------------
-\title{NHK$^{\sharp}$ User's Manual}
+\title{\NHK User's Manual}
 \author{Noayuki Nagatou\thanks{PRESYSTEMS Inc. Copyright 2014 Naoyuki Nagatou}\\%
 \small PRESYSTEMS Inc.\\[6pt]
 \small nagatou@presystems.xyz}
@@ -22,10 +22,15 @@
 %%% ABSTRACTION
 %
 \begin{abstract}
+\NHK is a model checking tool developed by us and published according to GPLv3 and later.
 \end{abstract}
 
 \begin{document}
+  \begin{titlepage}
 \maketitle
+  \end{titlepage}
+\tableofcontents
+\newpage
 \section{Installation}
   Compiling those files needs glib-1.2. You need to install it before doing this.
 Please refer the manual to install glib-1.2.
@@ -46,7 +51,10 @@ Operator {\tt +,-,/,*} are defined over these types.
 \subsection{Special Actions and Processes}
 Action {\tt key} and {\tt display} are special actions. 
 {\tt key} is used as an input action, and {\tt display} is used as an output action.
+Those special actions distiguish between upper letters and lower letters.
+
 Process {\tt ZERO} and {\tt STOP} are a special process that means do nothing, not terminate the whole.
+Those special processes do not distinguish between upper letters and lower letters.
 \subsection{Scope}
 In expression (define P (x) body), the scope of x becomes body.
 In expression (\bijection{a}(x):body), the scope of x becomes body.
@@ -55,9 +63,7 @@ Dynamic binding.
 \subsection{Syntax of the Discription Language}
 \input{ss02-grm}
 \subsection{RCCS Operatinal Semantics}\label{OPERATINAL_SEMANTICS}
-\include{manual-sem}
-\section{Semantics of Property Description Language}
-\subsection{Special Processes and Port Names}
+\input{manual-sem}
 \section{Coroutine-Like Sequencing}
 An important application of coroutine is discrete event simulation, where coroutine may be used to simulate parallel processes within the framework of a sequential program.
 \section{Syntax of Formulae}
@@ -78,7 +84,10 @@ Let $\varphi$ and $\psi$ be temporal formulas, a temporal formula is inductively
 \item \(\varphi\vee\psi\) and \(\varphi\wedge\psi\) are temporal formulas, and
 \item \(\ltlbox\,\varphi\), \(\ltldiammond\,\varphi\), \(\ltlnext\,\varphi\), and \(\varphi\ltluntil\psi\) are temporal formulas.
   \end{itemize}
-\section{Semantics of Formulae}
+
+We provide the formal syntax with BNF notation.
+\input{manual-ltlgrm}
+\section{Semantics of Property Description Language}
 We next define two semantics of temporal formulas over a finite trace according to \cite{Eisner:2003}.
 If trace \(\sigma\) satisfies property \(\varphi\), then we write \(\sigma\models\varphi\).
 \subsection{Strong Semantics}
