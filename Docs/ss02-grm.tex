@@ -2,7 +2,6 @@
 \footnotesize
   \begin{verbatim}
 Agent_Exp     ::= ( define ID ( ID_Seq ) Agent_Exp )
-               |  ( define ID ( ) Agent_Exp )
                |  ( bind ID Strings )
                |  ( globalvar IDs Strings )
                |  ( if ( B_exp ) Agent_Exp Agent_Exp )
@@ -25,6 +24,7 @@ ID_Seq        ::= ID_Seq , ID
                |  ID_Seq , ~ ID
                |  ID
                |  ~ ID
+               |  epsilon
 Value_Seq     ::= Value_Seq , B_Exp
                |  B_Exp
 Relabel_Seq   ::= Relabel_Seq  , ID / ID

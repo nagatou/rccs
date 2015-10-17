@@ -1,0 +1,114 @@
+%\onecolumn
+In this section, we define the semantics of the discription language.
+For this purpose, we define a machine.
+Before we continue, we define context \(k\).
+The following grammar defines a set of contexts.
+The context contains a hole, written in \hole, in the place of one subexpression.
+  \begin{displaymath}
+    \begin{array}{lcl}
+K     &::=& \hole \\
+      & | & K\|\hole\\
+      & | & \hole\|K
+    \end{array}
+  \end{displaymath}
+$k[P]$ means to replace the hole in $k$ with $P$.
+Moreover, we define a function $Env$ that maps all free variables to closures.
+This function is called a environment, and a closure is a pair of an expression and a environment.
+environments \(Env\) and colosures \(c\) have mutually recursive definitions.
+  \begin{displaymath}
+    \begin{array}{rcl}
+Env &::=& \mbox{a list of pairs }\langle(X,c),\cdots\rangle\\
+c &::=& \{(P,env)|FV(P)\subset dom(Env)\}\\
+v &::=& \{(v,env)|FV(P)\in c\}
+    \end{array}
+  \end{displaymath}
+In addition to the above definition, we use the following sets.
+  \begin{displaymath}
+    \begin{array}{rcl}
+ch &::=&\mbox{a list of pairs }\langle(Name,\langle m_1,\cdots,m_n\rangle),\cdots\rangle
+    \end{array}
+  \end{displaymath}
+Channel ch represents a set of channels with which processes communicate each other.
+\(Env[X\leftarrow c]\) means that \((X,c)\) is added into \(Env\), that is, 
+\(\{(X,c)\}\cup\{(Y,c')|(Y,c')\in Env \mbox{ and } X\neq Y\}\).
+
+A state of the machine is a triple \([(exp,env),ch,k]\).
+
+
+\emph{HEREON}\\
+% Push-Down Automata
+%  \begin{quote}
+%    \begin{math}
+%(Q,Act,\trans{},E,S_0)
+%    \end{math}
+%  \end{quote}
+%where $Q$ is a set of states, i.e. a set of processes.
+% $Act$ a set of actions,
+%\(\trans{}\subseteq Q\times Act\times Q\).
+%We write \(q_1\trans{a}q_2\) to \((q_1,a,q_2)\in\,\trans{}\).
+%$E$ is an initial state of a model.
+% $S_0$ represents a state of a stack, and the initial state of the stack is empty.
+%Elements of the stack are pairs of a label and a value which are wrote by $a;v$,
+%where $a\in ACT,v\in Val$.
+%The list of pairs represents a state of the stack.
+%The functions for the stack are defined as follows:
+%$push(a;v,s)$ is a function that takes $s$ and returns a list which is appended with $a;v$.
+%$delete(a,s)$ is a function that deletes a first pair that contains $a$ from $s$ and return the list deleted the pair.
+%The configuration is given by $[q,s]\in Q\times (Act\times Val)^*$.
+\footnotesize
+  \begin{center}
+     \begin{tabular}{ll}
+\infer[\mbox{Act}_1]{[\sim a(v):E,s]\trans{\sim a}[E,\mbox{push}(a;v.s)]}
+                    {}
+&
+\infer[\mbox{Act}_2]{[a(x):E,s]\trans{a}[E,\mbox{delete}(a,s)]}
+                    {\mbox{member(a,s)}}\\
+\infer[\mbox{Sum}_1]{[E++F,s]\trans{\alpha}[E',s')]}
+                    {[E,s]\trans{\alpha}[E',s')]}
+&
+\infer[\mbox{Sum}_2]{[E++F,s]\trans{\alpha}[F',s')]}
+                    {[F,s]\trans{\alpha}[F',s')]}\\
+\infer[\mbox{Com}_1]{[E||F,s]\trans{\sim \alpha}[E'||F,s']}
+                    {[E,s]\trans{\alpha}[E',s']}
+&
+\infer[\mbox{Com}_2]{[E||F,s]\trans{\sim \alpha}[E||F',s']}
+                    {[F,s]\trans{\alpha}[F',s']}\\
+\multicolumn{2}{c}{
+\infer[\mbox{Com}_3]{[E||F,s]\trans{\tau}[E'||F',s'']}
+                    {[E||F,s]\trans{\sim \alpha}[E'||F,s']&
+                    [E||F,s]\trans{\alpha}[E||F',s'']}}\\
+\infer[\mbox{Con}]{[A,s]\trans{\alpha}[P',s']}
+                  {[P,s]\trans{\alpha}[P',s']
+                   & A\leftarrow P}\\
+\infer[\mbox{If}_1]{[\mbox{if}\ B\ E\ F,s]\trans{\alpha}[E',s']}
+                   {[E,s]\trans{\alpha}[E',s']
+                    & \mbox{eval}(B)}
+&
+\infer[\mbox{If}_2]{[\mbox{if}\ B\ E\ F,s]\trans{\alpha}[F',s']}
+                   {[F,s]\trans{\alpha}[F',s']
+                    & \neg\mbox{eval}(B)}\\
+\infer[\mbox{Res}]{[E[L],s]\trans{\alpha}[E'[L],s']}
+                  {[E,s]\trans{\alpha}[E',s']
+                    & \alpha,\sim\alpha\in L}
+                      & where L=\{a,b,$\cdots$\}\\
+\infer[\mbox{Rel}]{[E\{R\},s]\trans{\alpha '}[E'\{R\},s']}
+                  {[E,s]\trans{\alpha}[E',s']
+                    & \alpha '/\alpha\in R}
+                      & where R=\{a'/a,$\sim$a'/$\sim$a,$\cdots$\}\\\\
+\infer[\mbox{Def}]{[\mbox{define}\ A\ P,s]\trans{}[\mbox{STOP},s]}
+                  {}\\\\
+\infer[\mbox{Bind}]{[\mbox{bind}\ A\ string,s]\trans{}[\mbox{STOP},s]}
+                  {}\\\\
+\infer[\mbox{Stop}_1]{[\mbox{STOP},s]\not\trans{}}
+                     {}\\
+\infer[\mbox{Stop}_2]{[\mbox{STOP}||\mbox{STOP},s]\not\trans{}}
+                     {[\mbox{STOP},s]\not\trans{}
+                      & [\mbox{STOP},s]\not\trans{}}\\
+\infer[\mbox{Stop}_3]{[\mbox{STOP}++P,s]\trans{\alpha}[P',s']}
+                     {[P,s]\trans{\alpha}[P',s']}
+&
+\infer[\mbox{Stop}_4]{[\mbox{STOP}++\mbox{STOP},s]\not\trans{}}
+                     {[\mbox{STOP},s]\not\trans{}
+                      & [\mbox{STOP},s]\not\trans{}}
+    \end{tabular}
+  \end{center}

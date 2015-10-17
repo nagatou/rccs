@@ -22,7 +22,28 @@
 %%% ABSTRACTION
 %
 \begin{abstract}
-\NHK is a model checking tool developed by us and published according to GPLv3 and later.
+\NHK \emph{is a model checking tool developed by us and published according to GPLv3 and later}.
+
+In general, there are two checking processes within the lifecycle of a system.
+One is verification of models describing functional specification, 
+and the other is testing of real codes implementing the system.
+We developed a model checking tool can being used on both processes.
+Model checking systematically explores the state space of systems.
+The systems are expressed as the model
+or real code(or source code) written in programming languages such as C.
+There are several model checking tools 
+that handle either the models or the real codes,
+but not both.
+In testing processes of the real codes,
+our model checking tool checks both the models and the real codes.
+The tool executes the binary code on GDB,
+then examines a composition with the model from which the portions of 
+the model that correspond to the code being executed
+have been eliminated.
+A state space of the real code is a set of GDB's breakpoints corresponding to
+actions to communicate between the eliminated portion and others,
+so the model is written in a modeling language based on process algebra.
+This tool enables the re-use of the same model that was used in verification processes.
 \end{abstract}
 
 \begin{document}
@@ -50,14 +71,14 @@ RCCS has two types, integers and strings type.
 Operator {\tt +,-,/,*} are defined over these types.
 \subsection{Special Actions and Processes}
 Action {\tt key} and {\tt display} are special actions. 
-{\tt key} is used as an input action, and {\tt display} is used as an output action.
+{\tt key} is used as an input action corresponding to the standard input, and {\tt display} is used as an output action corresponding to the standard output.
 Those special actions distiguish between upper letters and lower letters.
 
 Process {\tt ZERO} and {\tt STOP} are a special process that means do nothing, not terminate the whole.
 Those special processes do not distinguish between upper letters and lower letters.
 \subsection{Scope}
 In expression (define P (x) body), the scope of x becomes body.
-In expression (\bijection{a}(x):body), the scope of x becomes body.
+In expression (\bijection{a}(x)\(\colon\) body), the scope of x becomes body.
 \subsection{Lexical Binding Rule}
 Dynamic binding.
 \subsection{Syntax of the Discription Language}
@@ -125,12 +146,12 @@ In this subsection, we describe the relationship between algebraic models and LT
 The modeling language enables us to pass values via input prefix \(\alpha(e)\) and output prefix \(\bijection{\alpha}(x)\) with the same name.
 Execution of \(\alpha(e)\) produces  value \(v\) of \(e\).
 Execution of \(\bijection{\alpha}(x)\) causes a single assignment to \(x\).
-Furthermore, the execution of two actions causes atomic assignment \(x := v\), that is, communication between two agents produces a new state by changing the values of the variables.
+Furthermore, the execution of two actions causes atomic assignment \(x \colon = v\), that is, communication between two agents produces a new state by changing the values of the variables.
 This is similar to the first paragraph in Section~3.3 of \cite[page 290]{lamport84hoare}.
 
 This atomic assignment changes states, and  we represent the change as \(s[v/x]\), which denotes a change in the values of \(x\) in \(s\) to \(v\).
 A state is a mapping from variables to values.
-Assuming that \(\tt Var_E\) is a set of variables that appears in prefixes in agent \(E\) with range \(\tt V\), \(s:Var_E\rightarrow {\tt V}\).
+Assuming that \(\tt Var_E\) is a set of variables that appears in prefixes in agent \(E\) with range \(\tt V\), \(s\colon Var_E\rightarrow {\tt V}\).
 For example, the evaluation \(s\lsquarebracket x=y\rsquarebracket\) of \(x=y\) at \(s\) becomes \(s\lsquarebracket x\rsquarebracket=s\lsquarebracket y\rsquarebracket\), and at \(s[v/x]\), \(s[v/x]\lsquarebracket x\rsquarebracket=s[v/x]\lsquarebracket y\rsquarebracket\), i.e., \(v=s[y]\).
 
 Therefore, communication between agents produces a sequence of assignments, which then produces a sequence of state changes called a trace.
@@ -159,20 +180,18 @@ We define \(\hat{\delta}\) by induction on the length of an input string $\sigma
   \begin{displaymath}
 \hat{\delta}(q,\sigma)=\left\{
       \begin{array}{ll}
-\eta & \mbox{if \(|\sigma |=0\)}\\
+q & \mbox{if \(|\sigma |=0\)}\\
 \delta(\hat{\delta}(q,\sigma^{..n-1}),\sigma^{n}) & \mbox{if \(0<|\sigma |<\omega\)}.
       \end{array}
 \right.
   \end{displaymath}
 We define the laguage \({\cal L} (m)\) of automaton $m$.
-Let \(INF(\sigma)\) be a set of automaton states that appear infinitely often in while reading $\sigma$,
-then $\sigma$ is accepted by $m$ if and only if \(INF(\sigma)\cup Q_{\infty}\neq\emptyset\).
+Let \(INF(\rho)\) be a set of automaton states that appear infinitely often in while reading $\sigma$,
+then $\sigma$ is accepted by $m$ if and only if \(INF(\rho)\cap Q_{\infty}\neq\emptyset\).
 Thus,
-  \begin{quotation}
-    \begin{math}
-{\cal L}(m)=\{\rho\mid \rho^0=q^0, \rho^{|\sigma|}=\hat{\delta}(\rho,\sigma)\mbox{, and }INF(\sigma)\cup Q_{\infty}\neq\emptyset\}.
-    \end{math}
-  \end{quotation}
+  \begin{displaymath}
+{\cal L}(m)=\{\sigma\mid \rho^0=q^0, \forall i\colon\rho^i=\hat{\delta}(q_0,\sigma^{..i})\mbox{, and }INF(\rho)\cap Q_{\infty}\neq\emptyset\}.
+  \end{displaymath}
 
 \(\eta\) depends on weak or strong semantics.
 In weak semantics, \(\eta\) is \(q\) that is regarded as an element of \(Q_{\infty}\).
@@ -188,17 +207,101 @@ where $P$ and $P'$ are boolean predicates, and $\alpha$ is an action which a mod
 An automaton $m$ enters an automaton state \(q_j\) if there exists a history containing program state $s$ and $m$ is transformed from \(q_i\) into \(q_j\) by reading $s$.
 We define \emph{correspondence invariant} by induction \cite{alpern:1987}.
 \begin{definition}[Correspondece Basis]
-  \begin{quotation}
-\(\forall i: q_j\in Q\mbox{ and }(Init_{\pi}\wedge T_{0j})\Rightarrow C_j\),
-  \end{quotation}
+  \begin{displaymath}
+\forall i\colon q_j\in Q\mbox{ and }(Init_{\pi}\wedge T_{0j})\Rightarrow C_j,
+  \end{displaymath}
 where \(Init_{\pi}\) is the initial states of model \(\pi\).
 \end{definition}
 \begin{definition}[Correspondece Induction]
-  \begin{quotation}
-\(\forall \alpha:\forall i: \alpha\in A\cup\bijection{A}\mbox{ and }q_i\in Q\mbox{ and }
-\{C_i\}\alpha\{\wedge_{q_j\in Q}(T_{ij}\Rightarrow C_j)\}\).
-  \end{quotation}
+  \begin{displaymath}
+\forall \alpha\colon\forall i\colon\alpha\in A\cup\bijection{A}\mbox{ and }q_i\in Q\mbox{ and }
+\{C_i\}\alpha\{\wedge_{q_j\in Q}(T_{ij}\Rightarrow C_j)\}.
+  \end{displaymath}
 \end{definition}
+
+%
+%%% Proving Safety Propeties
+%
+\subsection{Proving Safety Properties}
+A model \(\pi\) written by our model language has the form: \(\pi=\pi_1\|\cdots\|\pi_n\).
+Processes synchronize and communicate using input actions and output actions.
+For a channel \(a\), a value of \(exp\) and a variable \(var\), execution of an output action
+  \begin{displaymath}
+\bijection{a}(exp)
+  \end{displaymath}
+causes the transfer of the value of \(exp\), and execution of a matching input action 
+  \begin{displaymath}
+a(var)
+  \end{displaymath}
+,which some other process performs, causes recieve from channel \(a\).
+an input action is deleyed until some matching output action.
+
+Two matching actions are executed as an atomic action which causes an assignment to \(var\):
+  \begin{displaymath}
+var\,=\,exp.
+  \end{displaymath}
+The atomic assignment which consists of two actions \(\bijection{a}\) and \(a\) occurs as a free-standing statement.
+We regard the atomic assignment above as a fragment of models.
+
+The set of atomic actions which make up program \(\pi\) is denoted \(\alpha[\pi]\).
+If \(\pi\) is composed of fragments \(\pi_1,\cdots,\pi_n\) then:
+  \begin{displaymath}
+\alpha[\pi]=\alpha[\pi_1]\cup\cdots\cup\alpha[\pi_n]\cup\alpha[a_1]\cup\cdots\cup\alpha[a_n].
+  \end{displaymath}
+
+The tool gurantee matching semantics between input and output actions.
+For example, \(P_1\|P_2\) in which each process is defined as follows does not produce input-output pairs \((\bijection{a}(1),a(x))\) and \((\bijection{a}(2),a(y))\):
+  \begin{displaymath}
+    \begin{array}{lcr}
+P_1&=&a(x)\colon ZERO\mbox{++}\bijection{a}(0)\colon a(y)\colon ZERO,\\
+P_2&=&\bijection{a}(2)\colon ZERO\mbox{++}a(z)\colon\bijection{a}(1)\colon ZERO.\\
+    \end{array}
+  \end{displaymath}
+
+We present the following proof rules for all possible constructs of processes, according to \cite{Apt:1980}.
+  \begin{displaymath}
+\infer[\mbox{Input}]{\{p\}a(x)\{q\}}
+                    {}
+  \end{displaymath}
+This axiom corresponds to A.1 in \cite{Apt:1980}.
+The post assertion in this axiom will be checked against a corresponging output action with which some process cooperates.
+  \begin{displaymath}
+\infer[\mbox{Output}]{\{p\}\bijection{a}(y)\{q\}}
+                    {}
+  \end{displaymath}
+This axiom may look strange since it has no side-effect.
+We introduce this axiom corresponding to A.2' in \cite{Apt:1980} because the modelling language allows output actions without matching inputs.
+Communication \(\{p\}\alpha(x)\colon P\|\bijection{\alpha}(y)\colon Q\{q\}\) does not derivates an arbitrary predicate.
+The form of $q$ restricts to the formula of \(\{p\}\alpha(x)\colon P\|\bijection{\alpha}(y)\colon Q\{x=y\wedge p\}\) where $x$ is not free in $p$.
+
+Action prefixes mean sequencial execiton of actions.
+This syntactical structure provids the following rule.
+  \begin{displaymath}
+\infer[\mbox{Sequence}]
+      {\{p\}[\alpha\colon P]\{q\}}
+      {\{p\}\alpha\{p'\}\ \{'p\}P\{q\}}
+  \end{displaymath}
+
+The meaning of the following rule is that the post condition of summation must be estabilished along each possible path.
+  \begin{displaymath}
+\infer[\mbox{Summation}]{\{p\}P\mbox{++}Q\{q\}}
+                        {\{p\}P\{q\}\ \{p\}Q\{q\}}
+  \end{displaymath}
+Using these axioms and rules, we can establish the proof for a formula for each process.
+
+We now present a proof rule and an axiom for communication among processes.
+The rule to used to deduce a property of \(P\|Q\) has the following form:
+  \begin{displaymath}
+\infer[\mbox{Composition}]{\{p_1\wedge p_2\}P\|Q\{q_1\wedge q_2\}}
+                        {\{p_1\}P\{q_1\}\ \{p_2\}Q\{q_2\}}
+  \end{displaymath}
+The meaning of this rule is that proofs cooperate to help each other proof to validate the post conditions of input/output actions.
+We shall need the following axiom to establish cooperation:
+  \begin{displaymath}
+\infer[\mbox{Communication}]
+      {\{True\}[a(x)\colon P\|\bijection{a}(y)\colon Q]\{x=y\}}
+      {}
+  \end{displaymath}
 %
 %%% BIBLIOGRAPHY
 %
