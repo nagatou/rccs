@@ -320,37 +320,6 @@ list_t cons(element_t car_part,list_t cdr_part)
    }
 }
 
-/******************************************************
- *  cpmpair any element                               *
- *----------------------------------------------------*
- *  ret = eqel(ea,eb);                               *
- *                                                    *
- *  bool ret --- if it correspond ea with eb, elcmp() *
- *              return to TRUE. otherwise FALSE.      *
-static bool elcmp(element_t ea,element_t eb)
-{
-   bool truth=FALSE;
-
-#  ifdef DEBUG_LIST
-   printf("elcmp-> ");
-#  endif
-   if (ea.type == eb.type){
-      switch(ea.type){
-         case TOKEN:
-            if (ea.entry.tk==eb.entry.tk)
-               truth=(bool)TRUE;
-            break;
-         case LIST:
-            if (eqls(ea.entry.list,eb.entry.list))
-               truth=(bool)TRUE;
-            break;
-         default:
-            return((bool)error(FATAL|EEL,"invalid element type(elcmp353) %s\n", ea));
-      }
-   }
-   return(truth);
-}
- ******************************************************/
 static bool iseqls(list_t lsa,list_t lsb); /* B036 */
 
 /****************************************************
@@ -367,10 +336,10 @@ static bool iseqls(list_t lsa,list_t lsb); /* B036 */
  *  list_t list -- pointer to list                   *
  *  element elt -- any element                      *
  ****************************************************/
-static bool iscmpop(int op_a,int op_b) /* B036 */
+static bool iseqop(int op_a,int op_b) /* B036 */
 {
 #  ifdef DEBUG_LIST
-   printf("iscmpop-> ");
+   printf("iseqop-> ");
 #  endif
    if (op_a==op_b)
       return((bool)TRUE);
@@ -392,10 +361,10 @@ static bool iscmp_PBB(token token_a,token token_b) /* B036 */
    else
       return((bool)FALSE);
 }
-static bool iscmptk(token token_a,token token_b) /* B036 */
+static bool iseqtk(token token_a,token token_b) /* B036 */
 {
 #  ifdef DEBUG_LIST
-   printf("iscmptk-> ");
+   printf("iseqtk-> ");
 #  endif
    switch(token_a->token_name){
       case(ID):
@@ -452,7 +421,7 @@ static bool iscmptk(token token_a,token token_b) /* B036 */
       case(COMP_OP):
       case(BOOL_OP):
       case(VALUE_OP):
-         if (iscmpop(token_a->attr.op.type,
+         if (iseqop(token_a->attr.op.type,
                      token_b->attr.op.type))
             return((bool)TRUE);
          else
@@ -469,17 +438,17 @@ static bool iscmptk(token token_a,token token_b) /* B036 */
          return((bool)FALSE);
    }
 }
-static bool iscmpel(element_t ea,element_t eb) /* B036 */
+static bool iseqel(element_t ea,element_t eb) /* B036 */
 {
    bool truth=FALSE;
 
 #  ifdef DEBUG_LIST
-   printf("iscmpel-> ");
+   printf("iseqel-> ");
 #  endif
    if (ea.type == eb.type){
       switch(ea.type){
          case TOKEN:
-            if (iscmptk(ea.entry.tk,eb.entry.tk))
+            if (iseqtk(ea.entry.tk,eb.entry.tk))
                truth=(bool)TRUE;
             break;
          case LIST:
@@ -491,7 +460,7 @@ static bool iscmpel(element_t ea,element_t eb) /* B036 */
                truth=(bool)TRUE;
             break;
          default:
-            error(FATAL|EEL,"invalid element type(iscmpel519) %s\n", ea);
+            error(FATAL|EEL,"invalid element type(iseqel519) %s\n", ea);
       }
    }
    return(truth);
@@ -512,12 +481,12 @@ static bool iseqls(list_t lsa,list_t lsb) /* B036 */
          else{
             if (lsa==lsb)
                return((bool)TRUE);
-            else
-               return((bool)FALSE);
-//            if (iscmpel(car(lsa),car(lsb)))
-//               return(iseqls(cdr(lsa),cdr(lsb)));
-//            else
-//               return((bool)FALSE);
+            else{
+               if (iseqel(car(lsa),car(lsb)))
+                  return(iseqls(cdr(lsa),cdr(lsb)));
+               else
+                  return((bool)FALSE);
+            }
          }
       }
    }
@@ -540,7 +509,7 @@ elementp member(list_t ls,element_t elt)
          return((elementp)NIL);
       }
       else{
-         if (iscmpel(car(ls),elt)){
+         if (iseqel(car(ls),elt)){
             a = car(ls);
 #           ifdef DEBUG_LIST
             printf("TRUE(%04x)\n",&a);
@@ -593,7 +562,7 @@ bool eqls(list_t lsa,list_t lsb)
  ***********************/
 bool eqel(element_t ela,element_t elb)
 {
-   return((bool)iscmpel(ela,elb));
+   return((bool)iseqel(ela,elb));
 }
 
 /****************************************************
@@ -618,8 +587,7 @@ list_t delete(element_t elt,list_t ls)
       if (isempty(ls))
          return(makenull(NIL));
       else{
-         if (iscmpel(elt,car(ls)))
-//            return(delete(elt,cdr(ls)));
+         if (iseqel(elt,car(ls)))
             return(cdr(ls));
          else
             return(cons(car(ls),delete(elt,cdr(ls))));
