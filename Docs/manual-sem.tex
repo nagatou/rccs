@@ -6,9 +6,9 @@ The following grammar defines a set of contexts.
 The context contains a hole, written in \hole, in the place of one subexpression.
   \begin{displaymath}
     \begin{array}{lcl}
-K     &::=& \hole \\
-      & | & K\|\hole\\
-      & | & \hole\|K
+k     &::=& \hole \\
+      & | & k\|\hole\\
+      & | & \hole\|k
     \end{array}
   \end{displaymath}
 $k[P]$ means to replace the hole in $k$ with $P$.
@@ -18,10 +18,13 @@ environments \(Env\) and colosures \(c\) have mutually recursive definitions.
   \begin{displaymath}
     \begin{array}{rcl}
 Env &::=& \mbox{a list of pairs }\langle(X,c),\cdots\rangle\\
-c &::=& \{(P,env)|FV(P)\subset dom(Env)\}\\
-v &::=& \{(v,env)|FV(P)\in c\}
+k &::=& \{(P,env)|FV(P)\subset dom(Env)\}\\
+%v &::=& \{(v,env)|FV(P)\in c\}
     \end{array}
   \end{displaymath}
+\(Env[X\leftarrow c]\) means that \((X,c)\) is added into \(Env\), that is, 
+\(\{(X,c)\}\cup\{(Y,c')|(Y,c')\in Env \mbox{ and } X\neq Y\}\).
+
 In addition to the above definition, we use the following sets.
   \begin{displaymath}
     \begin{array}{rcl}
@@ -29,86 +32,114 @@ ch &::=&\mbox{a list of pairs }\langle(Name,\langle m_1,\cdots,m_n\rangle),\cdot
     \end{array}
   \end{displaymath}
 Channel ch represents a set of channels with which processes communicate each other.
-\(Env[X\leftarrow c]\) means that \((X,c)\) is added into \(Env\), that is, 
-\(\{(X,c)\}\cup\{(Y,c')|(Y,c')\in Env \mbox{ and } X\neq Y\}\).
+\(ch[a\leftarrow v]\) means that \((a,v)\) is added into \(ch\), that is, 
+\(\{(a,v)\}\cup\{(b,v')|(b,v')\in ch \mbox{ and } a\neq b\}\).
 
-A state of the machine is a triple \([(exp,env),ch,k]\).
-
-
-\emph{HEREON}\\
-% Push-Down Automata
-%  \begin{quote}
-%    \begin{math}
-%(Q,Act,\trans{},E,S_0)
-%    \end{math}
-%  \end{quote}
-%where $Q$ is a set of states, i.e. a set of processes.
-% $Act$ a set of actions,
-%\(\trans{}\subseteq Q\times Act\times Q\).
-%We write \(q_1\trans{a}q_2\) to \((q_1,a,q_2)\in\,\trans{}\).
-%$E$ is an initial state of a model.
-% $S_0$ represents a state of a stack, and the initial state of the stack is empty.
-%Elements of the stack are pairs of a label and a value which are wrote by $a;v$,
-%where $a\in ACT,v\in Val$.
-%The list of pairs represents a state of the stack.
-%The functions for the stack are defined as follows:
-%$push(a;v,s)$ is a function that takes $s$ and returns a list which is appended with $a;v$.
-%$delete(a,s)$ is a function that deletes a first pair that contains $a$ from $s$ and return the list deleted the pair.
-%The configuration is given by $[q,s]\in Q\times (Act\times Val)^*$.
-\footnotesize
-  \begin{center}
-     \begin{tabular}{ll}
-\infer[\mbox{Act}_1]{[\sim a(v):E,s]\trans{\sim a}[E,\mbox{push}(a;v.s)]}
-                    {}
-&
-\infer[\mbox{Act}_2]{[a(x):E,s]\trans{a}[E,\mbox{delete}(a,s)]}
-                    {\mbox{member(a,s)}}\\
-\infer[\mbox{Sum}_1]{[E++F,s]\trans{\alpha}[E',s')]}
-                    {[E,s]\trans{\alpha}[E',s')]}
-&
-\infer[\mbox{Sum}_2]{[E++F,s]\trans{\alpha}[F',s')]}
-                    {[F,s]\trans{\alpha}[F',s')]}\\
-\infer[\mbox{Com}_1]{[E||F,s]\trans{\sim \alpha}[E'||F,s']}
-                    {[E,s]\trans{\alpha}[E',s']}
-&
-\infer[\mbox{Com}_2]{[E||F,s]\trans{\sim \alpha}[E||F',s']}
-                    {[F,s]\trans{\alpha}[F',s']}\\
+A state of the machine is a triple \([(exp,env),k,ch]\) following \cite{Felleisen:2002}.
+We define single step of the evaluation function.
+\begin{center}
+  \begin{tabular}{ll}
 \multicolumn{2}{c}{
-\infer[\mbox{Com}_3]{[E||F,s]\trans{\tau}[E'||F',s'']}
-                    {[E||F,s]\trans{\sim \alpha}[E'||F,s']&
-                    [E||F,s]\trans{\alpha}[E||F',s'']}}\\
-\infer[\mbox{Con}]{[A,s]\trans{\alpha}[P',s']}
-                  {[P,s]\trans{\alpha}[P',s']
-                   & A\leftarrow P}\\
-\infer[\mbox{If}_1]{[\mbox{if}\ B\ E\ F,s]\trans{\alpha}[E',s']}
-                   {[E,s]\trans{\alpha}[E',s']
-                    & \mbox{eval}(B)}
+\inference[Output(1)]
+{}
+{[(\sim a(v):P,Env),\hole,ch]\trans{\sim a}[(P,Env),\hole,ch[a\leftarrow\langle v\rangle]]}
+}\\\\
+\multicolumn{2}{c}{
+\inference[Output(2)]
+{}
+{[(\sim a(v):P,Env_1),(Q,Env_2)\|\hole,ch]\trans{\sim a}[(Q,Env_2),\hole\|(P,Env),ch[a\leftarrow\langle v\rangle]]}
+}\\\\
+\multicolumn{2}{c}{
+\inference[Output(3)]
+{}
+{[(\sim a(v):P,Env_1),\hole\|(Q,Env_2),ch]\trans{\sim a}[(Q,Env_2),(P,Env_1)\|\hole,ch[a\leftarrow\langle v\rangle]]}
+}\\\\
+\multicolumn{2}{c}{
+\inference[Input]
+{}
+{[(a(x):P,Env),k,ch[a\leftarrow\langle v\rangle]]\trans{a}[(k[P],Env[\langle x\rangle\leftarrow\langle v\rangle]),\hole,ch]}
+}\\\\
+\multicolumn{2}{c}{
+\inference[Sum(1)]
+{[(P,Env_{1}),k,ch]\trans{\alpha}[(P',Env_{1}'),k',ch']}
+{[(P,Env_{1})\mbox{++}(Q,Env_2),k,ch]\trans{\alpha}[(P',Env_{1}'),k',ch']}
+} \\\\
+\multicolumn{2}{c}{
+\inference[Sum(2)]
+{[(Q,Env_{2}),k,ch]\trans{\alpha}[(Q',Env_{2}'),k',ch']}
+{[((P,Env_{1})\mbox{++}(Q,Env_{2}),k,ch]\trans{\alpha}[(Q',Env_{2}'),k',ch']}
+}\\\\
+\multicolumn{2}{c}{
+\inference[Com(1)]
+{[(P,Env_1),k,ch]\trans{\alpha}[(P',Env_{1}'),k[\hole\|Q],ch']}
+{[(P,Env_1)||(Q,Env_2),k,ch]\trans{\alpha}[(P',Env'),k[\hole\|Q],ch']}
+}\\\\
+\multicolumn{2}{c}{
+\inference[Com(2)]
+{[(Q,Env_2),k,ch]\trans{\alpha}[(Q',Env_{2}'),k[P\|\hole],ch']}
+{[((P,Env_1)||(Q,Env_2),k,ch]\trans{\alpha}[(Q',Env_{2}'),k[P\|\hole],ch']}
+}\\\\
+\multicolumn{2}{c}{
+\inference[Com(3)]
+{[(P,Env_1)\|(Q,Env_2),k,ch]\trans{\overline{\alpha}}[(Q,Env_{2}),k[(P',Env_{1}')\|\hole],ch']\\
+ [(P,Env_1)\|(Q,Env_2),k,ch]\trans{\alpha}[(P,Env_{1}),k[\hole\|(Q',Env_{2}')],ch'']}
+{[(P,Env_1)\|(Q,Env_2),k,ch]\trans{(\overline{\alpha},\alpha)}[(k[(P',Env_{1}')\|(Q',Env_{2}[\langle x\rangle\leftarrow\langle x\rangle])]),\hole,ch]}
+}\\\\
+\multicolumn{2}{c}{
+\inference[Con]
+{[(P(x),Env[A\leftarrow P][\langle x\rangle\leftarrow\langle v\rangle]),k,ch]\trans{\alpha}[(P',Env[A\leftarrow P][\langle x\rangle\leftarrow\langle v\rangle]),k,ch]}
+{[(A(v),Env[A\leftarrow P]),k,ch]\trans{\alpha}[(P',Env[A\leftarrow P][\langle x\rangle\leftarrow\langle v\rangle]),k,ch]}
+}\\\\
+%\multicolumn{2}{c}{
+%\inference[Def]
+%{}
+%{[(\mbox{define}\ A\ P,Env),k,ch]\trans{}[(\mbox{ZERO},Env[A\leftarrow P]),k,ch]}
+%}\\\\
+\inference[If(1)]
+{\mbox{eval-val}(B,Env)\\ [(T,Env),k,ch]\trans{\alpha}[(T',Env'),k',ch']}
+{[(\mbox{if}\ B\ T\ E,Env),k,ch]\trans{\alpha}[(T',Env'),k',ch']}
 &
-\infer[\mbox{If}_2]{[\mbox{if}\ B\ E\ F,s]\trans{\alpha}[F',s']}
-                   {[F,s]\trans{\alpha}[F',s']
-                    & \neg\mbox{eval}(B)}\\
-\infer[\mbox{Res}]{[E[L],s]\trans{\alpha}[E'[L],s']}
-                  {[E,s]\trans{\alpha}[E',s']
-                    & \alpha,\sim\alpha\in L}
-                      & where L=\{a,b,$\cdots$\}\\
-\infer[\mbox{Rel}]{[E\{R\},s]\trans{\alpha '}[E'\{R\},s']}
-                  {[E,s]\trans{\alpha}[E',s']
-                    & \alpha '/\alpha\in R}
-                      & where R=\{a'/a,$\sim$a'/$\sim$a,$\cdots$\}\\\\
-\infer[\mbox{Def}]{[\mbox{define}\ A\ P,s]\trans{}[\mbox{STOP},s]}
-                  {}\\\\
-\infer[\mbox{Bind}]{[\mbox{bind}\ A\ string,s]\trans{}[\mbox{STOP},s]}
-                  {}\\\\
-\infer[\mbox{Stop}_1]{[\mbox{STOP},s]\not\trans{}}
-                     {}\\
-\infer[\mbox{Stop}_2]{[\mbox{STOP}||\mbox{STOP},s]\not\trans{}}
-                     {[\mbox{STOP},s]\not\trans{}
-                      & [\mbox{STOP},s]\not\trans{}}\\
-\infer[\mbox{Stop}_3]{[\mbox{STOP}++P,s]\trans{\alpha}[P',s']}
-                     {[P,s]\trans{\alpha}[P',s']}
+\inference[If(2)]
+{\neg\mbox{eval-val}(B,Env)\\[(E,Env),k,ch]\trans{\alpha}[(E',Env'),k',ch']}
+{[(\mbox{if}\ B\ T\ E,Env),k,ch]\trans{\alpha}[(E',Env'),k',ch']}
+\\\\
+\multicolumn{2}{c}{
+\inference[Res]
+{\alpha,\bijection{\alpha}\not\in\{\alpha,\cdots\} & [(P,Env),k,ch]\trans{\alpha}[(P',Env'),k',ch']}
+{[(P[\alpha,\cdots],Env),k,ch]\trans{\alpha}[(P'[\alpha,\cdots],Env'),k',ch']}
+}\\\\
+\multicolumn{2}{c}{
+\inference[Rel(1)]
+{[(P,Env),k,ch]\trans{\alpha}[(P',Env'),k',ch[\alpha'\leftarrow\langle v\rangle]]}
+{[(P\{\alpha'\slash\alpha,\cdots\},Env),k,ch]\trans{\alpha '}[(P'\{\alpha'\slash\alpha,\cdots\},Env'),k',ch[\alpha'\leftarrow\langle v\rangle]]}
+}\\\\
+\multicolumn{2}{c}{
+\inference[Rel(2)]
+{[(P,Env),k,ch[\alpha\leftarrow\langle v\rangle]]\trans{\alpha}[(P',Env'),k',ch]}
+{[(P\{\alpha'\slash\alpha,\cdots\},Env),k,ch[\alpha\leftarrow\langle v\rangle]]\trans{\alpha '}[(P'\{\alpha'\slash\alpha,\cdots\},Env'),k',ch]}
+}\\\\
+%\infer[\mbox{Bind}]
+%{[\mbox{bind}\ A\ string,s]\trans{}[\mbox{STOP},s]}
+%{}
+%\\\\
+\inference[ZERO(1)]
+{}
+{[(\mbox{ZERO},Env),\hole,ch]\not\trans{}}
 &
-\infer[\mbox{Stop}_4]{[\mbox{STOP}++\mbox{STOP},s]\not\trans{}}
-                     {[\mbox{STOP},s]\not\trans{}
-                      & [\mbox{STOP},s]\not\trans{}}
-    \end{tabular}
-  \end{center}
+\inference[ZERO(2)]
+{}
+{[(\mbox{ZERO},Env),k,ch]\trans{}[k[(\mbox{ZERO},Env)],\hole,ch]}
+%\\\\
+%\inference[Stop(2)]
+%{[\mbox{STOP},s]\not\trans{} & [\mbox{STOP},s]\not\trans{}}
+%{[\mbox{STOP}||\mbox{STOP},s]\not\trans{}}\\
+%\infer[\mbox{Stop}_3]{[\mbox{STOP}++P,s]\trans{\alpha}[P',s']}
+%                     {[P,s]\trans{\alpha}[P',s']}
+%&
+%\infer[\mbox{Stop}_4]{[\mbox{STOP}++\mbox{STOP},s]\not\trans{}}
+%                     {[\mbox{STOP},s]\not\trans{}
+%                      & [\mbox{STOP},s]\not\trans{}}
+  \end{tabular}
+\end{center}
+where \(Env[\langle x\rangle\leftarrow\langle v\rangle,\langle y\rangle\leftarrow\langle w\rangle,\cdots]\) means \(Env[\langle x\rangle\leftarrow \langle v\rangle][\langle y\rangle\leftarrow\langle w\rangle]\cdots\), and
+\(ch[\alpha\leftarrow \langle v\rangle,\beta\leftarrow \langle w\rangle,\cdots]\) means \(ch[\alpha\leftarrow\langle v\rangle][\beta\leftarrow\langle w\rangle],\cdots\).
