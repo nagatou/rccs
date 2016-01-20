@@ -33,10 +33,10 @@
 \newcommand{\Secref}[1]{\mbox{Section~\ref{#1}}}
 \newcommand{\tblref}[1]{\mbox{Table~\ref{#1}}}
 \newcommand{\Tblref}[1]{\mbox{Table~\ref{#1}}}
-\newcommand{\eqref}[1]{\mbox{(\ref{#1})}}
-\newcommand{\Eqref}[1]{\mbox{(\ref{#1})}}
+%\newcommand{\eqref}[1]{\mbox{(\ref{#1})}}
+%\newcommand{\Eqref}[1]{\mbox{(\ref{#1})}}
 \newcommand{\emptyseq}{\mbox{$\langle\rangle$}}
-\newcommand{\implies}{\ni}
+%\newcommand{\implies}{\ni}
 \newcommand{\ltldiammond}{\mbox{$\Diamond$}}
 \newcommand{\ltluntil}{\mbox{$\,\,{\cal U}\,$}}
 \newcommand{\ltlnext}{\mbox{$\circ\,$}}
@@ -46,61 +46,68 @@
 \newcommand{\suffix}[2]{\mbox{\(#1^{#2..}\)}}
 \newcommand{\rsquarebracket}{\mbox{$|\hspace{-.8mm}{]}$}}
 \newcommand{\lsquarebracket}{\mbox{$[\hspace{-.8mm}{|}$}}
-\newcommand{\done}{\hfill{$\blacksquare$}}
+\newcommand{\QED}{\hfill{$\blacksquare$}}
 \newcommand{\buchi}{\mbox{\rm B\"{u}chi }}
 \newcommand{\NHK}{\mbox{NHK$^{\sharp}$} }
 \newcommand{\hole}{\mbox{$\Box$}}
+\newcommand{\sort}[1]{\mbox{$Sort(#1)$}}
+\newcommand{\derivative}[1]{\mbox{$Derivative(#1)$}}
+\newcommand{\res}{\mathop{\mathrm{res}}\nolimits}
+\newcommand{\inv}{\mathop{\mathrm{inv}}\nolimits}
+\newcommand{\enq}{\mathop{\mathrm{enq}}\nolimits}
+\newcommand{\deq}{\mathop{\mathrm{deq}}\nolimits}
+\newcommand{\last}{\mathop{\mathrm{last}}\nolimits}
+\newcommand{\dom}{\mathop{\mathrm{dom}}\nolimits}
 \def\nottrans{\not\Rightarrow}
 \def\notRightarrow{\not\Rightarrow}
 \def\notin{\not\in}
 \def\notmodels{\not\models}
 %
-\newcounter{nnn}
-\newcommand{\itemnum}{\thennn \addtocounter{nnn}{1}}
-\setcounter{nnn}{1}
-\newcommand{\means}[1]{\mbox{$[\hspace{-.033in}|#1]\hspace{-.045in}|$}}
+%\newcounter{nnn}
+%\newcommand{\itemnum}{\thennn \addtocounter{nnn}{1}}
+%\setcounter{nnn}{1}
+%\newcommand{\means}[1]{\mbox{$[\hspace{-.033in}|#1]\hspace{-.045in}|$}}
 %----- definition of environments -----
 %----- modification of style-files -----
-\makeatletter
-  \renewcommand{\theequation}{% Modify the number of equations
-    \thechapter.\arabic{equation}}
-  \@addtoreset{equation}{chapter}
-\makeatother
+%\makeatletter
+%  \renewcommand{\theequation}{% Modify the number of equations
+%    \thechapter.\arabic{equation}}
+%  \@addtoreset{equation}{chapter}
+%\makeatother
 
 \def\topfraction{1.0}
 \def\bottomfraction{1.0}
 
 %-- Copyright --
-\makeatletter
-\def\copyright{\@ifnextchar[{\@@Copyright}{\@Copyright}}
-\def\@@Copyright[#1]#2{\def\slide@copyright{#2}%
-                    \def\slidecopyright{#1}}
-\def\@Copyright#1{\def\slide@copyright{#1}
-               \def\slidecopyright{#1}}
-\def\slide@copyright{\hspace*{1pt}}
-\def\slidecopyright{\hspace*{1pt}}
-\makeatother
+%\makeatletter
+%\def\copyright{\@ifnextchar[{\@@Copyright}{\@Copyright}}
+%\def\@@Copyright[#1]#2{\def\slide@copyright{#2}%
+%                    \def\slidecopyright{#1}}
+%\def\@Copyright#1{\def\slide@copyright{#1}
+%               \def\slidecopyright{#1}}
+%\def\slide@copyright{\hspace*{1pt}}
+%\def\slidecopyright{\hspace*{1pt}}
+%\makeatother
 %-- one column <- two column --
-\makeatletter
-\def\@maketitle{\newpage
- \null
- \vskip 2em \begin{center}
- {\LARGE \@title \par} \vskip 1.5em {\large \lineskip .5em
-\begin{tabular}[t]{c}\@author
- \end{tabular}\par} 
-  {\bf \vspace{1.5em}Abstract\vspace{-.5em}\par\relax} 
-  {\vskip 1em \small\usebox{\abstractbox}\par\relax}
- \vskip 1em {\large \@date} \end{center}
- \par
- \vskip 1.5em} 
-\makeatother
-\newbox\abstractbox
-\def\abstract{\global\setbox\abstractbox=\hbox\bgroup
-  \begin{minipage}{0.7\textwidth}}
-\def\endabstract{\end{minipage}\egroup}
-
-\def\adag{${}^\dag$}% dagger for \author
+%\makeatletter
+%\def\@maketitle{\newpage
+% \null
+% \vskip 2em \begin{center}
+% {\LARGE \@title \par} \vskip 1.5em {\large \lineskip .5em
+%\begin{tabular}[t]{c}\@author
+% \end{tabular}\par} 
+%  {\bf \vspace{1.5em}Abstract\vspace{-.5em}\par\relax} 
+%  {\vskip 1em \small\usebox{\abstractbox}\par\relax}
+% \vskip 1em {\large \@date} \end{center}
+% \par
+% \vskip 1.5em} 
+%\makeatother
+%\newbox\abstractbox
+%\def\abstract{\global\setbox\abstractbox=\hbox\bgroup
+%  \begin{minipage}{0.7\textwidth}}
+%\def\endabstract{\end{minipage}\egroup}
+%
+%\def\adag{${}^\dag$}% dagger for \author
 %%%
 %%%
 %%%
-\newtheorem{definition}{DEFINITION}[section]

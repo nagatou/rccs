@@ -7,18 +7,18 @@ The context contains a hole, written in \hole, in the place of one subexpression
   \begin{displaymath}
     \begin{array}{lcl}
 k     &::=& \hole \\
-      & | & k\|\hole\\
-      & | & \hole\|k
+      & | & P\|\hole\\
+      & | & \hole\|P
     \end{array}
   \end{displaymath}
-$k[P]$ means to replace the hole in $k$ with $P$.
+$k[P]$ means to replace the hole in $k$ with $P$, where P is a process defined in \secref{sec:RCCSsyntax}.
 Moreover, we define a function $Env$ that maps all free variables to closures.
 This function is called a environment, and a closure is a pair of an expression and a environment.
 environments \(Env\) and colosures \(c\) have mutually recursive definitions.
   \begin{displaymath}
     \begin{array}{rcl}
 Env &::=& \mbox{a list of pairs }\langle(X,c),\cdots\rangle\\
-k &::=& \{(P,env)|FV(P)\subset dom(Env)\}\\
+c &::=& \{(P,env)|FV(P)\subset \dom(Env)\}\\
 %v &::=& \{(v,env)|FV(P)\in c\}
     \end{array}
   \end{displaymath}
@@ -35,29 +35,33 @@ Channel ch represents a set of channels with which processes communicate each ot
 \(ch[a\leftarrow v]\) means that \((a,v)\) is added into \(ch\), that is, 
 \(\{(a,v)\}\cup\{(b,v')|(b,v')\in ch \mbox{ and } a\neq b\}\).
 
-A state of the machine is a triple \([(exp,env),k,ch]\) following \cite{Felleisen:2002}.
-We define single step of the evaluation function.
+A state of the machine is a triple \([(exp,env),k,ch]\) which is appended channel \(ch\) to machines in \cite{Felleisen:2002}.
+We define single steps of an evaluation function for the description language.
+A bijection function on names assocites a name \(a\) to a co-name, written with \(\bijection{a}\).
+Notice that \(\bijection{\bijection{\alpha}}=\alpha\).
+\(Env[\langle x\rangle\leftarrow\langle v\rangle,\langle y\rangle\leftarrow\langle w\rangle,\cdots]\) means \((Env[\langle x\rangle\leftarrow \langle v\rangle])[\langle y\rangle\leftarrow\langle w\rangle]\cdots\), and
+\(ch[\alpha\leftarrow \langle v\rangle,\beta\leftarrow \langle w\rangle,\cdots]\) means \((ch[\alpha\leftarrow\langle v\rangle])[\beta\leftarrow\langle w\rangle],\cdots\).
 \begin{center}
   \begin{tabular}{ll}
 \multicolumn{2}{c}{
 \inference[Output(1)]
-{}
-{[(\sim a(v):P,Env),\hole,ch]\trans{\sim a}[(P,Env),\hole,ch[a\leftarrow\langle v\rangle]]}
+{(a\leftarrow\langle v\rangle)\not\in ch}
+{[(\sim a(v)\colon P,Env),\hole,ch]\trans{\sim a}[(P,Env),\hole,ch[a\leftarrow\langle v\rangle]]}
 }\\\\
 \multicolumn{2}{c}{
 \inference[Output(2)]
-{}
-{[(\sim a(v):P,Env_1),(Q,Env_2)\|\hole,ch]\trans{\sim a}[(Q,Env_2),\hole\|(P,Env),ch[a\leftarrow\langle v\rangle]]}
+{(a\leftarrow\langle v\rangle)\not\in ch}
+{[(\sim a(v)\colon P,Env_1),k[(Q,Env_2)\|\hole],ch]\trans{\sim a}[(Q,Env_2),k[\hole\|(P,Env)],ch[a\leftarrow\langle v\rangle]]}
 }\\\\
 \multicolumn{2}{c}{
 \inference[Output(3)]
-{}
-{[(\sim a(v):P,Env_1),\hole\|(Q,Env_2),ch]\trans{\sim a}[(Q,Env_2),(P,Env_1)\|\hole,ch[a\leftarrow\langle v\rangle]]}
+{(a\leftarrow\langle v\rangle)\not\in ch}
+{[(\sim a(v)\colon P,Env_1),k[\hole\|(Q,Env_2)],ch]\trans{\sim a}[(Q,Env_2),k[(P,Env_1)\|\hole],ch[a\leftarrow\langle v\rangle]]}
 }\\\\
 \multicolumn{2}{c}{
 \inference[Input]
-{}
-{[(a(x):P,Env),k,ch[a\leftarrow\langle v\rangle]]\trans{a}[(k[P],Env[\langle x\rangle\leftarrow\langle v\rangle]),\hole,ch]}
+{(a\leftarrow\langle v\rangle)\in ch}
+{[(a(x)\colon P,Env),k,ch[a\leftarrow\langle v\rangle]]\trans{a}[(k[P],Env[\langle x\rangle\leftarrow\langle v\rangle]),\hole,ch]}
 }\\\\
 \multicolumn{2}{c}{
 \inference[Sum(1)]
@@ -66,7 +70,8 @@ We define single step of the evaluation function.
 } \\\\
 \multicolumn{2}{c}{
 \inference[Sum(2)]
-{[(Q,Env_{2}),k,ch]\trans{\alpha}[(Q',Env_{2}'),k',ch']}
+{[(Q,Env_{2}),k,ch]\trans{\alpha}[(Q',Env_{2}'),k',ch']\\
+ \derivative{[(P,Env_{1}),k,ch]}=\{P\}}
 {[((P,Env_{1})\mbox{++}(Q,Env_{2}),k,ch]\trans{\alpha}[(Q',Env_{2}'),k',ch']}
 }\\\\
 \multicolumn{2}{c}{
@@ -76,17 +81,18 @@ We define single step of the evaluation function.
 }\\\\
 \multicolumn{2}{c}{
 \inference[Com(2)]
-{[(Q,Env_2),k,ch]\trans{\alpha}[(Q',Env_{2}'),k[P\|\hole],ch']}
+{[(Q,Env_2),k,ch]\trans{\alpha}[(Q',Env_{2}'),k[P\|\hole],ch']\\
+ \derivative{[(P,Env_{1}),k,ch]}=\{P\}}
 {[((P,Env_1)||(Q,Env_2),k,ch]\trans{\alpha}[(Q',Env_{2}'),k[P\|\hole],ch']}
 }\\\\
 \multicolumn{2}{c}{
 \inference[Com(3)]
-{[(P,Env_1)\|(Q,Env_2),k,ch]\trans{\overline{\alpha}}[(Q,Env_{2}),k[(P',Env_{1}')\|\hole],ch']\\
- [(P,Env_1)\|(Q,Env_2),k,ch]\trans{\alpha}[(P,Env_{1}),k[\hole\|(Q',Env_{2}')],ch'']}
-{[(P,Env_1)\|(Q,Env_2),k,ch]\trans{(\overline{\alpha},\alpha)}[(k[(P',Env_{1}')\|(Q',Env_{2}[\langle x\rangle\leftarrow\langle x\rangle])]),\hole,ch]}
+{[(P,Env_{1}),k[\hole\|(Q,Env_{2})],ch]\trans{\overline{\alpha}}[(P',Env_{1}'),k',ch']\\
+ [(Q,Env_{2}),k[(P,Env_{1})\|\hole],ch]\trans{\alpha}[(Q',Env_{2}'),k'',ch'']}
+{[(P,Env_1)\|(Q,Env_2),k,ch]\trans{(\overline{\alpha},\alpha)}[(k[(P',Env_{1}')\|(Q',Env_{2}')],\hole,ch]}
 }\\\\
 \multicolumn{2}{c}{
-\inference[Con]
+\inference[Ins]
 {[(P(x),Env[A\leftarrow P][\langle x\rangle\leftarrow\langle v\rangle]),k,ch]\trans{\alpha}[(P',Env[A\leftarrow P][\langle x\rangle\leftarrow\langle v\rangle]),k,ch]}
 {[(A(v),Env[A\leftarrow P]),k,ch]\trans{\alpha}[(P',Env[A\leftarrow P][\langle x\rangle\leftarrow\langle v\rangle]),k,ch]}
 }\\\\
@@ -110,7 +116,7 @@ We define single step of the evaluation function.
 }\\\\
 \multicolumn{2}{c}{
 \inference[Rel(1)]
-{[(P,Env),k,ch]\trans{\alpha}[(P',Env'),k',ch[\alpha'\leftarrow\langle v\rangle]]}
+{[(P,Env),k,ch]\trans{\alpha}[(P',Env'),k',ch[\alpha\leftarrow\langle v\rangle]]}
 {[(P\{\alpha'\slash\alpha,\cdots\},Env),k,ch]\trans{\alpha '}[(P'\{\alpha'\slash\alpha,\cdots\},Env'),k',ch[\alpha'\leftarrow\langle v\rangle]]}
 }\\\\
 \multicolumn{2}{c}{
@@ -141,5 +147,3 @@ We define single step of the evaluation function.
 %                      & [\mbox{STOP},s]\not\trans{}}
   \end{tabular}
 \end{center}
-where \(Env[\langle x\rangle\leftarrow\langle v\rangle,\langle y\rangle\leftarrow\langle w\rangle,\cdots]\) means \(Env[\langle x\rangle\leftarrow \langle v\rangle][\langle y\rangle\leftarrow\langle w\rangle]\cdots\), and
-\(ch[\alpha\leftarrow \langle v\rangle,\beta\leftarrow \langle w\rangle,\cdots]\) means \(ch[\alpha\leftarrow\langle v\rangle][\beta\leftarrow\langle w\rangle],\cdots\).

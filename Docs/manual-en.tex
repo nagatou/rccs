@@ -1,14 +1,38 @@
-\documentclass[12pt]{article}
+\documentclass[12pt,a4paper,titlepage]{article}
 %%%
+\usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{proof}
 \usepackage{graphicx}
 \usepackage{fleqn}
 \usepackage{latexsym}
 \usepackage{listings}
+%%%%% theorem.sty
+%\usepackage{amsthm}
+%\theoremstyle{definition}
+%%%
+%%%%% theorem.sty
 \usepackage{theorem}
-\usepackage[inference]{semantic}
+\theorembodyfont{\normalfont}
+%
+% Proof environment with \QED
+%
+\makeatletter
+\newenvironment{proof}[1][\proofname]{\par
+  \normalfont
+  \topsep6\p@\@plus6\p@ \trivlist
+  \item[\hskip\labelsep{\bfseries #1}\@addpunct{\bfseries.}]\ignorespaces
+}{%
+  \endtrivlist
+}
+\newcommand{\proofname}{Proof Sketch}
+\makeatother
+%%%
 \theoremstyle{break}
-\theorembodyfont{\rm}
+\newtheorem{definition}{DEFINITION}[section]
+\newtheorem{axiom}{AXIOM}[section]
+\newtheorem{theorem}{THEOREM}[section]
+\usepackage[inference]{semantic}
 \input{style}
 %----------------------------------------------------------
 \title{\NHK User's Manual}
@@ -19,6 +43,10 @@
 %----------------------------------------------------------
 \markboth{Copyright 2014 Naoyuki Nagatou}{Copyright 2014 Naoyuki Nagatou}
 
+
+\begin{document}
+  \begin{titlepage}
+\maketitle
 %
 %%% ABSTRACTION
 %
@@ -46,10 +74,6 @@ actions to communicate between the eliminated portion and others,
 so the model is written in a modeling language based on process algebra.
 This tool enables the re-use of the same model that was used in verification processes.
 \end{abstract}
-
-\begin{document}
-  \begin{titlepage}
-\maketitle
   \end{titlepage}
 \tableofcontents
 \newpage
@@ -66,24 +90,219 @@ Please refer the manual to install glib-1.2.
   \end{enumerate}
 If you cannot compile then please edit the make file for your configuration.
 Perhaps, glib is installed into a different place.
+\section{Run-Time Options}
+\NHK allow us to use the following option to control the behaviour of \NHK.
+  \begin{quotation}
+rccs [-tisq] [-f FORMULA] [-d TARGET [ARGUMENTS]] [-m MODEL].
+  \end{quotation}
+When you give both -d and -f, then I examine the target in the verification mode, and give only -f then I verify a given property for a model.
+When you don't give both -f and -d, I will run the model in the emulation mode.
+%  \begin{quotation}
+    \begin{itemize}
+\item -t : turns the trace flag on.
+\item -f "formula": specifies a formula and moves to verification mode.
+\item -d "target" ["arguments"]: specifies a debugging program and moves to collaboration mode.
+%\item -m "model" : specifies a source file written in RCCS (Not Yet).
+%\item -q : changes channels in RCCS to queue buffer.
+%\item -s : changes channels in RCCS to stack buffer (Default).
+\item -i : provids the interactive execution mode.
+\item -g : stronG view of the semantics (default).
+\item -k : weaK view of the semantics.
+    \end{itemize}
+%  \end{quotation}
+%
+%%% COMMUNICATION
+%
+\section{Communication}
+Let us try to see a message media for the transmission of information in \NHK.
+One of implementations of message medias is a bounded buffer.
+The message media discipline is:
+  \begin{itemize}
+\item The channel is a bidirection channel and a bounded buffer whose size is 1.
+\item A sender may always send a message, provided the buffer is not full.
+\item If the buffer is full then a sender is blocked.
+\item A receiver may always recive a message, provided the buffer is not empty.
+\item If the buffer is empty then a receiver is blocked.
+  \end{itemize}
+The bounded buffer in \NHK takes one message at a time.
+We call this buffer a register, and operations write/read.
+If a buffer is full/empty then write/read operation is blocked.
+To simplify the description, we consider that the buffer is FIFO.
+Moreover, communication is connected by bidirectional channel.
+
+The concurrent object is defined by a set of oeprations and a specification that defines the meaning of the object.
+The object in \NHK has the following specification.
+  \begin{itemize}
+\item The order of recieving messages is equal to the order of sending messages.
+\item Every value read is written, but not overwritten.
+\item No value is written twice.
+\item No value is received twice.
+\item The order of recieving messages is equal to the order of sending messages.
+\item Every value read is written, but not overwritten.
+\item The first action is an output action.
+  \end{itemize}
+Moreover, the shared object has atomicity (linearizability) property.
+
+A pair of an input action and an matching output action in a linearization sequence atomically behaves.
+We regard the continious occurence of the matching actions as an atomic communication between an input action and an output action.
+%
+%%% LINEARIZABILITY
+%
+\subsection{Atomicity Consistency (Linearizability)}
+Sequences of actions in \NHK has linearizability property that Herlihy and Wing define in \cite{Herlihy:1987}.
+Linearizability requires each operation should appear to ''take effect'', and the order of nonconcurrent operations should be preserved.
+
+An execution on concurrent objects is modeled by a history, which is a finite sequence of operation invocation and response events.
+An action involves two operations to communication media.
+One is to write messages to the media as an output action, and another is to read messgaes from it as an input action.
+Each operation is a pair consists of an invocation event and the matching response event.
+An invocation of an operation is written as \(\inv(op)\), and also an response event is written as \(res(op)\).
+  \begin{definition}[Sequencial History]
+A history $H$ is sequenctial if:
+    \begin{itemize}
+\item The first event of history $H$ is an invocation of an action.
+\item Each invocation event, except possibly the last, is immediately followed by a matching response event.
+\item Each response event, except possibly the last, is immediately followed by an invocation event.
+    \end{itemize}
+  \end{definition}
+Let $a$ be any process \(P_i\) or any object \(X\).
+\(H|a\) denotes the prjection of $H$ on $a$.
+Two histories are equivalent if for every process \(P_i\), \(H|P_i=H'|P_i\).
+A history is well-formed if a projection on each process is sequential.
+All histories considered in this paper are assumed to be well-formed.
+
+A history $H$ induces an irreflexive relation \(\prec_{H}\) on a set of operations.
+\begin{definition}[Partial Order on Oeprations]
+  \begin{displaymath}
+op_1\prec_{H}op_2\mbox{ if }\res(op_1)\mbox{ precedes }\inv(op_2)\mbox{ in }H.
+  \end{displaymath}
+\end{definition}
+If $H$ is sequential then \(\prec_{H}\) is total.
+
+The next introduces the condition of linearizability.
+\begin{definition}[Linearizability]
+There is a sequential history $S$ such that:
+  \begin{itemize}
+\item history $H$ is equivalent to some legal sequential history $S$,
+\item \(\prec_{H}\subseteq\prec_{S}\), and
+\item \(\prec_{S}\) is total order.
+  \end{itemize}
+\end{definition}
+
+Given a linearizable history, there may be more than one linearization.
+A possiblity for liniarization is a pair \(\langle S,P\rangle\), where $S$ is a linearization of a given history and $P$ is a set of pending operations which are not completed to construct $S$.
+\(Poss\) denotes a set of positilities.
+$Poss$ is caputured by the following three axioms.
+  \begin{axiom}[Closure]
+if \(\langle S,P\rangle\in Poss\) then
+    \begin{displaymath}
+      \begin{aligned}
+\forall\inv(op)&\in P\exists\res(op).S\inv(op)\res(op)\mbox{ is legal}\\
+&\Rightarrow\langle S\inv(op)\res(op),P-\{\inv(op)\}\rangle\in Poss
+      \end{aligned}
+    \end{displaymath}
+  \end{axiom}
+The axiom states that if $S$ is a linearization of $H$ , \(\inv(op)\) is a pending invocation in $H$ that is not completed to form $S$, and \(S'=S\inv(op)\res(op)\) is a legal sequential history, then $S'$ is also a linearization of $H$.
+  \begin{axiom}[Invocation]
+    \begin{displaymath}
+\{\langle S,P\rangle\in Poss\}\inv(op)\{\langle S,P\cup\{\inv(op)\}\rangle\in Poss\}
+    \end{displaymath}
+  \end{axiom}
+Axiom Invocation states that any invocation of $H$ is also a linearization of \(H\inv(op)\).
+  \begin{axiom}[Response]
+    \begin{displaymath}
+\{\langle S,P\rangle\in Poss\mbox{ and }\inv(op)\not\in P\mbox{ and }\res(op)=\last(S,A)\}\res(op)\{\langle S,P\rangle\in Poss\}
+    \end{displaymath}
+  \end{axiom}
+Axiom Response states that any linearization of $H$ in which the pending \(\inv(op)\) is completed with \(\res(op)\) is also a linearization of \(H\res(op)\).
+\(\last(S,A)\) is the response to $A$'s last invocation in the sequential history $S$.
+An operation completion decides the order of the operation, and then the invocation of the operation in $P$ on $Poss$ is removed.
+%
+%%% NHK Message Media
+%
+\subsection{\NHK Message Media}
+The bounded buffer in \NHK takes one message at a time from that message media decipline.
+Operation \(\enq\), if the buffer is empty, places a message in the buffer, otherwise it is blocked.
+Operation \(\deq\), if the buffer is full, reads a message from the buffer, otherwise it is blocked.
+The message media decipline leads the axioms.
+$m$ denotes a state of a message media, and \([v]\) denotes a queue list.
+  \begin{axiom}[Enqueue]
+    \begin{displaymath}
+\{m=\emptyset\}[\inv(\enq(v))/\res(\enq(v))]\{m=[v]\}
+    \end{displaymath}
+  \end{axiom}
+  \begin{axiom}[Dequeue]
+    \begin{displaymath}
+\{m\neq\emptyset\mbox{ and }m=[v]\}[\inv(\deq())/\res(\deq())]\{m=\emptyset\mbox{ and }v=\res(\deq())\}
+    \end{displaymath}
+  \end{axiom}
+  \begin{theorem}
+The message media with the enqueue and dequeue operations is an atomic object.
+  \end{theorem}
+  \begin{proof}
+Let $H$ is a history on the message media.
+\NHK in current implementation immediately completes each operation.
+Therefore, every $H$ is a sequential history, and for each history, \(\prec_{H}\) is total order.
+Thus, the message media is an atomic object.
+Because atomicity is a local propety (see Theorem 1 in \cite{Herlihy:1987}) the whole of the message media is also atomic.
+\QED
+  \end{proof}
+
+Moreover, we show that every transition between a sender and a receiver in \NHK is atomic.
+  \begin{theorem}
+A transition between a sender and a receiver in \NHK is atomic.
+  \end{theorem}
+  \begin{proof}
+\QED
+  \end{proof}
+
+%
+%%% SYNTAX
+%
 \section{Syntax of Model Description Language}
 \subsection{Primitive Types}
-RCCS has two types, integers and strings type.
+RCCS has two types, integer and string.
 Operator {\tt +,-,/,*} are defined over these types.
 \subsection{Special Actions and Processes}
 Action {\tt key} and {\tt display} are special actions. 
 {\tt key} is used as an input action corresponding to the standard input, and {\tt display} is used as an output action corresponding to the standard output.
+{\tt accept} is used to represents accept states of an automaton produced from a given LTL formula in verification mode.
 Those special actions distiguish between upper letters and lower letters.
 
 Process {\tt ZERO} and {\tt STOP} are a special process that means do nothing, not terminate the whole.
+\NHK uses a special process {\tt INIT\_STATE} in verification mode.
+The process menas an initial state of an automaton for a LTL formula given by users.
+{\tt ABORT} terminates the whole process for an automaton, but users cannot use in a model.
 Those special processes do not distinguish between upper letters and lower letters.
 \subsection{Scope}
 In expression (define P (x) body), the scope of x becomes body.
 In expression (\bijection{a}(x)\(\colon\) body), the scope of x becomes body.
-\subsection{Lexical Binding Rule}
-Dynamic binding.
-\subsection{Syntax of the Discription Language}
+
+Unfortinately, we use dynamic binding.
+In future, we will fix it.
+\subsection{Syntax of the Discription Language}\label{sec:RCCSsyntax}
 \input{ss02-grm}
+\subsection{Sorts and Derivatives of Processes}
+We make the notion of sort which is a little difference from syntactic sort in \cite{mil:book}.
+If actions of a process \(P\) and all its derivatives
+  \begin{displaymath}
+    \begin{array}{rcl}
+\sort{ZERO}&=&\emptyset\\
+\sort{a\colon P}&=&\{a\}\cup\sort{P}\\
+\sort{\sim a\colon P}&=&\{\sim a\}\cup\sort{P}\\
+\sort{P\mbox{++}Q}&=&\sort{P}\cup\sort{Q}\\
+\sort{P\|Q}&=&\sort{P}\cup\sort{Q}\\
+\sort{\mbox{if}\ b\ P\ Q}&=&\sort{P}\cup\sort{Q}\\
+\sort{A}&=&\sort{P} \mbox{  if $A\procdef P$}
+    \end{array}
+  \end{displaymath}
+We distiguish names and co-names, and the observation of pairs of matching actions is possible because it is used to determine a next transition of the entier of processes.
+
+We make the notion of syntactic derivative of sort \(\sort{P}\) which is used in the definition of operatinal semantics.
+All derivatives lie in \(\sort{P}\) of \(P\) is syntactic immediate derivatives.
+Describing an action sequence \(\alpha_1,\cdots,\alpha_n\) in which each element is an element of \(\sort{P}\) of \(P\), we call a process of the sequence
+ and a set of them writes \(\derivative{P}\).
+\(\derivative{ZERO}\) is \(\{ZERO\}\).
 \subsection{RCCS Operatinal Semantics}\label{OPERATINAL_SEMANTICS}
 \input{manual-sem}
 \section{Coroutine-Like Sequencing}
