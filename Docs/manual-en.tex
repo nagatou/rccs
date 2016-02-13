@@ -32,11 +32,12 @@
 \newtheorem{definition}{DEFINITION}[section]
 \newtheorem{axiom}{AXIOM}[section]
 \newtheorem{theorem}{THEOREM}[section]
+\newtheorem{lemma}{LEMMA}[section]
 \usepackage[inference]{semantic}
 \input{style}
 %----------------------------------------------------------
 \title{\NHK User's Manual}
-\author{Noayuki Nagatou\thanks{PRESYSTEMS Inc. Copyright 2014 Naoyuki Nagatou}\\%
+\author{Naoyuki Nagatou\thanks{PRESYSTEMS Inc. Copyright 2014 Naoyuki Nagatou}\\%
 \small PRESYSTEMS Inc.\\[6pt]
 \small nagatou@presystems.xyz}
 \date{}
@@ -105,7 +106,7 @@ When you don't give both -f and -d, I will run the model in the emulation mode.
 %\item -m "model" : specifies a source file written in RCCS (Not Yet).
 %\item -q : changes channels in RCCS to queue buffer.
 %\item -s : changes channels in RCCS to stack buffer (Default).
-\item -i : provids the interactive execution mode.
+\item -i : provides the interactive execution mode.
 \item -g : stronG view of the semantics (default).
 \item -k : weaK view of the semantics.
     \end{itemize}
@@ -121,7 +122,7 @@ The message media discipline is:
 \item The channel is a bidirection channel and a bounded buffer whose size is 1.
 \item A sender may always send a message, provided the buffer is not full.
 \item If the buffer is full then a sender is blocked.
-\item A receiver may always recive a message, provided the buffer is not empty.
+\item A receiver may always receive a message, provided the buffer is not empty.
 \item If the buffer is empty then a receiver is blocked.
   \end{itemize}
 The bounded buffer in \NHK takes one message at a time.
@@ -130,21 +131,22 @@ If a buffer is full/empty then write/read operation is blocked.
 To simplify the description, we consider that the buffer is FIFO.
 Moreover, communication is connected by bidirectional channel.
 
-The concurrent object is defined by a set of oeprations and a specification that defines the meaning of the object.
-The object in \NHK has the following specification.
+A concurrent object is defined by a set of operations and a specification that defines the meaning of the object.
+Message channels in \NHK has the following specification.
   \begin{itemize}
-\item The order of recieving messages is equal to the order of sending messages.
+\item One output action matches to one input action.
+\item One input action match's to one output action.
 \item Every value read is written, but not overwritten.
+\item The first action of a history is an output action.
+\item An output action write values to a channel, provided a empty channel.
+\item An input action read values from a channel, provider a channel is not empty.
 \item No value is written twice.
-\item No value is received twice.
-\item The order of recieving messages is equal to the order of sending messages.
-\item Every value read is written, but not overwritten.
-\item The first action is an output action.
+\item No value is read twice.
   \end{itemize}
-Moreover, the shared object has atomicity (linearizability) property.
 
-A pair of an input action and an matching output action in a linearization sequence atomically behaves.
-We regard the continious occurence of the matching actions as an atomic communication between an input action and an output action.
+Moreover, the shared object has atomicity property (linearizability).
+A contiguous occurrence of the matching actions is an atomic communication among matching actions.
+A pair of an input action and an matching output action in a sequential history atomically behaves.
 %
 %%% LINEARIZABILITY
 %
@@ -154,11 +156,11 @@ Linearizability requires each operation should appear to ''take effect'', and th
 
 An execution on concurrent objects is modeled by a history, which is a finite sequence of operation invocation and response events.
 An action involves two operations to communication media.
-One is to write messages to the media as an output action, and another is to read messgaes from it as an input action.
+One is to write messages to the media as an output action, and another is to read messages from it as an input action.
 Each operation is a pair consists of an invocation event and the matching response event.
 An invocation of an operation is written as \(\inv(op)\), and also an response event is written as \(res(op)\).
   \begin{definition}[Sequencial History]
-A history $H$ is sequenctial if:
+A history $H$ is sequential if:
     \begin{itemize}
 \item The first event of history $H$ is an invocation of an action.
 \item Each invocation event, except possibly the last, is immediately followed by a matching response event.
@@ -166,7 +168,7 @@ A history $H$ is sequenctial if:
     \end{itemize}
   \end{definition}
 Let $a$ be any process \(P_i\) or any object \(X\).
-\(H|a\) denotes the prjection of $H$ on $a$.
+\(H|a\) denotes the projection of $H$ on $a$.
 Two histories are equivalent if for every process \(P_i\), \(H|P_i=H'|P_i\).
 A history is well-formed if a projection on each process is sequential.
 All histories considered in this paper are assumed to be well-formed.
@@ -190,14 +192,14 @@ There is a sequential history $S$ such that:
 \end{definition}
 
 Given a linearizable history, there may be more than one linearization.
-A possiblity for liniarization is a pair \(\langle S,P\rangle\), where $S$ is a linearization of a given history and $P$ is a set of pending operations which are not completed to construct $S$.
-\(Poss\) denotes a set of positilities.
-$Poss$ is caputured by the following three axioms.
-  \begin{axiom}[Closure]
+A possibility for linearization is a pair \(\langle S,P\rangle\), where $S$ is a linearization of a given history and $P$ is a set of pending operations which are not completed to construct $S$.
+\(Poss\) denotes a set of possibilities.
+$Poss$ is captured by the following three axioms.
+  \begin{axiom}[Closure]\label{ax:closure}
 if \(\langle S,P\rangle\in Poss\) then
     \begin{displaymath}
       \begin{aligned}
-\forall\inv(op)&\in P\exists\res(op).S\inv(op)\res(op)\mbox{ is legal}\\
+\forall\inv(op)&\in P.\,\exists\res(op).\,S\inv(op)\res(op)\mbox{ is legal}\\
 &\Rightarrow\langle S\inv(op)\res(op),P-\{\inv(op)\}\rangle\in Poss
       \end{aligned}
     \end{displaymath}
@@ -205,13 +207,13 @@ if \(\langle S,P\rangle\in Poss\) then
 The axiom states that if $S$ is a linearization of $H$ , \(\inv(op)\) is a pending invocation in $H$ that is not completed to form $S$, and \(S'=S\inv(op)\res(op)\) is a legal sequential history, then $S'$ is also a linearization of $H$.
   \begin{axiom}[Invocation]
     \begin{displaymath}
-\{\langle S,P\rangle\in Poss\}\inv(op)\{\langle S,P\cup\{\inv(op)\}\rangle\in Poss\}
+\{\langle S,P\rangle\in Poss\}\inv(op)\{\langle S,P\cup\{\inv(op)\}\rangle\in Poss'\}
     \end{displaymath}
   \end{axiom}
 Axiom Invocation states that any invocation of $H$ is also a linearization of \(H\inv(op)\).
-  \begin{axiom}[Response]
+  \begin{axiom}[Response]\label{ax:response}
     \begin{displaymath}
-\{\langle S,P\rangle\in Poss\mbox{ and }\inv(op)\not\in P\mbox{ and }\res(op)=\last(S,A)\}\res(op)\{\langle S,P\rangle\in Poss\}
+\{\langle S,P\rangle\in Poss\mbox{ and }\inv(op)\not\in P\mbox{ and }\res(op)=\last(S)\}\res(op)\{\langle S,P\rangle\in Poss'\}
     \end{displaymath}
   \end{axiom}
 Axiom Response states that any linearization of $H$ in which the pending \(\inv(op)\) is completed with \(\res(op)\) is also a linearization of \(H\res(op)\).
@@ -221,11 +223,12 @@ An operation completion decides the order of the operation, and then the invocat
 %%% NHK Message Media
 %
 \subsection{\NHK Message Media}
-The bounded buffer in \NHK takes one message at a time from that message media decipline.
+The bounded buffer in \NHK takes one message at a time from that message media discipline.
 Operation \(\enq\), if the buffer is empty, places a message in the buffer, otherwise it is blocked.
 Operation \(\deq\), if the buffer is full, reads a message from the buffer, otherwise it is blocked.
-The message media decipline leads the axioms.
-$m$ denotes a state of a message media, and \([v]\) denotes a queue list.
+A specification is a set of axioms.
+The message media discipline leads the axioms.
+$m$ denotes a state of a message media, \([v]\) denotes a queue list, and $v$ is a items in a queue.
   \begin{axiom}[Enqueue]
     \begin{displaymath}
 \{m=\emptyset\}[\inv(\enq(v))/\res(\enq(v))]\{m=[v]\}
@@ -236,51 +239,142 @@ $m$ denotes a state of a message media, and \([v]\) denotes a queue list.
 \{m\neq\emptyset\mbox{ and }m=[v]\}[\inv(\deq())/\res(\deq())]\{m=\emptyset\mbox{ and }v=\res(\deq())\}
     \end{displaymath}
   \end{axiom}
-  \begin{theorem}
-The message media with the enqueue and dequeue operations is an atomic object.
-  \end{theorem}
-  \begin{proof}
+  \begin{axiom}[Bound]
+    \begin{displaymath}
+0\leq\mbox{length}(m)\leq 1
+    \end{displaymath}
+  \end{axiom}
+
 Let $H$ is a history on the message media.
 \NHK in current implementation immediately completes each operation.
 Therefore, every $H$ is a sequential history, and for each history, \(\prec_{H}\) is total order.
 Thus, the message media is an atomic object.
-Because atomicity is a local propety (see Theorem 1 in \cite{Herlihy:1987}) the whole of the message media is also atomic.
+Because atomicity is a local property the whole of the message media is also atomic (see Theorem 1 in \cite{Herlihy:1987}).
+The message media with the enqueue and dequeue operations is an atomic object.
+Thereby, every histories of events for the message media is complete.
+%
+%%% SYNCHRONIZATION
+%
+\subsection{Synchronization}
+Synchronization in \NHK starts at an output action and terminates at an input action.
+Output action $a$ is an invocation \(\inv(a)\), and input action is a response \(\res(a)\).
+Partial order on channels \(a\prec_H b\) is that for channel \(a, b\), \(a\prec_H b\) if \(\res(a)\) precedes \(\inv(b)\) in $H$.
+Each action is implemented by a sequence of events on the above bounded FIFO buffer: \(\inv(a)\equiv\inv(\enq(v))\res(\enq(v))\) and \(\res(a)\equiv\inv(\deq())\res(\deq())\).
+We show that the implementation is correct.
+
+%The specification of concurrent objects in \NHK leads the following axioms.
+The following axioms provide the semantics of operations on channel.
+  \begin{axiom}[Output Action]\label{ax:output}
+    \begin{displaymath}
+\{\length(ch)=0\}\inv(a)\{\length(ch)=1\}
+    \end{displaymath}
+  \end{axiom}
+  \begin{axiom}[Input Action]\label{ax:input}
+    \begin{displaymath}
+\{\length(ch)=1\}\res(a)\{\length(ch)=0\}
+    \end{displaymath}
+  \end{axiom}
+where \(\length(ch)\) is the number of messages on a channel.
+
+For any history $H$, \(\inv(a)\) is not contiguous to other output action \(\inv(a)\).
+For example, if events \(\inv(a(v))\), \(\inv(a(v'))\), \(\res(a(v))\), \(\res(a(v'))\) lie within $H$ then 
+\(\inv(a(v))\res(a(v))\inv(a(v'))\linebreak\res(a(v'))\), and \(\inv(a(v'))\res(a(v'))\inv(a(v))\res(a(v))\) are acceptable.
+But, \(\inv(a(v))\inv(a(v'))\linebreak\res(a(v'))\res(a(v))\), and \(\inv(a(v'))\inv(a(v))\res(a(v))\res(a(v'))\) are not acceptable.
+  \begin{lemma}\label{lm:seq}
+An invocation \(\inv(a)\) for channel $a$ does not contiguous to \(\inv(a)\), and also a response \(\res(a)\) does not contiguous to \(\res(a)\).
+  \end{lemma}
+  \begin{proof}
+Describe a sequential history $H$ for channel $a$.
+\(\inv(a)\) is partial.
+If \(\length(a)=1\) then the invocation is blocked.
+From \axref{ax:output}, if \(\length(a)=0\) then \(\length(a)=1\) after \(\inv(a)\) occurs.
+From \axref{ax:input}, \(\res(a)\) is invoked only if \(\length(a)=1\).
+If \(\length(a)=0\) then an response of \(a\) is blocked.
+Thereby, for any history $H$, $H$ is sequential.
+Thus, \(\inv(a)\) (\(\res(a)\)) is not contiguous.
+\QED
+  \end{proof}
+\lmref{lm:seq} stats that all history must be sequential.
+The opposite of \lmref{lm:seq}, i.e. there are no contiguous invocations in a sequential history, is explicit by the definition of sequential history.
+  \begin{theorem}\label{th:onetoone}
+One output action corresponds with one input action, and one input action corresponds with one output action.
+  \end{theorem}
+  \begin{proof}
+Pick a derivation \(\langle S,P\rangle\in Poss_m\) showing that $H$ is linearizable.
+From \Lmref{lm:seq} \(\res(a)\mbox{ (is an input action)}\) is contiguous to \(\inv(a)\mbox{ (is an output action)}\), and \(\inv(a)\) is contiguous to \(\res(a)\) on $S$.
+From \axref{ax:closure} Closure, if \(\inv(a)\in P\), then \(\langle S\inv(a)\res(a), P-\{\inv(a)\}\rangle\in Poss_m\).
+Thus, all output action has a matching input action, and all input action has a matching output action.
+\QED
+  \end{proof}
+\thref{th:onetoone} implies the following theorem.
+  \begin{theorem}
+No value is written twice, and no value is read twice.
+  \end{theorem}
+  \begin{proof}
+From \lmref{lm:seq} all history is sequential.
+From \thref{th:onetoone} subhistory \(\linebreak\inv(a(v))\inv(a(v))\) is not invoked.
+A subhistory \(\res(a(v))\res(a(v))\) is also invoked.
+Thus, same values are not written into a channel and read from a channel.
+\QED
+  \end{proof}
+  \begin{theorem}\label{th:notvanish}
+If an invocation \(\inv(a(v))\) precedes \(\inv(a(v'))\) and \(\res(a(v'))\) has occurred, then \(\res(a(v))\) must precede \(\inv(a(v'))\).
+  \end{theorem}
+  \begin{proof}
+Pick a derivation \(\langle S,P\rangle\in Poss_m\) showing that $H$ is linearizable.
+From \thref{lm:seq}, \(\res(a(v))\) must precedes \(\inv(a(v'))\), and must adapt \axref{ax:closure} for \(\inv(a(v))\) and \(\res(a(v))\) in $S$.
+Thus, $v$ on channel $a$ by \(\res(a(v))\) does not vanish until \(\res(a(v))\) is invoked.
+\QED
+  \end{proof}
+\Thref{th:notvanish} implies that messages do not spontaneously vanish form a channel.
+  \begin{theorem}
+If a response \(\res(a)\) is invoked then \(\inv(a)\) has been invoked before \(\res(a)\) and \(\res(a)\) does not precede \(\inv(a)\).
+  \end{theorem}
+  \begin{proof}
+Pick a derivation \(\langle S,P\rangle\in Poss_m\) showing that $H$ is linearizable.
+\(\res(a)\) occurs at $m$ in $H$.
+From \axref{ax:response} Response, 
+\(\{\langle S,P\rangle\in Poss\mbox{ and }\inv(op)\not\in P\mbox{ and }\res(op)=\last(S)\}\res(op)\{\langle S,P\rangle\in Poss'\}\).
+$H$ is legal only if \(\inv(a)\) occur at \(i(<m)\).
+\axref{ax:closure} application is included.
+Then, for \(i\leq j\leq m\), \(\langle S',P'\rangle\in Poss_j\) and \(\inv(a)\in P'\).
+Also, \(\langle S'\inv(a)\res(a),P'-\{\inv(a)\}\rangle\in Poss_j\).
+Thus, \(\res(a)\) does not precede \(\inv(a)\).
 \QED
   \end{proof}
 
-Moreover, we show that every transition between a sender and a receiver in \NHK is atomic.
+
   \begin{theorem}
-A transition between a sender and a receiver in \NHK is atomic.
+A transmission between a sender and a receiver in \NHK is atomic.
   \end{theorem}
   \begin{proof}
 \QED
   \end{proof}
-
 %
 %%% SYNTAX
 %
 \section{Syntax of Model Description Language}
-\subsection{Primitive Types}
+\subsection{Primitive Type}
 RCCS has two types, integer and string.
 Operator {\tt +,-,/,*} are defined over these types.
 \subsection{Special Actions and Processes}
 Action {\tt key} and {\tt display} are special actions. 
 {\tt key} is used as an input action corresponding to the standard input, and {\tt display} is used as an output action corresponding to the standard output.
 {\tt accept} is used to represents accept states of an automaton produced from a given LTL formula in verification mode.
-Those special actions distiguish between upper letters and lower letters.
+Those special actions distinguish between upper letters and lower letters.
 
 Process {\tt ZERO} and {\tt STOP} are a special process that means do nothing, not terminate the whole.
 \NHK uses a special process {\tt INIT\_STATE} in verification mode.
-The process menas an initial state of an automaton for a LTL formula given by users.
+The process means an initial state of an automaton for a LTL formula given by users.
 {\tt ABORT} terminates the whole process for an automaton, but users cannot use in a model.
 Those special processes do not distinguish between upper letters and lower letters.
 \subsection{Scope}
 In expression (define P (x) body), the scope of x becomes body.
 In expression (\bijection{a}(x)\(\colon\) body), the scope of x becomes body.
 
-Unfortinately, we use dynamic binding.
+Unfortunately, we use dynamic binding.
 In future, we will fix it.
-\subsection{Syntax of the Discription Language}\label{sec:RCCSsyntax}
+\subsection{Syntax of the Description Language}\label{sec:RCCSsyntax}
 \input{ss02-grm}
 \subsection{Sorts and Derivatives of Processes}
 We make the notion of sort which is a little difference from syntactic sort in \cite{mil:book}.
@@ -296,14 +390,14 @@ If actions of a process \(P\) and all its derivatives
 \sort{A}&=&\sort{P} \mbox{  if $A\procdef P$}
     \end{array}
   \end{displaymath}
-We distiguish names and co-names, and the observation of pairs of matching actions is possible because it is used to determine a next transition of the entier of processes.
+We distinguish names and co-names, and the observation of pairs of matching actions is possible because it is used to determine a next transition of the entire of processes.
 
-We make the notion of syntactic derivative of sort \(\sort{P}\) which is used in the definition of operatinal semantics.
+We make the notion of syntactic derivative of sort \(\sort{P}\) which is used in the definition of operational semantics.
 All derivatives lie in \(\sort{P}\) of \(P\) is syntactic immediate derivatives.
 Describing an action sequence \(\alpha_1,\cdots,\alpha_n\) in which each element is an element of \(\sort{P}\) of \(P\), we call a process of the sequence
  and a set of them writes \(\derivative{P}\).
 \(\derivative{ZERO}\) is \(\{ZERO\}\).
-\subsection{RCCS Operatinal Semantics}\label{OPERATINAL_SEMANTICS}
+\subsection{RCCS Operational Semantics}\label{OPERATINAL_SEMANTICS}
 \input{manual-sem}
 \section{Coroutine-Like Sequencing}
 An important application of coroutine is discrete event simulation, where coroutine may be used to simulate parallel processes within the framework of a sequential program.
@@ -359,9 +453,9 @@ Furthermore,
 \item \(\sigma\models\varphi\ltluntil\psi\) iff there exists \(0\leq k<|\sigma|\) s.t. \(\sigma\models\psi\) and for all \(j<k\), \(\sigma\models\varphi\).
   \end{itemize}
 %
-%%% RELATIONSHIPS BETWEEN MODELS AND FORMLAE
+%%% RELATIONSHIPS BETWEEN MODELS AND FORMULAE
 %
-\section{Relationships between Models and Formlae}
+\section{Relationships between Models and Formulae}
 In this subsection, we describe the relationship between algebraic models and LTL formulas.
 The modeling language enables us to pass values via input prefix \(\alpha(e)\) and output prefix \(\bijection{\alpha}(x)\) with the same name.
 Execution of \(\alpha(e)\) produces  value \(v\) of \(e\).
@@ -384,7 +478,7 @@ If for all traces \(\sigma\in T\), \(\sigma\models\varphi\), then we state that 
 A \buchi automaton $m$ contains of five components:
   \begin{itemize}
 \item A finite set of states, denoted $Q$.
-\item A finite set of input symboles, denoted $\Sigma$.
+\item A finite set of input symbols, denoted $\Sigma$.
 \item A transition function $\delta$ that takes a state and an input symbol, and returns a next state.
 If $q$ is a state, and $s$ is an input symbol, then \(\delta(q,a)\) returns state $p$.
 \item A start state $q_0$ is a state in $Q$.
@@ -405,7 +499,7 @@ q & \mbox{if \(|\sigma |=0\)}\\
       \end{array}
 \right.
   \end{displaymath}
-We define the laguage \({\cal L} (m)\) of automaton $m$.
+We define the language \({\cal L} (m)\) of automaton $m$.
 Let \(INF(\rho)\) be a set of automaton states that appear infinitely often in while reading $\sigma$,
 then $\sigma$ is accepted by $m$ if and only if \(INF(\rho)\cap Q_{\infty}\neq\emptyset\).
 Thus,
@@ -421,7 +515,7 @@ In strong semantics, \(\eta\) is \(\Lambda\), where \(\Lambda\) is inconsistency
 %
 \subsection{Correspondence between Models and Formulae}
 We describe a correspondence between a model and a \buchi automaton of a formulae of a property which the model are required.
-The correspondece is expressed with Hoare triple: \{P\}$\alpha$\{P'\},
+The correspondence is expressed with Hoare triple: \{P\}$\alpha$\{P'\},
 where $P$ and $P'$ are boolean predicates, and $\alpha$ is an action which a model performs.
 
 An automaton $m$ enters an automaton state \(q_j\) if there exists a history containing program state $s$ and $m$ is transformed from \(q_i\) into \(q_j\) by reading $s$.
@@ -440,7 +534,7 @@ where \(Init_{\pi}\) is the initial states of model \(\pi\).
 \end{definition}
 
 %
-%%% Proving Safety Propeties
+%%% Proving Safety Properties
 %
 \subsection{Proving Safety Properties}
 A model \(\pi\) written by our model language has the form: \(\pi=\pi_1\|\cdots\|\pi_n\).
@@ -453,8 +547,8 @@ causes the transfer of the value of \(exp\), and execution of a matching input a
   \begin{displaymath}
 a(var)
   \end{displaymath}
-,which some other process performs, causes recieve from channel \(a\).
-an input action is deleyed until some matching output action.
+,which some other process performs, causes receive from channel \(a\).
+an input action is delayed until some matching output action.
 
 Two matching actions are executed as an atomic action which causes an assignment to \(var\):
   \begin{displaymath}
@@ -469,7 +563,7 @@ If \(\pi\) is composed of fragments \(\pi_1,\cdots,\pi_n\) then:
 \alpha[\pi]=\alpha[\pi_1]\cup\cdots\cup\alpha[\pi_n]\cup\alpha[a_1]\cup\cdots\cup\alpha[a_n].
   \end{displaymath}
 
-The tool gurantee matching semantics between input and output actions.
+The tool guarantee matching semantics between input and output actions.
 For example, \(P_1\|P_2\) in which each process is defined as follows does not produce input-output pairs \((\bijection{a}(1),a(x))\) and \((\bijection{a}(2),a(y))\):
   \begin{displaymath}
     \begin{array}{lcr}
@@ -484,25 +578,25 @@ We present the following proof rules for all possible constructs of processes, a
                     {}
   \end{displaymath}
 This axiom corresponds to A.1 in \cite{Apt:1980}.
-The post assertion in this axiom will be checked against a corresponging output action with which some process cooperates.
+The post assertion in this axiom will be checked against a corresponding output action with which some process cooperates.
   \begin{displaymath}
 \infer[\mbox{Output}]{\{p\}\bijection{a}(y)\{q\}}
                     {}
   \end{displaymath}
 This axiom may look strange since it has no side-effect.
 We introduce this axiom corresponding to A.2' in \cite{Apt:1980} because the modelling language allows output actions without matching inputs.
-Communication \(\{p\}\alpha(x)\colon P\|\bijection{\alpha}(y)\colon Q\{q\}\) does not derivates an arbitrary predicate.
+Communication \(\{p\}\alpha(x)\colon P\|\bijection{\alpha}(y)\colon Q\{q\}\) does not derives an arbitrary predicate.
 The form of $q$ restricts to the formula of \(\{p\}\alpha(x)\colon P\|\bijection{\alpha}(y)\colon Q\{x=y\wedge p\}\) where $x$ is not free in $p$.
 
-Action prefixes mean sequencial execiton of actions.
-This syntactical structure provids the following rule.
+Action prefixes mean sequential execution of actions.
+This syntactical structure provides the following rule.
   \begin{displaymath}
 \infer[\mbox{Sequence}]
       {\{p\}[\alpha\colon P]\{q\}}
       {\{p\}\alpha\{p'\}\ \{'p\}P\{q\}}
   \end{displaymath}
 
-The meaning of the following rule is that the post condition of summation must be estabilished along each possible path.
+The meaning of the following rule is that the post condition of summation must be established along each possible path.
   \begin{displaymath}
 \infer[\mbox{Summation}]{\{p\}P\mbox{++}Q\{q\}}
                         {\{p\}P\{q\}\ \{p\}Q\{q\}}
