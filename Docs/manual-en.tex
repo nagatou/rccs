@@ -36,7 +36,7 @@
 \usepackage[inference]{semantic}
 \input{style}
 %----------------------------------------------------------
-\title{\NHK User's Manual}
+\title{\NHK Install Manual and Specification} 
 \author{Naoyuki Nagatou\thanks{PRESYSTEMS Inc. Copyright 2014 Naoyuki Nagatou}\\%
 \small PRESYSTEMS Inc.\\[6pt]
 \small nagatou@presystems.xyz}
@@ -193,7 +193,7 @@ There is a sequential history $S$ such that:
 
 Given a linearizable history, there may be more than one linearization.
 A possibility for linearization is a pair \(\langle S,P\rangle\), where $S$ is a linearization of a given history and $P$ is a set of pending operations which are not completed to construct $S$.
-\(Poss\) denotes a set of possibilities.
+\(Poss_H\) denotes a set of possibilities for history $H$.
 $Poss$ is captured by the following three axioms.
   \begin{axiom}[Closure]\label{ax:closure}
 if \(\langle S,P\rangle\in Poss\) then
@@ -229,21 +229,29 @@ Operation \(\deq\), if the buffer is full, reads a message from the buffer, othe
 A specification is a set of axioms.
 The message media discipline leads the axioms.
 $m$ denotes a state of a message media, \([v]\) denotes a queue list, and $v$ is a items in a queue.
-  \begin{axiom}[Enqueue]
+  \begin{axiom}[Enqueue]\label{ax:enque}
     \begin{displaymath}
 \{m=\emptyset\}[\inv(\enq(v))/\res(\enq(v))]\{m=[v]\}
     \end{displaymath}
   \end{axiom}
-  \begin{axiom}[Dequeue]
+  \begin{axiom}[Dequeue]\label{ax:deque}
     \begin{displaymath}
 \{m\neq\emptyset\mbox{ and }m=[v]\}[\inv(\deq())/\res(\deq())]\{m=\emptyset\mbox{ and }v=\res(\deq())\}
     \end{displaymath}
   \end{axiom}
-  \begin{axiom}[Bound]
+The above axioms imply the following \thref{th:bound}.
+  \begin{theorem}\label{th:bound}
+If $m$ is empty initially then
     \begin{displaymath}
-0\leq\mbox{length}(m)\leq 1
+0\leq\mbox{length}(m)\leq 1,
     \end{displaymath}
-  \end{axiom}
+where \(\length\) provides the number of items in buffer $m$.
+  \end{theorem}
+  \begin{proof}
+Operation \(\enq\), if the buffer is not empty then it is blocked, and \(\deq\), if the buffer is empty then it is blocked.
+When \(\length(m)\) is empty initially then \(\length(m)\) is at most 1.
+\QED
+  \end{proof}
 
 Let $H$ is a history on the message media.
 \NHK in current implementation immediately completes each operation.
@@ -343,11 +351,60 @@ Thus, \(\res(a)\) does not precede \(\inv(a)\).
 \QED
   \end{proof}
 
+Channels in \NHK are implemented by queue.
+Each output action is implemented by \(\enq\) operation on queue, and each input action is implemented by \(\deq\) operation.
+A history is an event sequence interleaved actions with operations of the implementation.
+
+An implementation is correct if for every history $H$ \(H|a\) is linearizable.
+Let $H$ be a interleaved history.
+We focus on showing that for all \(H|m\)% \(0\leq\length(m)\leq 1\) and 
+  \begin{displaymath}
+\langle S_m,P_m\rangle\in Poss_{H|m}\Rightarrow\langle S_{a},P_{a}\rangle\in Poss_{H|a}.
+  \end{displaymath}
+
+We define an abstract function: \({\cal A}(m):M\rightarrow Ch\) so that it maps each state of the implementation to a state of an abstract data.
+$M$ is a set of states of queue and $Ch$ is a set of states of channel.
+  \begin{displaymath}
+{\cal A}(m)=\{a|\,(m=a=[v])\vee(m=a=\emptyset)\},
+  \end{displaymath}
+The order of items in buffer does not need because the queue implementation must satisfy \thref{th:bound} \(0\leq\length(m)\leq 1\).
 
   \begin{theorem}
-A transmission between a sender and a receiver in \NHK is atomic.
+A transmission via action is atomic.
   \end{theorem}
   \begin{proof}
+Assosiation between a message media $m$ and a channel $a$
+    \begin{eqnarray*}
+\inv(a(v))&\equiv&\inv(\enq(v))\res(\enq(v)),\\
+\res(a(v))&\equiv&\inv(\deq(v))\res(\deq(v)).
+    \end{eqnarray*}
+Then, by \axref{ax:enque} and \axref{ax:deque}
+  \begin{displaymath}
+\{{\cal A}(m)=\emptyset\}[\inv(a(v) (=\inv(\enq(v))/\res(\enq(v)))]\{{\cal A}(m)=[v]\}
+  \end{displaymath}
+and
+  \begin{displaymath}
+\{{\cal A}(m)=[v]\}[\res(a(v) (=\inv(\deq(v))/\res(\deq(v)))]\{{\cal A}(m)=\emptyset\mbox{ and }v=\res(a(v))\}
+  \end{displaymath}
+These sequences satisfy \axref{ax:output} and \axref{ax:input}.
+
+We need to show that if \(H|m\) is linearizable then \(H|a\) is also linearizable.
+It suffices to show that \({\cal A}(m)\) is included in a set of results which \(S_a\) causes.
+Pick \(\langle S_m,P_m\rangle\in Poss_{H|m}\).
+If the last inference is \axref{ax:closure} for \(\enq(v)\), then the later events of \(S_m\) are \(\inv(\enq(v))\res(\enq(v))\), and the last event of \(H|a\) is \(\inv(a(v))\).
+Also \(m=[v]\), so \({\cal A}(m)=[v]\).
+At this moment \(\langle S_{a},P_{a}\rangle\in Poss_{H|a}\) and \(\inv(a(v))\in P_{a}\).
+By \thref{th:bound} \(\inv(\deq(v))\res(\deq(v))\) is contiguous to \(\inv(\enq(v))\res(\enq(v))\).
+Then, \(H|a\,\res(a(v))\) and \(S_a\,\inv(a(v))\res(a(v))\), thereby \(a=\emptyset\) or \([v]\).
+Therefore \({\cal A}(m)\in\{\emptyset, [v]\}\).
+
+Moreover, if the last inference is \axref{ax:closure} for \(\deq(v)\), then the later events of \(S_m\) are \(\inv(\deq(v))\res(\deq(v))\), and the last event of \(H|a\) is \(\res(a(v))\).
+Also \(m=\emptyset\), so \({\cal A}(m)=\emptyset\).
+At this moment \(\langle S_{a},P_{a}\rangle\in Poss_{H|a}\), thereby \(a=\emptyset\).
+Therefore \({\cal A}(m)\in\{\emptyset\}\).
+
+By \thref{th:bound} \(\inv(\enq(v'))\res(\enq(v'))\) is contiguous to \(\inv(\deq(v))\res(\deq(v))\).
+Thus \({\cal A}(m)\) is included in a set of states which linearizations cause.
 \QED
   \end{proof}
 %
