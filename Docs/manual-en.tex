@@ -36,7 +36,8 @@
 \usepackage[inference]{semantic}
 \input{style}
 %----------------------------------------------------------
-\title{\NHK Install Manual and Specification} 
+\title{Welcome to the world of \NHK\\
+{\small\textemdash Install Manual and Specification\textemdash}}
 \author{Naoyuki Nagatou\thanks{PRESYSTEMS Inc. Copyright 2014 Naoyuki Nagatou}\\%
 \small PRESYSTEMS Inc.\\[6pt]
 \small nagatou@presystems.xyz}
@@ -420,7 +421,7 @@ Action {\tt key} and {\tt display} are special actions.
 {\tt accept} is used to represents accept states of an automaton produced from a given LTL formula in verification mode.
 Those special actions distinguish between upper letters and lower letters.
 
-Process {\tt ZERO} and {\tt STOP} are a special process that means do nothing, not terminate the whole.
+Process \(\ZERO\) and \({\mathop{\mathrm{STOP}}\nolimits}\) are a special process that means do nothing, not terminate the whole.
 \NHK uses a special process {\tt INIT\_STATE} in verification mode.
 The process means an initial state of an automaton for a LTL formula given by users.
 {\tt ABORT} terminates the whole process for an automaton, but users cannot use in a model.
@@ -438,7 +439,7 @@ We make the notion of sort which is a little difference from syntactic sort in \
 If actions of a process \(P\) and all its derivatives
   \begin{displaymath}
     \begin{array}{rcl}
-\sort{ZERO}&=&\emptyset\\
+\sort{\ZERO}&=&\emptyset\\
 \sort{a\colon P}&=&\{a\}\cup\sort{P}\\
 \sort{\sim a\colon P}&=&\{\sim a\}\cup\sort{P}\\
 \sort{P\mbox{++}Q}&=&\sort{P}\cup\sort{Q}\\
@@ -453,8 +454,8 @@ We make the notion of syntactic derivative of sort \(\sort{P}\) which is used in
 All derivatives lie in \(\sort{P}\) of \(P\) is syntactic immediate derivatives.
 Describing an action sequence \(\alpha_1,\cdots,\alpha_n\) in which each element is an element of \(\sort{P}\) of \(P\), we call a process of the sequence
  and a set of them writes \(\derivative{P}\).
-\(\derivative{ZERO}\) is \(\{ZERO\}\).
-\subsection{RCCS Operational Semantics}\label{OPERATINAL_SEMANTICS}
+\(\derivative{\ZERO}\) is \(\{\ZERO\}\).
+\subsection{RCCS Operational Semantics}\label{sec:OPERATINAL_SEMANTICS}
 \input{manual-sem}
 \section{Coroutine-Like Sequencing}
 An important application of coroutine is discrete event simulation, where coroutine may be used to simulate parallel processes within the framework of a sequential program.
@@ -513,16 +514,15 @@ Furthermore,
 %%% RELATIONSHIPS BETWEEN MODELS AND FORMULAE
 %
 \section{Relationships between Models and Formulae}
-In this subsection, we describe the relationship between algebraic models and LTL formulas.
+In this section, we describe the relationship between algebraic models and LTL formulas.
 The modeling language enables us to pass values via input prefix \(\alpha(e)\) and output prefix \(\bijection{\alpha}(x)\) with the same name.
-Execution of \(\alpha(e)\) produces  value \(v\) of \(e\).
-Execution of \(\bijection{\alpha}(x)\) causes a single assignment to \(x\).
+The execution of \(\alpha(e)\) produces  value \(v\) of \(e\), and  the execution of \(\bijection{\alpha}(x)\) causes a single assignment to \(x\).
 Furthermore, the execution of two actions causes atomic assignment \(x \colon = v\), that is, communication between two agents produces a new state by changing the values of the variables.
 This is similar to the first paragraph in Section~3.3 of \cite[page 290]{lamport84hoare}.
 
 This atomic assignment changes states, and  we represent the change as \(s[v/x]\), which denotes a change in the values of \(x\) in \(s\) to \(v\).
 A state is a mapping from variables to values.
-Assuming that \(\tt Var_E\) is a set of variables that appears in prefixes in agent \(E\) with range \(\tt V\), \(s\colon Var_E\rightarrow {\tt V}\).
+Assuming that \(\tt \Var_E\) is a set of variables that appears in prefixes in agent \(E\) with range \(\tt V\), \(s\colon \Var_E\rightarrow {\tt V}\).
 For example, the evaluation \(s\lsquarebracket x=y\rsquarebracket\) of \(x=y\) at \(s\) becomes \(s\lsquarebracket x\rsquarebracket=s\lsquarebracket y\rsquarebracket\), and at \(s[v/x]\), \(s[v/x]\lsquarebracket x\rsquarebracket=s[v/x]\lsquarebracket y\rsquarebracket\), i.e., \(v=s[y]\).
 
 Therefore, communication between agents produces a sequence of assignments, which then produces a sequence of state changes called a trace.
@@ -532,6 +532,7 @@ If for all traces \(\sigma\in T\), \(\sigma\models\varphi\), then we state that 
 %%% TRANSITION OF AUTOMATA
 %
 \subsection{Transition of Automata}
+A LTL formula by which a property of a model is given transforms to a \buchi automaton.
 A \buchi automaton $m$ contains of five components:
   \begin{itemize}
 \item A finite set of states, denoted $Q$.
@@ -557,11 +558,11 @@ q & \mbox{if \(|\sigma |=0\)}\\
 \right.
   \end{displaymath}
 We define the language \({\cal L} (m)\) of automaton $m$.
-Let \(INF(\rho)\) be a set of automaton states that appear infinitely often in while reading $\sigma$,
-then $\sigma$ is accepted by $m$ if and only if \(INF(\rho)\cap Q_{\infty}\neq\emptyset\).
+Let \(\INF(\rho)\) be a set of automaton states that appear infinitely often in while reading $\sigma$,
+then $\sigma$ is accepted by $m$ if and only if \(\INF(\rho)\cap Q_{\infty}\neq\emptyset\).
 Thus,
   \begin{displaymath}
-{\cal L}(m)=\{\sigma\mid \rho^0=q^0, \forall i\colon\rho^i=\hat{\delta}(q_0,\sigma^{..i})\mbox{, and }INF(\rho)\cap Q_{\infty}\neq\emptyset\}.
+{\cal L}(m)=\{\sigma\mid \rho^0=q^0, \forall i\colon\rho^i=\hat{\delta}(q_0,\sigma^{..i})\mbox{, and }\INF(\rho)\cap Q_{\infty}\neq\emptyset\}.
   \end{displaymath}
 
 \(\eta\) depends on weak or strong semantics.
@@ -570,13 +571,15 @@ In strong semantics, \(\eta\) is \(\Lambda\), where \(\Lambda\) is inconsistency
 %
 %%% CORRESPONDENCE
 %
-\subsection{Correspondence between Models and Formulae}
+\subsection{Correspondence between Models and Formulae}\label{sec:CorrespondenceBtweenModelsAndFormulae}
 We describe a correspondence between a model and a \buchi automaton of a formulae of a property which the model are required.
-The correspondence is expressed with Hoare triple: \{P\}$\alpha$\{P'\},
-where $P$ and $P'$ are boolean predicates, and $\alpha$ is an action which a model performs.
+The correspondence is expressed with Hoare triple: \{p\}$\alpha$\{q\},
+where $p$ and $q$ are boolean predicates, and $\alpha$ is an action which a model performs.
+To show that a program \(\pi\) satisfies $m$, we demonstrate a correspondence between $m$ and \(\pi\).
+We define a correspondence invariant \(C_i\) for each state \(q_i\).
+the correspondence invariant \(C_i\) is a predicate that holds on a model state $s$ if an automaton $m$ enters an automaton state \(q_j\) if there exists a history containing program state $s$ and $m$ is transformed from \(q_i\) into \(q_j\) by reading $s$.
 
-An automaton $m$ enters an automaton state \(q_j\) if there exists a history containing program state $s$ and $m$ is transformed from \(q_i\) into \(q_j\) by reading $s$.
-We define \emph{correspondence invariant} by induction \cite{alpern:1987}.
+We formally define \emph{correspondence invariant} by induction \cite{Alpern:1989}.
 \begin{definition}[Correspondece Basis]
   \begin{displaymath}
 \forall i\colon q_j\in Q\mbox{ and }(Init_{\pi}\wedge T_{0j})\Rightarrow C_j,
@@ -590,10 +593,48 @@ where \(Init_{\pi}\) is the initial states of model \(\pi\).
   \end{displaymath}
 \end{definition}
 
+In order to establish that model $\pi$ satisfies property $p$, we must show that every history $\sigma$ of $\pi$ accepts by $m$ for a property.
+There are two ways that $m$ fails to accept a history \(\sigma\) of $\pi$:
+  \begin{enumerate}
+\item $m$ attempts an undefined transition when reading \(\sigma\).
+\item $m$ never enters an accepting state after some finite prefix of \(\sigma\).
+  \end{enumerate}
+Thus, it suffices that (1) and (2) are impossible.
+Two obligations ensure that (1) is impossible.
+First, we must show that $m$ can make some transition from its start state upon reading the first state in a history.
+  \begin{definition}[Transition Basis]
+    \begin{displaymath}
+Init_{\pi}\Rightarrow\vee_{j}(q_j\in Q\mbox{ and }T_{0j})
+    \end{displaymath}
+  \end{definition}
+Second, we must show that $m$ can always make a transiton upon reading subsequent states in a history.
+If $m$ is in state \(q_i\) then the model state read by $m$ satisfies a correspondence invariant \(C_i\).
+To avoid an undefined transition, any atomic action \(\alpha\) that is then executed must transform the model state so that one of the transiton predicates \(T_{ij}\) emanating from \(q_i\) holds.
+This is guaranteed by 
+  \begin{definition}[Transition Induction]
+For all \(\alpha (\in {\cal A})\), and for all $i$ \((q_i\in Q)\),
+    \begin{displaymath}
+\{C_i\}\alpha\{\vee_{j:q_j\in Q}T_{ij}\}
+    \end{displaymath}
+  \end{definition}
+
+Finaly, we present conditions to ensure that $m$ cannot reject \(\sigma\) by failing to enter accepting state infinitely often (scenario (2) above).
+  \begin{definition}[Knot Exit]
+For all \(\alpha (\in {\cal A})\), and for all $i$ \((q_i\in Q)\),
+    \begin{displaymath}
+\{C_i\}\alpha\{\vee_{j:q_j\in Q}T_{ij}\}
+    \end{displaymath}
+  \end{definition}
+  \begin{definition}[Knot Variance]
+For all \(\alpha (\in {\cal A})\), and for all \(q_i\in k\),
+    \begin{displaymath}
+\{C_i\wedge0<v_k(q_i)=V\}\alpha\{\vee_{j:q_j\in Q}T_{ij}\wedge C_j\Rightarrow v_k(q_j)<V\}
+    \end{displaymath}
+  \end{definition}
 %
 %%% Proving Safety Properties
 %
-\subsection{Proving Safety Properties}
+\subsection{A Proof Systems for The Modelling Language}\label{sec:ProofSystems}
 A model \(\pi\) written by our model language has the form: \(\pi=\pi_1\|\cdots\|\pi_n\).
 Processes synchronize and communicate using input actions and output actions.
 For a channel \(a\), a value of \(exp\) and a variable \(var\), execution of an output action
@@ -617,15 +658,16 @@ We regard the atomic assignment above as a fragment of models.
 The set of atomic actions which make up program \(\pi\) is denoted \(\alpha[\pi]\).
 If \(\pi\) is composed of fragments \(\pi_1,\cdots,\pi_n\) then:
   \begin{displaymath}
-\alpha[\pi]=\alpha[\pi_1]\cup\cdots\cup\alpha[\pi_n]\cup\alpha[a_1]\cup\cdots\cup\alpha[a_n].
+\alpha[\pi]=\alpha[\pi_1]\cup\cdots\cup\alpha[\pi_n].
   \end{displaymath}
+If \(\pi\) is clear by context then \(\pi\) is omitted.
 
 The tool guarantee matching semantics between input and output actions.
 For example, \(P_1\|P_2\) in which each process is defined as follows does not produce input-output pairs \((\bijection{a}(1),a(x))\) and \((\bijection{a}(2),a(y))\):
   \begin{displaymath}
     \begin{array}{lcr}
-P_1&=&a(x)\colon ZERO\mbox{++}\bijection{a}(0)\colon a(y)\colon ZERO,\\
-P_2&=&\bijection{a}(2)\colon ZERO\mbox{++}a(z)\colon\bijection{a}(1)\colon ZERO.\\
+P_1&=&a(x)\colon\ZERO\mbox{++}\bijection{a}(0)\colon a(y)\colon\ZERO,\\
+P_2&=&\bijection{a}(2)\colon\ZERO\mbox{++}a(z)\colon\bijection{a}(1)\colon\ZERO.\\
     \end{array}
   \end{displaymath}
 
@@ -642,37 +684,112 @@ The post assertion in this axiom will be checked against a corresponding output 
   \end{displaymath}
 This axiom may look strange since it has no side-effect.
 We introduce this axiom corresponding to A.2' in \cite{Apt:1980} because the modelling language allows output actions without matching inputs.
-Communication \(\{p\}\alpha(x)\colon P\|\bijection{\alpha}(y)\colon Q\{q\}\) does not derives an arbitrary predicate.
-The form of $q$ restricts to the formula of \(\{p\}\alpha(x)\colon P\|\bijection{\alpha}(y)\colon Q\{x=y\wedge p\}\) where $x$ is not free in $p$.
+Communication \(\{p\}\alpha(x)\colon P\ \|\ \bijection{\alpha}(y)\colon Q\{q\}\) does not derives an arbitrary predicate.
+The form of $q$ restricts to the formula of \(\{p\}\alpha(x)\colon P\ \|\ \bijection{\alpha}(y)\colon Q\{x=y\wedge p\}\) where $x$ is not free in $p$.
 
 Action prefixes mean sequential execution of actions.
 This syntactical structure provides the following rule.
   \begin{displaymath}
 \infer[\mbox{Sequence}]
       {\{p\}[\alpha\colon P]\{q\}}
-      {\{p\}\alpha\{p'\}\ \{'p\}P\{q\}}
+      {\{p\}\alpha\{p'\}&\{p'\}P\{q\}}
   \end{displaymath}
 
 The meaning of the following rule is that the post condition of summation must be established along each possible path.
   \begin{displaymath}
 \infer[\mbox{Summation}]{\{p\}P\mbox{++}Q\{q\}}
-                        {\{p\}P\{q\}\ \{p\}Q\{q\}}
+                        {\{p\}P\{q\}&\{p\}Q\{q\}}
   \end{displaymath}
-Using these axioms and rules, we can establish the proof for a formula for each process.
 
-We now present a proof rule and an axiom for communication among processes.
-The rule to used to deduce a property of \(P\|Q\) has the following form:
+Subsequently we use the following well-known axioms and proof rules.
   \begin{displaymath}
-\infer[\mbox{Composition}]{\{p_1\wedge p_2\}P\|Q\{q_1\wedge q_2\}}
-                        {\{p_1\}P\{q_1\}\ \{p_2\}Q\{q_2\}}
+\infer[\mbox{ZERO}]
+      {\{p\}\ZERO\{p\}}
+      {}
   \end{displaymath}
+  \begin{displaymath}
+\infer[\mbox{Alternation}]
+      {\{p\}[(\mbox{if}\ b\ P_1\ P_2)]\{q\}}
+      {\{p\wedge b\}P_1\{q\}&\{p\wedge \neg b\}P_2\{q\}}
+  \end{displaymath}
+  \begin{displaymath}
+\infer[\mbox{Consequence}]
+      {\{p\}P\{q\}}
+      {\{p\rightarrow p'\}P\{q'\rightarrow q\}}
+  \end{displaymath}
+  \begin{displaymath}
+\infer[\mbox{Conjunction}]
+      {\{p\}P\{q\wedge r\}}
+      {\{p\}P\{q\}&\{p\}P\{r\}}
+  \end{displaymath}
+  \begin{displaymath}
+\infer[\mbox{Substitution}]
+      {\{p\}P\{q\}}
+      {\{p[t/z]\}P\{q\}}
+  \end{displaymath}
+  \begin{displaymath}
+\infer[\mbox{Omission}]
+      {\{p\}A\{q\}}
+      {\{p\}P\{q\}&A\procdef P}
+  \end{displaymath}
+
+Using these axioms and rules, we can establish a proof for formulae of a process.
+A proof start by the following form:
+  \begin{displaymath}
+\infer{\{p_1\wedge\cdots\wedge p_n\}P_1\|P_2\|\cdots\{q_1\wedge\cdots\wedge q_n\}}
+      {\{p_1\}P_1\{q_1\}&\{p_2\}P_2\{q_2\}&\cdots}
+  \end{displaymath}
+Each proof cooperates if they help to validate the post-conditions of input-output mentioned in those proofs.
 The meaning of this rule is that proofs cooperate to help each other proof to validate the post conditions of input/output actions.
+More formally, the proofs of \(\{p_i\}P_i\{q_i\}\) for \(1\leq i\leq n\) cooperate if 
+  \begin{enumerate}
+\item the assertions used in the proof contain no variables to change in \(P_j\) where \(j\neq i\), and
+\item \(\{\mbox{pre}_1\wedge\mbox{pre}_2\}\bijection{a}:P\|a:Q\{\mbox{post}_1\wedge\mbox{post}_2\}\) holds
+whenever \(\{\mbox{pre}_1\}\bijection{a}:P\{\mbox{post}_1\}\) and \(\{\mbox{pre}_2\}a:Q\{\mbox{post}_2\}\) are taken from the proof of \(\{p_i\}P\{q_i\}\) and \(\{p_j\}Q\{q_j\}\).
+  \end{enumerate}
 We shall need the following axiom to establish cooperation:
   \begin{displaymath}
 \infer[\mbox{Communication}]
-      {\{True\}[a(x)\colon P\|\bijection{a}(y)\colon Q]\{x=y\}}
+      {\{\Truerm\}[a(x)\colon P\|\bijection{a}(y)\colon Q]\{x=y\}}
       {}
   \end{displaymath}
+%
+%%% Proving Properties
+%
+\subsection{Proving Safety Properties}
+Using axioms and rules in \secref{sec:ProofSystems}, we establish several proofs of assertions in \secref{sec:CorrespondenceBtweenModelsAndFormulae}.
+Variables occur in input and output actions present state variables of a model.
+Let $\Var=\{x,y, \cdots\}$ be a set of state variables. 
+When two processes cooperate through an input action \(a(x)\) and a matching output action \(\bijection{a}(v)\), a state of a model is chenged by the assignment \(x:=v\) which is atomic.
+The assignment as \(x:=v\) denotes a state change from \(env\) to \(env[v/x]\).
+
+The following explains the correspondence between each predicate in \secref{sec:CorrespondenceBtweenModelsAndFormulae} and the modelling language in \secref{sec:OPERATINAL_SEMANTICS}.
+A correspondence invariant \(C_i\) intuitively predicates:
+  \begin{itemize}
+\item a model changes its state to \(s_i\) and
+\item an automaton $m$ enters \(q_i\) reading \(s_i\).
+  \end{itemize}
+\(C_i\) corresponds to a valuation and the fomula of the valuation becomes \((v_1=a_1)\wedge\cdots\wedge (v_n=a_n)\) when a set of state variables is \(\{v_1,\cdots,v_n\}\).
+We correspond a valuation to an environment in \NHK.
+Therefore, we regards an environment \(env_i\) as a predicate:
+  \begin{displaymath}
+Env_i\equiv({\displaystyle\wedge_{i}}(v_i=a_i)).
+  \end{displaymath}
+\(Init_{\pi}\) is \(Env_0\) which is \(\Truerm\).
+
+Transition predicate \(T_{ij}\) is deriverd from transition function.
+\(T_{ij}\) holds for all \(s_j\) such that \(q_j\in\delta(q_i,s_j)\).
+Each transition of an automaton is indicated with form \((\mbox{if}\ (B_i)\ (P_i)\ (Q_i))\).
+Thus, we correspond \(T_{ij}\) to
+  \begin{displaymath}
+Env_j\models B_i.
+  \end{displaymath}
+
+To show that a model satisfies a property, we demonstrate proof obligations in \secref{sec:CorrespondenceBtweenModelsAndFormulae}.
+%
+%%% EXPLORING STATE SPACE
+%
+%\section{Exploring State Space}
 %
 %%% BIBLIOGRAPHY
 %

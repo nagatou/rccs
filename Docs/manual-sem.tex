@@ -1,7 +1,7 @@
 %\onecolumn
 In this section, we define the semantics of the discription language.
-For this purpose, we define a machine.
-Before we continue, we define context \(k\).
+For this purpose, we define an abstract machine.
+We define context \(k\).
 The following grammar defines a set of contexts.
 The context contains a hole, written in \hole, in the place of one subexpression.
   \begin{displaymath}
@@ -12,18 +12,18 @@ k     &::=& \hole \\
     \end{array}
   \end{displaymath}
 $k[P]$ means to replace the hole in $k$ with $P$, where P is a process defined in \secref{sec:RCCSsyntax}.
-Moreover, we define a function $Env$ that maps all free variables to closures.
+Moreover, we define a function $env$ that maps all free variables to closures.
 This function is called a environment, and a closure is a pair of an expression and a environment.
-environments \(Env\) and colosures \(c\) have mutually recursive definitions.
+environment \(env\) and colosure \(c\) have mutually recursive definitions.
   \begin{displaymath}
     \begin{array}{rcl}
-Env &::=& \mbox{a list of pairs }\langle(X,c),\cdots\rangle\\
-c &::=& \{(P,env)|FV(P)\subset \dom(Env)\}\\
+env &::=& \mbox{a list of pairs }\langle(X,c),\cdots\rangle\\
+c &::=& \{(P,env)|FV(P)\subset \dom(env)\}\\
 %v &::=& \{(v,env)|FV(P)\in c\}
     \end{array}
   \end{displaymath}
-\(Env[X\leftarrow c]\) means that \((X,c)\) is added into \(Env\), that is, 
-\(\{(X,c)\}\cup\{(Y,c')|(Y,c')\in Env \mbox{ and } X\neq Y\}\).
+\(env[X\leftarrow c]\) means that \((X,c)\) is added into \(env\), that is, 
+\(\{(X,c)\}\cup\{(Y,c')|(Y,c')\in env \mbox{ and } X\neq Y\}\).
 
 In addition to the above definition, we use the following sets.
   \begin{displaymath}
@@ -39,90 +39,90 @@ A state of the machine is a triple \([(exp,env),k,ch]\) which is appended channe
 We define single steps of an evaluation function for the description language.
 A bijection function on names assocites a name \(a\) to a co-name, written with \(\bijection{a}\).
 Notice that \(\bijection{\bijection{\alpha}}=\alpha\).
-\(Env[\langle x\rangle\leftarrow\langle v\rangle,\langle y\rangle\leftarrow\langle w\rangle,\cdots]\) means \((Env[\langle x\rangle\leftarrow \langle v\rangle])[\langle y\rangle\leftarrow\langle w\rangle]\cdots\), and
+\(env[\langle x\rangle\leftarrow\langle v\rangle,\langle y\rangle\leftarrow\langle w\rangle,\cdots]\) means \((env[\langle x\rangle\leftarrow \langle v\rangle])[\langle y\rangle\leftarrow\langle w\rangle]\cdots\), and
 \(ch[\alpha\leftarrow \langle v\rangle,\beta\leftarrow \langle w\rangle,\cdots]\) means \((ch[\alpha\leftarrow\langle v\rangle])[\beta\leftarrow\langle w\rangle],\cdots\).
 \begin{center}
   \begin{tabular}{ll}
 \multicolumn{2}{c}{
 \inference[Output(1)]
 {(a\leftarrow\langle v\rangle)\not\in ch}
-{[(\sim a(v)\colon P,Env),\hole,ch]\trans{\sim a}[(P,Env),\hole,ch[a\leftarrow\langle v\rangle]]}
+{[(\sim a(v)\colon P,env),\hole,ch]\trans{\sim a}[(P,env),\hole,ch[a\leftarrow\langle v\rangle]]}
 }\\\\
 \multicolumn{2}{c}{
 \inference[Output(2)]
 {(a\leftarrow\langle v\rangle)\not\in ch}
-{[(\sim a(v)\colon P,Env_1),k[(Q,Env_2)\|\hole],ch]\trans{\sim a}[(Q,Env_2),k[\hole\|(P,Env)],ch[a\leftarrow\langle v\rangle]]}
+{[(\sim a(v)\colon P,env_1),k[(Q,env_2)\|\hole],ch]\trans{\sim a}[(Q,env_2),k[\hole\|(P,env)],ch[a\leftarrow\langle v\rangle]]}
 }\\\\
 \multicolumn{2}{c}{
 \inference[Output(3)]
 {(a\leftarrow\langle v\rangle)\not\in ch}
-{[(\sim a(v)\colon P,Env_1),k[\hole\|(Q,Env_2)],ch]\trans{\sim a}[(Q,Env_2),k[(P,Env_1)\|\hole],ch[a\leftarrow\langle v\rangle]]}
+{[(\sim a(v)\colon P,env_1),k[\hole\|(Q,env_2)],ch]\trans{\sim a}[(Q,env_2),k[(P,env_1)\|\hole],ch[a\leftarrow\langle v\rangle]]}
 }\\\\
 \multicolumn{2}{c}{
 \inference[Input]
 {(a\leftarrow\langle v\rangle)\in ch}
-{[(a(x)\colon P,Env),k,ch[a\leftarrow\langle v\rangle]]\trans{a}[(k[P],Env[\langle x\rangle\leftarrow\langle v\rangle]),\hole,ch]}
+{[(a(x)\colon P,env),k,ch[a\leftarrow\langle v\rangle]]\trans{a}[(k[P],env[\langle x\rangle\leftarrow\langle v\rangle]),\hole,ch]}
 }\\\\
 \multicolumn{2}{c}{
 \inference[Sum(1)]
-{[(P,Env_{1}),k,ch]\trans{\alpha}[(P',Env_{1}'),k',ch']}
-{[(P,Env_{1})\mbox{++}(Q,Env_2),k,ch]\trans{\alpha}[(P',Env_{1}'),k',ch']}
+{[(P,env_{1}),k,ch]\trans{\alpha}[(P',env_{1}'),k',ch']}
+{[(P,env_{1})\mbox{++}(Q,env_2),k,ch]\trans{\alpha}[(P',env_{1}'),k',ch']}
 } \\\\
 \multicolumn{2}{c}{
 \inference[Sum(2)]
-{[(Q,Env_{2}),k,ch]\trans{\alpha}[(Q',Env_{2}'),k',ch']\\
- \derivative{[(P,Env_{1}),k,ch]}=\{P\}}
-{[((P,Env_{1})\mbox{++}(Q,Env_{2}),k,ch]\trans{\alpha}[(Q',Env_{2}'),k',ch']}
+{[(Q,env_{2}),k,ch]\trans{\alpha}[(Q',env_{2}'),k',ch']\\
+ P\not\in\derivative{[(P,env_{1}),k,ch]}}
+{[((P,env_{1})\mbox{++}(Q,env_{2}),k,ch]\trans{\alpha}[(Q',env_{2}'),k',ch']}
 }\\\\
 \multicolumn{2}{c}{
 \inference[Com(1)]
-{[(P,Env_1),k,ch]\trans{\alpha}[(P',Env_{1}'),k[\hole\|Q],ch']}
-{[(P,Env_1)||(Q,Env_2),k,ch]\trans{\alpha}[(P',Env'),k[\hole\|Q],ch']}
+{[(P,env_1),k,ch]\trans{\alpha}[(P',env_{1}'),k[\hole\|Q],ch']}
+{[(P,env_1)||(Q,env_2),k,ch]\trans{\alpha}[(P',env'),k[\hole\|Q],ch']}
 }\\\\
 \multicolumn{2}{c}{
 \inference[Com(2)]
-{[(Q,Env_2),k,ch]\trans{\alpha}[(Q',Env_{2}'),k[P\|\hole],ch']\\
- \derivative{[(P,Env_{1}),k,ch]}=\{P\}}
-{[((P,Env_1)||(Q,Env_2),k,ch]\trans{\alpha}[(Q',Env_{2}'),k[P\|\hole],ch']}
+{[(Q,env_2),k,ch]\trans{\alpha}[(Q',env_{2}'),k[P\|\hole],ch']\\
+ P\not\in\derivative{[(P,env_{1}),k,ch]}}
+{[((P,env_1)||(Q,env_2),k,ch]\trans{\alpha}[(Q',env_{2}'),k[P\|\hole],ch']}
 }\\\\
 \multicolumn{2}{c}{
 \inference[Com(3)]
-{[(P,Env_{1}),k[\hole\|(Q,Env_{2})],ch]\trans{\overline{\alpha}}[(P',Env_{1}'),k',ch']\\
- [(Q,Env_{2}),k[(P,Env_{1})\|\hole],ch]\trans{\alpha}[(Q',Env_{2}'),k'',ch'']}
-{[(P,Env_1)\|(Q,Env_2),k,ch]\trans{(\overline{\alpha},\alpha)}[(k[(P',Env_{1}')\|(Q',Env_{2}')],\hole,ch]}
+{[(P,env_{1}),k[\hole\|(Q,env_{2})],ch]\trans{\overline{\alpha}}[(P',env_{1}'),k',ch']\\
+ [(Q,env_{2}),k[(P,env_{1})\|\hole],ch]\trans{\alpha}[(Q',env_{2}'),k'',ch'']}
+{[(P,env_1)\|(Q,env_2),k,ch]\trans{(\overline{\alpha},\alpha)}[(k[(P',env_{1}')\|(Q',env_{2}')],\hole,ch]}
 }\\\\
 \multicolumn{2}{c}{
 \inference[Ins]
-{[(P(x),Env[A\leftarrow P][\langle x\rangle\leftarrow\langle v\rangle]),k,ch]\trans{\alpha}[(P',Env[A\leftarrow P][\langle x\rangle\leftarrow\langle v\rangle]),k,ch]}
-{[(A(v),Env[A\leftarrow P]),k,ch]\trans{\alpha}[(P',Env[A\leftarrow P][\langle x\rangle\leftarrow\langle v\rangle]),k,ch]}
+{[(P(x),env[A\leftarrow P][\langle x\rangle\leftarrow\langle v\rangle]),k,ch]\trans{\alpha}[(P',env[A\leftarrow P][\langle x\rangle\leftarrow\langle v\rangle]),k,ch]}
+{[(A(v),env[A\leftarrow P]),k,ch]\trans{\alpha}[(P',env[A\leftarrow P][\langle x\rangle\leftarrow\langle v\rangle]),k,ch]}
 }\\\\
 %\multicolumn{2}{c}{
 %\inference[Def]
 %{}
-%{[(\mbox{define}\ A\ P,Env),k,ch]\trans{}[(\mbox{ZERO},Env[A\leftarrow P]),k,ch]}
+%{[(\mbox{define}\ A\ P,env),k,ch]\trans{}[(\mbox{ZERO},env[A\leftarrow P]),k,ch]}
 %}\\\\
 \inference[If(1)]
-{\mbox{eval-val}(B,Env)\\ [(T,Env),k,ch]\trans{\alpha}[(T',Env'),k',ch']}
-{[(\mbox{if}\ B\ T\ E,Env),k,ch]\trans{\alpha}[(T',Env'),k',ch']}
+{\mbox{eval-val}(B,env)\\ [(T,env),k,ch]\trans{\alpha}[(T',env'),k',ch']}
+{[(\mbox{if}\ B\ T\ E,env),k,ch]\trans{\alpha}[(T',env'),k',ch']}
 &
 \inference[If(2)]
-{\neg\mbox{eval-val}(B,Env)\\[(E,Env),k,ch]\trans{\alpha}[(E',Env'),k',ch']}
-{[(\mbox{if}\ B\ T\ E,Env),k,ch]\trans{\alpha}[(E',Env'),k',ch']}
+{\neg\mbox{eval-val}(B,env)\\[(E,env),k,ch]\trans{\alpha}[(E',env'),k',ch']}
+{[(\mbox{if}\ B\ T\ E,env),k,ch]\trans{\alpha}[(E',env'),k',ch']}
 \\\\
 \multicolumn{2}{c}{
 \inference[Res]
-{\alpha,\bijection{\alpha}\not\in\{\alpha,\cdots\} & [(P,Env),k,ch]\trans{\alpha}[(P',Env'),k',ch']}
-{[(P[\alpha,\cdots],Env),k,ch]\trans{\alpha}[(P'[\alpha,\cdots],Env'),k',ch']}
+{\alpha,\bijection{\alpha}\not\in\{\alpha,\cdots\} & [(P,env),k,ch]\trans{\alpha}[(P',env'),k',ch']}
+{[(P[\alpha,\cdots],env),k,ch]\trans{\alpha}[(P'[\alpha,\cdots],env'),k',ch']}
 }\\\\
 \multicolumn{2}{c}{
 \inference[Rel(1)]
-{[(P,Env),k,ch]\trans{\alpha}[(P',Env'),k',ch[\alpha\leftarrow\langle v\rangle]]}
-{[(P\{\alpha'\slash\alpha,\cdots\},Env),k,ch]\trans{\alpha '}[(P'\{\alpha'\slash\alpha,\cdots\},Env'),k',ch[\alpha'\leftarrow\langle v\rangle]]}
+{[(P,env),k,ch]\trans{\alpha}[(P',env'),k',ch[\alpha\leftarrow\langle v\rangle]]}
+{[(P\{\alpha'\slash\alpha,\cdots\},env),k,ch]\trans{\alpha '}[(P'\{\alpha'\slash\alpha,\cdots\},env'),k',ch[\alpha'\leftarrow\langle v\rangle]]}
 }\\\\
 \multicolumn{2}{c}{
 \inference[Rel(2)]
-{[(P,Env),k,ch[\alpha\leftarrow\langle v\rangle]]\trans{\alpha}[(P',Env'),k',ch]}
-{[(P\{\alpha'\slash\alpha,\cdots\},Env),k,ch[\alpha\leftarrow\langle v\rangle]]\trans{\alpha '}[(P'\{\alpha'\slash\alpha,\cdots\},Env'),k',ch]}
+{[(P,env),k,ch[\alpha\leftarrow\langle v\rangle]]\trans{\alpha}[(P',env'),k',ch]}
+{[(P\{\alpha'\slash\alpha,\cdots\},env),k,ch[\alpha\leftarrow\langle v\rangle]]\trans{\alpha '}[(P'\{\alpha'\slash\alpha,\cdots\},env'),k',ch]}
 }\\\\
 %\infer[\mbox{Bind}]
 %{[\mbox{bind}\ A\ string,s]\trans{}[\mbox{STOP},s]}
@@ -130,11 +130,11 @@ Notice that \(\bijection{\bijection{\alpha}}=\alpha\).
 %\\\\
 \inference[ZERO(1)]
 {}
-{[(\mbox{ZERO},Env),\hole,ch]\not\trans{}}
+{[(\mbox{ZERO},env),\hole,ch]\not\trans{}}
 &
 \inference[ZERO(2)]
 {}
-{[(\mbox{ZERO},Env),k,ch]\trans{}[k[(\mbox{ZERO},Env)],\hole,ch]}
+{[(\mbox{ZERO},env),k,ch]\trans{}[k[(\mbox{ZERO},env)],\hole,ch]}
 %\\\\
 %\inference[Stop(2)]
 %{[\mbox{STOP},s]\not\trans{} & [\mbox{STOP},s]\not\trans{}}
