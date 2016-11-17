@@ -7,6 +7,7 @@
 \usepackage{fleqn}
 \usepackage{latexsym}
 \usepackage{listings}
+\usepackage{lscape}
 %%%%% theorem.sty
 %\usepackage{amsthm}
 %\theoremstyle{definition}
@@ -95,21 +96,26 @@ Perhaps, glib is installed into a different place.
 \section{Run-Time Options}
 \NHK allow us to use the following option to control the behaviour of \NHK.
   \begin{quotation}
-rccs [-tisq] [-f FORMULA] [-d TARGET [ARGUMENTS]] [-m MODEL].
+rccs [-tigk] [-f FORMULA] [-d TARGET [ARGUMENTS]] [-m MODEL].
   \end{quotation}
 When you give both -d and -f, then I examine the target in the verification mode, and give only -f then I verify a given property for a model.
 When you don't give both -f and -d, I will run the model in the emulation mode.
+Option -i provides interactive mode for users.
+When evaluation reaches to a binary operator in process expression, you can choose a left or right operand.
+The evaluation resumes after that choice.
+Option -g and -k switch the semantics of LTL formulae.
+-g turns into strong view and -k turns into weak view.
 %  \begin{quotation}
     \begin{itemize}
 \item -t : turns the trace flag on.
 \item -f "formula": specifies a formula and moves to verification mode.
 \item -d "target" ["arguments"]: specifies a debugging program and moves to collaboration mode.
-%\item -m "model" : specifies a source file written in RCCS (Not Yet).
+\item -m "model" : specifies a source file for a model written in RCCS (Not Yet).
 %\item -q : changes channels in RCCS to queue buffer.
-%\item -s : changes channels in RCCS to stack buffer (Default).
+%\item -s : changes channels in RCCS to stack buffer (default).
 \item -i : provides the interactive execution mode.
-\item -g : stronG view of the semantics (default).
-\item -k : weaK view of the semantics.
+\item -g : stronG view of the semantics of formulae (default).
+\item -k : weaK view of the semantics of formulae.
     \end{itemize}
 %  \end{quotation}
 %
@@ -177,7 +183,7 @@ All histories considered in this paper are assumed to be well-formed.
 A history $H$ induces an irreflexive relation \(\prec_{H}\) on a set of operations.
 \begin{definition}[Partial Order on Oeprations]
   \begin{displaymath}
-op_1\prec_{H}op_2\mbox{ if }\res(op_1)\mbox{ precedes }\inv(op_2)\mbox{ in }H.
+op_1\prec_{H}op_2{\tt if }\res(op_1)\mbox{ precedes }\inv(op_2)\mbox{ in }H.
   \end{displaymath}
 \end{definition}
 If $H$ is sequential then \(\prec_{H}\) is total.
@@ -374,7 +380,7 @@ The order of items in buffer does not need because the queue implementation must
 A transmission via action is atomic.
   \end{theorem}
   \begin{proof}
-Assosiation between a message media $m$ and a channel $a$
+Association between a message media $m$ and a channel $a$
     \begin{eqnarray*}
 \inv(a(v))&\equiv&\inv(\enq(v))\res(\enq(v)),\\
 \res(a(v))&\equiv&\inv(\deq(v))\res(\deq(v)).
@@ -405,7 +411,7 @@ At this moment \(\langle S_{a},P_{a}\rangle\in Poss_{H|a}\), thereby \(a=\emptys
 Therefore \({\cal A}(m)\in\{\emptyset\}\).
 
 By \thref{th:bound} \(\inv(\enq(v'))\res(\enq(v'))\) is contiguous to \(\inv(\deq(v))\res(\deq(v))\).
-Thus \({\cal A}(m)\) is included in a set of states which linearizations cause.
+Thus \({\cal A}(m)\) is included in a set of states which linearization cause.
 \QED
   \end{proof}
 %
@@ -445,7 +451,7 @@ If actions of a process \(P\) and all its derivatives
 \sort{P\mbox{++}Q}&=&\sort{P}\cup\sort{Q}\\
 \sort{P\|Q}&=&\sort{P}\cup\sort{Q}\\
 \sort{\mbox{if}\ b\ P\ Q}&=&\sort{P}\cup\sort{Q}\\
-\sort{A}&=&\sort{P} \mbox{  if $A\procdef P$}
+\sort{A}&=&\sort{P} \mbox{{\tt if} $A\procdef P$}
     \end{array}
   \end{displaymath}
 We distinguish names and co-names, and the observation of pairs of matching actions is possible because it is used to determine a next transition of the entire of processes.
@@ -580,18 +586,18 @@ We define a correspondence invariant \(C_i\) for each state \(q_i\).
 the correspondence invariant \(C_i\) is a predicate that holds on a model state $s$ if an automaton $m$ enters an automaton state \(q_j\) if there exists a history containing program state $s$ and $m$ is transformed from \(q_i\) into \(q_j\) by reading $s$.
 
 We formally define \emph{correspondence invariant} by induction \cite{Alpern:1989}.
-\begin{definition}[Correspondece Basis]
+\begin{theorem}[Correspondece Basis]\label{th:CorrBasis}
   \begin{displaymath}
-\forall i\colon q_j\in Q\mbox{ and }(Init_{\pi}\wedge T_{0j})\Rightarrow C_j,
+\forall j\colon q_j\in Q\mbox{ and }(Init_{\pi}\wedge T_{0j})\Rightarrow C_j,
   \end{displaymath}
 where \(Init_{\pi}\) is the initial states of model \(\pi\).
-\end{definition}
-\begin{definition}[Correspondece Induction]
+\end{theorem}
+\begin{theorem}[Correspondece Induction]\label{th:CorrInd}
   \begin{displaymath}
 \forall \alpha\colon\forall i\colon\alpha\in A\cup\bijection{A}\mbox{ and }q_i\in Q\mbox{ and }
 \{C_i\}\alpha\{\wedge_{q_j\in Q}(T_{ij}\Rightarrow C_j)\}.
   \end{displaymath}
-\end{definition}
+\end{theorem}
 
 In order to establish that model $\pi$ satisfies property $p$, we must show that every history $\sigma$ of $\pi$ accepts by $m$ for a property.
 There are two ways that $m$ fails to accept a history \(\sigma\) of $\pi$:
@@ -602,35 +608,41 @@ There are two ways that $m$ fails to accept a history \(\sigma\) of $\pi$:
 Thus, it suffices that (1) and (2) are impossible.
 Two obligations ensure that (1) is impossible.
 First, we must show that $m$ can make some transition from its start state upon reading the first state in a history.
-  \begin{definition}[Transition Basis]
+  \begin{theorem}[Transition Basis]
     \begin{displaymath}
 Init_{\pi}\Rightarrow\vee_{j}(q_j\in Q\mbox{ and }T_{0j})
     \end{displaymath}
-  \end{definition}
-Second, we must show that $m$ can always make a transiton upon reading subsequent states in a history.
+  \end{theorem}
+Second, we must show that $m$ can always make a transition upon reading subsequent states in a history.
 If $m$ is in state \(q_i\) then the model state read by $m$ satisfies a correspondence invariant \(C_i\).
-To avoid an undefined transition, any atomic action \(\alpha\) that is then executed must transform the model state so that one of the transiton predicates \(T_{ij}\) emanating from \(q_i\) holds.
+To avoid an undefined transition, any atomic action \(\alpha\) that is then executed must transform the model state so that one of the transition predicates \(T_{ij}\) emanating from \(q_i\) holds.
 This is guaranteed by 
-  \begin{definition}[Transition Induction]
+  \begin{theorem}[Transition Induction]
 For all \(\alpha (\in {\cal A})\), and for all $i$ \((q_i\in Q)\),
     \begin{displaymath}
 \{C_i\}\alpha\{\vee_{j:q_j\in Q}T_{ij}\}
     \end{displaymath}
-  \end{definition}
+  \end{theorem}
 
-Finaly, we present conditions to ensure that $m$ cannot reject \(\sigma\) by failing to enter accepting state infinitely often (scenario (2) above).
-  \begin{definition}[Knot Exit]
-For all \(\alpha (\in {\cal A})\), and for all $i$ \((q_i\in Q)\),
+Finally, we present conditions to ensure that $m$ cannot reject \(\sigma\) by failing to enter accepting state infinitely often (scenario (2) above).
+A set $Q'$ of automaton states is a subset of $Q$ that contains no accepting states.
+Let \(Q_{\INF}\) be a set of states that infinitly often appear on a history of a program,
+if $m$ reject a history then \(Q_{\INF}\) restricts to $Q'$.
+To ensure that \(Q_{\INF}\) of a history is not restricted to $Q'$, we construct a variant function
+ \(v_k:Q\times S\rightarrow N\), where $N$ is Natural numbers.
+When \(v_k(q,s)=0\), then $q$ is in $Q'$.
+  \begin{theorem}[Knot Exit]
     \begin{displaymath}
-\{C_i\}\alpha\{\vee_{j:q_j\in Q}T_{ij}\}
+\forall q_i\in Q'\colon (v_k(q_i,s_i)=0)\Rightarrow \neg C_i.
     \end{displaymath}
-  \end{definition}
-  \begin{definition}[Knot Variance]
+  \end{theorem}
+  \begin{theorem}[Knot Variance]
 For all \(\alpha (\in {\cal A})\), and for all \(q_i\in k\),
     \begin{displaymath}
 \{C_i\wedge0<v_k(q_i)=V\}\alpha\{\vee_{j:q_j\in Q}T_{ij}\wedge C_j\Rightarrow v_k(q_j)<V\}
     \end{displaymath}
-  \end{definition}
+  \end{theorem}
+We show later that those theorems hold in \NHK.
 %
 %%% Proving Safety Properties
 %
@@ -645,7 +657,7 @@ causes the transfer of the value of \(exp\), and execution of a matching input a
   \begin{displaymath}
 a(var)
   \end{displaymath}
-,which some other process performs, causes receive from channel \(a\).
+which some other process performs, causes receive from channel \(a\).
 an input action is delayed until some matching output action.
 
 Two matching actions are executed as an atomic action which causes an assignment to \(var\):
@@ -662,14 +674,17 @@ If \(\pi\) is composed of fragments \(\pi_1,\cdots,\pi_n\) then:
   \end{displaymath}
 If \(\pi\) is clear by context then \(\pi\) is omitted.
 
-The tool guarantee matching semantics between input and output actions.
-For example, \(P_1\|P_2\) in which each process is defined as follows does not produce input-output pairs \((\bijection{a}(1),a(x))\) and \((\bijection{a}(2),a(y))\):
+The modelling language guarantees matching semantics between input and output actions.
+All change of variables appears at execution of action, not in body.
+For example, consider \(P_1\|P_2\) in which each process is defined as follows:
   \begin{displaymath}
-    \begin{array}{lcr}
-P_1&=&a(x)\colon\ZERO\mbox{++}\bijection{a}(0)\colon a(y)\colon\ZERO,\\
-P_2&=&\bijection{a}(2)\colon\ZERO\mbox{++}a(z)\colon\bijection{a}(1)\colon\ZERO.\\
+    \begin{array}{lcl}
+P_1&=&a(x)\colon\ZERO\mbox{++}\bijection{a}(1)\colon a(x)\colon\ZERO,\\
+P_2&=&\bijection{a}(2)\colon\ZERO\mbox{++}a(z)\colon\bijection{a}(z+1)\colon\ZERO.
     \end{array}
   \end{displaymath}
+It does not produce a change of variables except input-output pairs.
+If changes except the pairs are abvairable, axiom Communication is meaningless.
 
 We present the following proof rules for all possible constructs of processes, according to \cite{Apt:1980}.
   \begin{displaymath}
@@ -687,11 +702,18 @@ We introduce this axiom corresponding to A.2' in \cite{Apt:1980} because the mod
 Communication \(\{p\}\alpha(x)\colon P\ \|\ \bijection{\alpha}(y)\colon Q\{q\}\) does not derives an arbitrary predicate.
 The form of $q$ restricts to the formula of \(\{p\}\alpha(x)\colon P\ \|\ \bijection{\alpha}(y)\colon Q\{x=y\wedge p\}\) where $x$ is not free in $p$.
 
+Generalizing axiom Output provides the following axiom:
+  \begin{displaymath}
+\infer[\mbox{Preservation,}]{\{p\}P\{p\}}
+                    {}
+  \end{displaymath}
+if free variables in \(p\) is not changed in execution of \(P\).
+
 Action prefixes mean sequential execution of actions.
 This syntactical structure provides the following rule.
   \begin{displaymath}
 \infer[\mbox{Sequence}]
-      {\{p\}[\alpha\colon P]\{q\}}
+      {\{p\}\alpha\colon P\{q\}}
       {\{p\}\alpha\{p'\}&\{p'\}P\{q\}}
   \end{displaymath}
 
@@ -703,7 +725,7 @@ The meaning of the following rule is that the post condition of summation must b
 
 Subsequently we use the following well-known axioms and proof rules.
   \begin{displaymath}
-\infer[\mbox{ZERO}]
+\infer[\mbox{Zero}]
       {\{p\}\ZERO\{p\}}
       {}
   \end{displaymath}
@@ -715,7 +737,7 @@ Subsequently we use the following well-known axioms and proof rules.
   \begin{displaymath}
 \infer[\mbox{Consequence}]
       {\{p\}P\{q\}}
-      {\{p\rightarrow p'\}P\{q'\rightarrow q\}}
+      {p\rightarrow p'&\{p'\}P\{q'\}&q'\rightarrow q}
   \end{displaymath}
   \begin{displaymath}
 \infer[\mbox{Conjunction}]
@@ -744,15 +766,42 @@ The meaning of this rule is that proofs cooperate to help each other proof to va
 More formally, the proofs of \(\{p_i\}P_i\{q_i\}\) for \(1\leq i\leq n\) cooperate if 
   \begin{enumerate}
 \item the assertions used in the proof contain no variables to change in \(P_j\) where \(j\neq i\), and
-\item \(\{\mbox{pre}_1\wedge\mbox{pre}_2\}\bijection{a}:P\|a:Q\{\mbox{post}_1\wedge\mbox{post}_2\}\) holds
-whenever \(\{\mbox{pre}_1\}\bijection{a}:P\{\mbox{post}_1\}\) and \(\{\mbox{pre}_2\}a:Q\{\mbox{post}_2\}\) are taken from the proof of \(\{p_i\}P\{q_i\}\) and \(\{p_j\}Q\{q_j\}\).
+\item \(\{\mbox{pre}_1\wedge\mbox{pre}_2\}\bijection{a}\colon P\|a\colon Q\{\mbox{post}_1\wedge\mbox{post}_2\}\) holds
+whenever \(\{\mbox{pre}_1\}\bijection{a}\colon P\{\mbox{post}_1\}\) and \(\{\mbox{pre}_2\}a\colon Q\{\mbox{post}_2\}\) are taken from the proof of \(\{p_i\}P\{q_i\}\) and \(\{p_j\}Q\{q_j\}\).
   \end{enumerate}
 We shall need the following axiom to establish cooperation:
   \begin{displaymath}
 \infer[\mbox{Communication}]
-      {\{\Truerm\}[a(x)\colon P\|\bijection{a}(y)\colon Q]\{x=y\}}
+      {\{\Truerm\}[a(x)\|\bijection{a}(y)]\{x=y\}}
       {}
   \end{displaymath}
+
+We introduce inference rules for cooperation because they cannot produce proof trees. 
+  \begin{displaymath}
+\infer[\mbox{Cooperation1,}]{\{p\}a(x)\{p\wedge(x=y)\}}
+                    {\{\Truerm\}[a(x)\|\bijection{a}(y)]\{x=y\}}
+  \end{displaymath}
+and
+  \begin{displaymath}
+\infer[\mbox{Cooperation2.}]{\{p\}\bijection{a}(y)\{p\wedge(x=y)\}}
+                    {\{\Truerm\}[a(x)\|\bijection{a}(y)]\{x=y\}}
+  \end{displaymath}
+
+The modelling language in \NHK allows self-communication, for example \((\bijection{a}(1)\colon a(x)\colon\ZERO)\).
+Using the system above, we can prove it:
+  \begin{center}
+    \begin{math}
+\infer{\{\Truerm\}\bijection{a}(1)\colon a(x)\colon\ZERO\{x=1\}}
+      {\infer{\{\Truerm\wedge\Truerm\}\bijection{a}(1)\colon a(x)\colon\ZERO\{x=1\wedge\Truerm\}}
+             {\Truerm\rightarrow\Truerm&
+              \infer{\{\Truerm\}\bijection{a}(1)\{\Truerm\}}{}&
+              \infer{\{\Truerm\}a(x)\colon\ZERO\{x=1\}}
+                    {\infer{\{\Truerm\}a(x)\{x=1\}}
+                           {\{\Truerm\}[a(x)\|\bijection{a}(1)]\{x=1\}}&
+                     \infer{\{x=1\}\ZERO\{x=1\}}{}}&
+              (x=1)\rightarrow(x=1)}}
+    \end{math}
+  \end{center}
 %
 %%% Proving Properties
 %
@@ -760,41 +809,183 @@ We shall need the following axiom to establish cooperation:
 Using axioms and rules in \secref{sec:ProofSystems}, we establish several proofs of assertions in \secref{sec:CorrespondenceBtweenModelsAndFormulae}.
 Variables occur in input and output actions present state variables of a model.
 Let $\Var=\{x,y, \cdots\}$ be a set of state variables. 
-When two processes cooperate through an input action \(a(x)\) and a matching output action \(\bijection{a}(v)\), a state of a model is chenged by the assignment \(x:=v\) which is atomic.
+When two processes cooperate through an input action \(a(x)\) and a matching output action \(\bijection{a}(v)\), a state of a model is changed by the assignment \(x:=v\) which is atomic.
 The assignment as \(x:=v\) denotes a state change from \(env\) to \(env[v/x]\).
 
-The following explains the correspondence between each predicate in \secref{sec:CorrespondenceBtweenModelsAndFormulae} and the modelling language in \secref{sec:OPERATINAL_SEMANTICS}.
-A correspondence invariant \(C_i\) intuitively predicates:
+The following explains the correspondence between instruments in \secref{sec:CorrespondenceBtweenModelsAndFormulae} and in the operational semantics in \secref{sec:OPERATINAL_SEMANTICS}.
+Correspondence invariant \(C_i\) predicates:
   \begin{itemize}
 \item a model changes its state to \(s_i\) and
-\item an automaton $m$ enters \(q_i\) reading \(s_i\).
+\item an automaton $m$ reaches to \(q_i\) reading \(s_i\).
   \end{itemize}
-\(C_i\) corresponds to a valuation and the fomula of the valuation becomes \((v_1=a_1)\wedge\cdots\wedge (v_n=a_n)\) when a set of state variables is \(\{v_1,\cdots,v_n\}\).
-We correspond a valuation to an environment in \NHK.
-Therefore, we regards an environment \(env_i\) as a predicate:
+A state \(s_i\) can be described by giving values of state variables in \(\Var\).
+A valuation is a function that maps variables in \(\Var\) to values in a domain \(D\).
+State \(s_i\) corresponds to a valuation.
+Environment \(env\) provided by transition within matching communication in a model is also a function that maps variables in \(\Var\) to values in a domain \(D\).
+Therefore, we regards an environment \(env_i\) in \NHK interpreter as a state \(s_i\).
+We can write a formula that is true on a valuation.
+Therefore, we define a formula \(Env_i\) for an environment as follows:
   \begin{displaymath}
 Env_i\equiv({\displaystyle\wedge_{i}}(v_i=a_i)).
   \end{displaymath}
-\(Init_{\pi}\) is \(Env_0\) which is \(\Truerm\).
+\(Env_i\) is equivalent to \(C_i\).
+\(Env_0\) is \(\{\Truerm\}\) and corresponds to \(Init_{\pi}\).
 
-Transition predicate \(T_{ij}\) is deriverd from transition function.
+Consider a pair of a model state and an automaton state for a property that the model should satisfy.
+Let \(\langle env_i,q_i\rangle\) be a pair of a model state and an automaton state.
+When the pair exists, \(C_{i}\) clearly holds on the pair.
+If a model changes states according to \figref{fig:semRCCS}, \(env_i\) appears in a configuration on the execution history of the model.
+In verification mode, \NHK translates a LTL formula to a process expression which has a special constant process as initial state to represent an automaton for the LTL formula.
+Each transition of an automaton is indicated with form \(({\tt if}\ (B_i)\ (E_T)\ (E_F))\).
+If \(env_j\models B_i\) then the automaton reaches to \(E_T\), otherwise \(E_F\).
+\(B_i\) on \(env_j\) is checked when an input and an output action are matched.
+The semantics of {\tt if} operator in verification mode are provided as follow:
+\begin{center}
+  \begin{tabular}{c}
+\inference[If(1)]
+{(P,env)\trans{[\alpha,\overline{\alpha}]}(P',env') & env'\models B}
+{\langle[(P,env),k,ch],({\tt if}\ B\ E_T\ E_F)\rangle\trans{ }\langle[(P',env'),k',ch'],E_T\rangle}
+\\\\
+\inference[If(2)]
+{(P,env)\trans{[\alpha,\overline{\alpha}]}(P,env')' & env'\not\models B&\neg\mbox{is-if}(E_F)}
+{\langle[(P,env),k,ch],({\tt if}\ B\ E_T\ E_F)\rangle\trans{ }\langle[(P',env'),k',ch'],E_F\rangle}
+\\\\
+\inference[If(3)]
+{(P,env)\trans{[\alpha,\overline{\alpha}]}(P,env')' & env'\not\models B&\mbox{is-if}(F)}
+{\langle[(P,env),k,ch],({\tt if}\ B\ E_T\ E_F)\rangle\trans{ }\langle[(P',env'),k',ch'],\mbox{eval}(E_F,env)\rangle}
+  \end{tabular}
+\end{center}
+where \(\mbox{is-if}(E)\) holds if the most outer operator of \(E\) is {\tt if}.
+If {\tt Abort} occurs, \NHK explores other execution paths of a model.
+
+Transition predicate \(T_{ij}\) is derived from transition function \(\delta: (Q\times S)\rightarrow 2^Q\) such that \(q_j\in\delta(q_i,s_j)\).
 \(T_{ij}\) holds for all \(s_j\) such that \(q_j\in\delta(q_i,s_j)\).
-Each transition of an automaton is indicated with form \((\mbox{if}\ (B_i)\ (P_i)\ (Q_i))\).
-Thus, we correspond \(T_{ij}\) to
-  \begin{displaymath}
-Env_j\models B_i.
-  \end{displaymath}
+\(T_{ij}\) holds on \(\langle env_j, ({\tt if}\ B_i\ P_i\ Q_i)\rangle\) if and only if \(env_j\models B_i\).
+When the continuation in the configuration contains a closure, then \(env_j=env_j^P\cup env_j^Q\).
+If pairs of the same variable name exist then the value of a variable becomes non-deterministic.
 
-To show that a model satisfies a property, we demonstrate proof obligations in \secref{sec:CorrespondenceBtweenModelsAndFormulae}.
+We show that \NHK satisfies \thref{th:CorrBasis}.
+The predicate depends on \(T_{0j}\) because we assume \(Env_0=\Truerm\).
+If \(T_{0j}\) then \(env_j\models B_i\).
+\(Env_j\) obviously holds at model state \(s_j\).
+Thus, \(C_j\) holds.
+
+\thref{th:CorrInd} is shown by a proof system in \secref{sec:ProofSystems}.
+Let \(Env_j\equiv Env_i\wedge(x=y)\) and \(env_j=env_i[x\leftarrow y]\).
+We show the proof tree, and then retrieve the following inferences on \(a(x)\colon P\).
+  \begin{center}
+    \begin{math}
+\inference{
+  \inference{
+    \inference{\{\Truerm\}[a(x)\|\bijection{a}(y)]\{x=y\}}
+    {\inference{\{Env_i\}a(x)\{env_j\models B_i\}\\
+                  B_i\rightarrow Env_j} {\{Env_i\}a(x)\{Env_j\}}}&
+     \inference{\vdots}
+     {\{Env_j\}\langle[(P,env_j^P),k',ch'],T_i\rangle\{Env_k\}}&env_j\models B_i}
+  {\{Env_i\}\langle[(a(x)\colon P,env_i),k,ch],(\mbox{if}\ B_i\ T_i\ F_i)\rangle\{Env_k\}}&\vdots}
+{\{Env_i\}\langle[(a(x)\colon P,env_i^P)\|(\bijection{a}(y)\colon Q,env_i^Q),k,ch],(\mbox{if}\ B_i\ T_i\ F_i)\rangle\{Env_k\}}
+    \end{math}
+  \end{center}
+In addition, we retrieve the following inferences on \(\bijection{a}(x)\colon Q\).
+  \begin{center}
+    \begin{math}
+\inference{
+  \vdots&
+    \inference{\inference{\{\Truerm\}[a(x)\|\bijection{a}(y)]\{x=y\}}
+               {\inference{\{Env_i\}\bijection{a}(y)\{env_j\models B_i\}\\B_i\rightarrow Env_j}
+                {\{Env_i\}\bijection{a}(y)\{Env_j\}}}&
+                   \inference{\vdots}
+                   {\{Env_j\}\langle[(Q,env_i^Q),k,ch],T_i\rangle\{Env_k\}}&env_j\models B_i}
+   {\{Env_j\}\langle[(\bijection{a}(y)\colon Q,env_i^Q,k,ch]\rangle\{Env_k\}}}
+{\{Env_i\}\langle[(a(x)\colon P,env_i^P)\|(\bijection{a}(y)\colon Q,env_i^Q),k,ch],(\mbox{if}\ B_i\ T_i\ F_i)\rangle\{Env_k\}}
+    \end{math}
+  \end{center}
+We can ignore the inferences of P and Q because we now discuss the one step of matching actions.
+
+We must show that every history of a model is accepted by automaton $m$.
+There are two ways that $m$ fails to accept history \(\sigma\) of model \(M\):
+  \begin{enumerate}
+\renewcommand{\theenumi}{\roman{enumi}}
+\renewcommand{\labelenumi}{(\roman{enumi})}
+\item a model attempts an undefined transtion when reading \(\sigma\), or \label{line:UndefTrans}
+\item a model never reachs to an accepting state after some finite prefix of \(\sigma\). \label{line:NeverAccept}
+  \end{enumerate}
+In order to prove that every history of \(M\), it suffices to show that (\ref{line:UndefTrans}) and (\ref{line:NeverAccept}) are impossible.
+The above proof tree shows it in addition to the correspondence invariant.
+If \(env_j\models B_i\) then \(env_j\) at which \(B_i\) holds exists.
+By the definition of \(Env_j\), \(Env_j\) clearly holds at \(env_j\).
+Therefore, if \(env_j\models B_i\) then \(env_j\models Env_j\).
+To avoid an undefined transition, an automaton for a property must transform from \(q_i\) to \(q_j\).
+The one of conditions must holds at model state \(env_j\) that the execution of a pair of matching actions produces from \(env_i\).
+Therefore, if \(env_j\models Env_j\) then \(env_j\models B_i\).
+Thus, any state of a model relates to a state of an automaton that stay in a range while reading a history of a model.
+
+We derive conditions to ensure that $m$ cannot reject a history by (\ref{line:NeverAccept}).
+To do this, we define a relation $\ll$ on a set of automaton states.
+\(q_{i-1}\ll q_n\) if for each i from 1 to n, there is $n$ such that \(\delta(q_{i-1},s)=q_{i}\).
+Clearly, \(\ll\) is a well-founded relation on a set of automaton states.
+Since \(\ll\) is well-founded, the following function of which the range is an initial segment of ordinals exists:
+  \begin{displaymath}
+\rho(q_j)=\sup\{\rho(q_i)+1\colon q_i\ll q_j\}.
+  \end{displaymath}
+Assume that a subset \(Q'\) of automaton states contains no accepting states.
+Since subset \(Q'\) is well-ordered by \(\ll\), the least element \(q{_\xi}\) of \(Q'\) exists.
+If $m$ rejects a history by (\ref{line:NeverAccept}) then there exists a path from \(q_{\eta}\) to \(q_{\xi}\).
+We construct a variant function \(v(q_{\eta},s)\) which is zero when \(\rho(q_{\xi})=\rho(q_{\eta})+1\).
+
+A propety $P$ is liveness if and only if;
+  \begin{displaymath}
+\forall\alpha\in S^*\colon\exists\beta\in S^{\omega}\colon\alpha\beta\models P.
+  \end{displaymath}
+Get the negation of it,
+  \begin{displaymath}
+\exists\alpha\in S^*\colon\forall\beta\in S^{\omega}\colon\alpha\beta\not\models P.
+  \end{displaymath}
+Then, An automaton specifies a liveness property has infinite sequences of automaton states, reading \(\beta\).
+In this case, a sequence of automaton states by reading \(\beta\) contains no accepting states.
+Let \(Q'\) be a set of automaton states in the sequence.
+\(Q'\) has the \(\ll\)-minimal element which is then the least element.
+If an automaton accepts a history then the automaton does not enter into \(Q'\).
+Thus, let \(q_{\xi}\) be the least element, \(\delta(q_{\eta},s_{\xi})\neq q_{\xi}\) at state \(q_{\eta}\) such that \(\rho(q_{\xi})=\rho(q_{\eta})+1\).
+Given \(v(q_{\eta},s)\) with \(\xi-\eta-1\), \(v(q_{\eta},s)=0\Rightarrow\neg C_{\xi}\).
+In \NHK, \(v(q_{\eta},env_{\eta})=0\Rightarrow\neg Env_i\).
+
+Since in \NHK, \(s_i\) is \(env_i\), \(C_i\) is \(Env_i\), and \(T_{ij}\) is \(env_j\models B_i\):
+  \begin{center}
+    \begin{math}
+\inference{
+  \inference{
+    \inference{\{\Truerm\}[a(x)\|\bijection{a}(y)]\{x=y\}}
+    {\inference{\{Env_i\}a(x)\{env_j\models B_i\}\\
+                  B_i\rightarrow Env_j} {\{Env_i\}a(x)\{Env_j\}}}&
+     \inference{\vdots}
+     {\{Env_j\}\langle[(P,env_j^P),k',ch'],T_i\rangle\{Env_k\}}&env_j\models B_i}
+  {\{Env_i\}\langle[(a(x)\colon P,env_i),k,ch],(\mbox{if}\ B_i\ T_i\ F_i)\rangle\{Env_k\}}&\vdots}
+{\{Env_i\wedge 0<v(q_i,env_i)=V\}\langle[(a(x)\colon P,env_i^P)\|(\bijection{a}(y)\colon Q,env_i^Q),k,ch],(\mbox{if}\ B_i\ T_i\ F_i)\rangle\{env_j\models B_i\wedge Env_j\Rightarrow v(q_j,env_j)<V\}}
+    \end{math}
+  \end{center}
+In addition, we retrieve the following inferences on \(\bijection{a}(x)\colon Q\).
+  \begin{center}
+    \begin{math}
+\inference{
+  \vdots&
+    \inference{\inference{\{\Truerm\}[a(x)\|\bijection{a}(y)]\{x=y\}}
+               {\inference{\{Env_i\}\bijection{a}(y)\{env_j\models B_i\}\\B_i\rightarrow Env_j}
+                {\{Env_i\}\bijection{a}(y)\{Env_j\}}}&
+                   \inference{\vdots}
+                   {\{Env_j\}\langle[(Q,env_i^Q),k,ch],T_i\rangle\{Env_k\}}&env_j\models B_i}
+   {\{Env_j\}\langle[(\bijection{a}(y)\colon Q,env_i^Q,k,ch]\rangle\{Env_k\}}}
+{\{Env_i\}\langle[(a(x)\colon P,env_i^P)\|(\bijection{a}(y)\colon Q,env_i^Q),k,ch],(\mbox{if}\ B_i\ T_i\ F_i)\rangle\{Env_k\}}
+    \end{math}
+  \end{center}
 %
-%%% EXPLORING STATE SPACE
+%%% exploring state space
 %
-%\section{Exploring State Space}
+%\section{exploring state space}
 %
-%%% BIBLIOGRAPHY
+%%% bibliography
 %
 \bibliographystyle{alpha}
 \bibliography{reference}
 
 \end{document}
-

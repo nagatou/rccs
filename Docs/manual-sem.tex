@@ -1,5 +1,5 @@
 %\onecolumn
-In this section, we define the semantics of the discription language.
+In this section, we define the semantics of the model discription language.
 For this purpose, we define an abstract machine.
 We define context \(k\).
 The following grammar defines a set of contexts.
@@ -41,7 +41,9 @@ A bijection function on names assocites a name \(a\) to a co-name, written with 
 Notice that \(\bijection{\bijection{\alpha}}=\alpha\).
 \(env[\langle x\rangle\leftarrow\langle v\rangle,\langle y\rangle\leftarrow\langle w\rangle,\cdots]\) means \((env[\langle x\rangle\leftarrow \langle v\rangle])[\langle y\rangle\leftarrow\langle w\rangle]\cdots\), and
 \(ch[\alpha\leftarrow \langle v\rangle,\beta\leftarrow \langle w\rangle,\cdots]\) means \((ch[\alpha\leftarrow\langle v\rangle])[\beta\leftarrow\langle w\rangle],\cdots\).
-\begin{center}
+We show the operational semantics of RCCS in \figref{fig:semRCCS}
+\begin{figure}[tb]
+\scriptsize
   \begin{tabular}{ll}
 \multicolumn{2}{c}{
 \inference[Output(1)]
@@ -61,7 +63,7 @@ Notice that \(\bijection{\bijection{\alpha}}=\alpha\).
 \multicolumn{2}{c}{
 \inference[Input]
 {(a\leftarrow\langle v\rangle)\in ch}
-{[(a(x)\colon P,env),k,ch[a\leftarrow\langle v\rangle]]\trans{a}[(k[P],env[\langle x\rangle\leftarrow\langle v\rangle]),\hole,ch]}
+{[(a(x)\colon P,env),k,ch[a\leftarrow\langle v\rangle]]\trans{a}[k[(P,env[\langle x\rangle\leftarrow\langle v\rangle])],\hole,ch]}
 }\\\\
 \multicolumn{2}{c}{
 \inference[Sum(1)]
@@ -103,11 +105,11 @@ Notice that \(\bijection{\bijection{\alpha}}=\alpha\).
 %}\\\\
 \inference[If(1)]
 {\mbox{eval-val}(B,env)\\ [(T,env),k,ch]\trans{\alpha}[(T',env'),k',ch']}
-{[(\mbox{if}\ B\ T\ E,env),k,ch]\trans{\alpha}[(T',env'),k',ch']}
+{[({\tt if}\ B\ T\ E,env),k,ch]\trans{\alpha}[(T',env'),k',ch']}
 &
 \inference[If(2)]
 {\neg\mbox{eval-val}(B,env)\\[(E,env),k,ch]\trans{\alpha}[(E',env'),k',ch']}
-{[(\mbox{if}\ B\ T\ E,env),k,ch]\trans{\alpha}[(E',env'),k',ch']}
+{[({\tt if}\ B\ T\ E,env),k,ch]\trans{\alpha}[(E',env'),k',ch']}
 \\\\
 \multicolumn{2}{c}{
 \inference[Res]
@@ -146,4 +148,6 @@ Notice that \(\bijection{\bijection{\alpha}}=\alpha\).
 %                     {[\mbox{STOP},s]\not\trans{}
 %                      & [\mbox{STOP},s]\not\trans{}}
   \end{tabular}
-\end{center}
+\caption{Semantics of RCCS}
+\label{fig:semRCCS}
+\end{figure}
