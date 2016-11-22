@@ -34,7 +34,8 @@
 \newtheorem{axiom}{AXIOM}[section]
 \newtheorem{theorem}{THEOREM}[section]
 \newtheorem{lemma}{LEMMA}[section]
-\usepackage[inference]{semantic}
+\usepackage[inference,shorthand]{semantic}
+\mathlig{->}{\rightarrow}
 \input{style}
 %----------------------------------------------------------
 \title{Welcome to the world of \NHK\\
@@ -882,7 +883,7 @@ We show the proof tree, and then retrieve the following inferences on \(a(x)\col
                   B_i\rightarrow Env_j} {\{Env_i\}a(x)\{Env_j\}}}&
      \inference{\vdots}
      {\{Env_j\}\langle[(P,env_j^P),k',ch'],T_i\rangle\{Env_k\}}&env_j\models B_i}
-  {\{Env_i\}\langle[(a(x)\colon P,env_i),k,ch],(\mbox{if}\ B_i\ T_i\ F_i)\rangle\{Env_k\}}&\vdots}
+  {\{Env_i\}\langle[(a(x)\colon P,env_i^P),k,ch],(\mbox{if}\ B_i\ T_i\ F_i)\rangle\{Env_k\}}&\vdots}
 {\{Env_i\}\langle[(a(x)\colon P,env_i^P)\|(\bijection{a}(y)\colon Q,env_i^Q),k,ch],(\mbox{if}\ B_i\ T_i\ F_i)\rangle\{Env_k\}}
     \end{math}
   \end{center}
@@ -895,7 +896,7 @@ In addition, we retrieve the following inferences on \(\bijection{a}(x)\colon Q\
                {\inference{\{Env_i\}\bijection{a}(y)\{env_j\models B_i\}\\B_i\rightarrow Env_j}
                 {\{Env_i\}\bijection{a}(y)\{Env_j\}}}&
                    \inference{\vdots}
-                   {\{Env_j\}\langle[(Q,env_i^Q),k,ch],T_i\rangle\{Env_k\}}&env_j\models B_i}
+                   {\{Env_j\}\langle[(Q,env_i^Q),k',ch'],T_i\rangle\{Env_k\}}&env_j\models B_i}
    {\{Env_j\}\langle[(\bijection{a}(y)\colon Q,env_i^Q,k,ch]\rangle\{Env_k\}}}
 {\{Env_i\}\langle[(a(x)\colon P,env_i^P)\|(\bijection{a}(y)\colon Q,env_i^Q),k,ch],(\mbox{if}\ B_i\ T_i\ F_i)\rangle\{Env_k\}}
     \end{math}
@@ -935,11 +936,11 @@ We construct a variant function \(v(q_{\eta},s)\) which is zero when \(\rho(q_{\
 
 A propety $P$ is liveness if and only if;
   \begin{displaymath}
-\forall\alpha\in S^*\colon\exists\beta\in S^{\omega}\colon\alpha\beta\models P.
+\forall\alpha\in S^{*}\colon\exists\beta\in S^{\omega}\colon\alpha\beta\models\varphi.
   \end{displaymath}
 Get the negation of it,
   \begin{displaymath}
-\exists\alpha\in S^*\colon\forall\beta\in S^{\omega}\colon\alpha\beta\not\models P.
+\exists\alpha\in S^{*}\colon\forall\beta\in S^{\omega}\colon\alpha\beta\not\models\varphi.
   \end{displaymath}
 Then, An automaton specifies a liveness property has infinite sequences of automaton states, reading \(\beta\).
 In this case, a sequence of automaton states by reading \(\beta\) contains no accepting states.
@@ -950,34 +951,61 @@ Thus, let \(q_{\xi}\) be the least element, \(\delta(q_{\eta},s_{\xi})\neq q_{\x
 Given \(v(q_{\eta},s)\) with \(\xi-\eta-1\), \(v(q_{\eta},s)=0\Rightarrow\neg C_{\xi}\).
 In \NHK, \(v(q_{\eta},env_{\eta})=0\Rightarrow\neg Env_i\).
 
-Since in \NHK, \(s_i\) is \(env_i\), \(C_i\) is \(Env_i\), and \(T_{ij}\) is \(env_j\models B_i\):
+Linveness properties require a subset containg no accepting states since an automaton specifing a liveness property moves to some state by all reading input.
+To ensure that \(\alpha\) such that for any inifinte sequence \(\beta\) the automaton rejects \(\alpha\beta\), does not exist.
+we show that the variant function is decreased by every matching action pair, 
+and introduce the axiom for communication;
+  \begin{displaymath}
+\infer[\mbox{Communication*}]
+      {\{\Truerm\wedge v(q_i,s_i)\}[a(x)\|\bijection{a}(y)]\{x=y\wedge v(\delta(q_i,s_i),s_j)=v(q_i,s_i)-1\}}
+      {}
+  \end{displaymath}
+Let \(s_i\) be \(env_i\), \(C_i\) \(Env_i\), \(T_{ij}\) \(env_j\models B_i\), and \(q_i\) \((\mbox{if}\ B_i\ T_i\ F_i)\) in \NHK:
   \begin{center}
     \begin{math}
 \inference{
   \inference{
-    \inference{\{\Truerm\}[a(x)\|\bijection{a}(y)]\{x=y\}}
-    {\inference{\{Env_i\}a(x)\{env_j\models B_i\}\\
-                  B_i\rightarrow Env_j} {\{Env_i\}a(x)\{Env_j\}}}&
+    \inference{\parbox{76mm}{\(\{\Truerm\wedge v(q_i,env_i)\}\)\\\([a(x)\|\bijection{a}(y)]\)\\
+                             \(\{x=y\wedge v(\delta(q_i,env_i),env_j)=v(q_i,env_i)-1\}\)}}
+    {\inference{\parbox{48mm}{\(\{Env_i\wedge 0<v(q_i,env_i)\}\)\\
+                             \(a(x)\)\\
+                             \(\{env_j\models B_i\)\\\(\wedge v(T_i,env_j)=v(q_i,env_i)-1\}\)}&
+                  \parbox{46mm}{\(v(T_i,env_j)=v(q_i,env_i)-1\)\\\(->v(T_i,env_j)<v(q_i,env_i)\)}}
+               {\parbox{79mm}{\(\{Env_i\wedge 0<v(q_i,env_i)\}\)\\\(a(x)\)\\\(\{(env_j\models B_i\wedge Env_j)->(v(T_i,env_j)<v(q_i,env_i))\}\)}}}&
      \inference{\vdots}
-     {\{Env_j\}\langle[(P,env_j^P),k',ch'],T_i\rangle\{Env_k\}}&env_j\models B_i}
-  {\{Env_i\}\langle[(a(x)\colon P,env_i),k,ch],(\mbox{if}\ B_i\ T_i\ F_i)\rangle\{Env_k\}}&\vdots}
-{\{Env_i\wedge 0<v(q_i,env_i)=V\}\langle[(a(x)\colon P,env_i^P)\|(\bijection{a}(y)\colon Q,env_i^Q),k,ch],(\mbox{if}\ B_i\ T_i\ F_i)\rangle\{env_j\models B_i\wedge Env_j\Rightarrow v(q_j,env_j)<V\}}
+     {\parbox{35mm}{\(\{Env_j\}\)\\
+                   \(\langle[(P,env_j^P),k',ch'],T_i\rangle\)\\
+                   \(\{Env_k\}\)}}}
+  {\{Env_i\wedge 0<v(q_i,env_i)\}\langle[(a(x)\colon P,env_i^P),k,ch],q_i\rangle\{Env_k\}}&\vdots}
+{\{Env_i\wedge 0<v(q_i,env_i)\}\langle[(a(x)\colon P,env_i^P)\|(\bijection{a}(y)\colon Q,env_i^Q),k,ch],q_i\rangle\{Env_k\}}
     \end{math}
   \end{center}
 In addition, we retrieve the following inferences on \(\bijection{a}(x)\colon Q\).
   \begin{center}
     \begin{math}
 \inference{
-  \vdots&
-    \inference{\inference{\{\Truerm\}[a(x)\|\bijection{a}(y)]\{x=y\}}
-               {\inference{\{Env_i\}\bijection{a}(y)\{env_j\models B_i\}\\B_i\rightarrow Env_j}
-                {\{Env_i\}\bijection{a}(y)\{Env_j\}}}&
-                   \inference{\vdots}
-                   {\{Env_j\}\langle[(Q,env_i^Q),k,ch],T_i\rangle\{Env_k\}}&env_j\models B_i}
-   {\{Env_j\}\langle[(\bijection{a}(y)\colon Q,env_i^Q,k,ch]\rangle\{Env_k\}}}
-{\{Env_i\}\langle[(a(x)\colon P,env_i^P)\|(\bijection{a}(y)\colon Q,env_i^Q),k,ch],(\mbox{if}\ B_i\ T_i\ F_i)\rangle\{Env_k\}}
+  \inference{
+    \inference{\parbox{76mm}{\(\{\Truerm\wedge v(q_i,env_i)\}\)\\\([a(x)\|\bijection{a}(y)]\)\\
+                             \(\{x=y\wedge v(\delta(q_i,env_i),env_j)=v(q_i,env_i)-1\}\)}}
+    {\inference{\parbox{48mm}{\(\{Env_i\wedge 0<v(q_i,env_i)\}\)\\
+                             \(\bijection{a}(x)\)\\
+                             \(\{env_j\models B_i\)\\\(\wedge v(T_i,env_j)=v(q_i,env_i)-1\}\)}&
+                  \parbox{46mm}{\(v(T_i,env_j)=v(q_i,env_i)-1\)\\\(->v(T_i,env_j)<v(q_i,env_i)\)}}
+               {\parbox{79mm}{\(\{Env_i\wedge 0<v(q_i,env_i)\}\)\\
+                              \(\bijection{a}(x)\)\\
+                              \(\{(env_j\models B_i\wedge Env_j)->(v(T_i,env_j)<v(q_i,env_i))\}\)}}}&
+     \inference{\vdots}
+     {\parbox{35mm}{\(\{Env_j\}\)\\
+                   \(\langle[(Q,env_j^Q),k',ch'],T_i\rangle\)\\
+                   \(\{Env_k\}\)}}}
+  {\{Env_i\wedge 0<v(q_i,env_i)\}\langle[(a(x)\colon Q,env_i^Q),k,ch],q_i\rangle\{Env_k\}}&\vdots}
+{\{Env_i\wedge 0<v(q_i,env_i)\}\langle[(a(x)\colon P,env_i^P)\|(\bijection{a}(y)\colon Q,env_i^Q),k,ch],q_i\rangle\{Env_k\}}
     \end{math}
   \end{center}
+
+The variant function follows obligations O3\textendash O4 in \cite{Alpern:1989}, and
+the existance of \(C_{i}\) and \(T_{ij}\) means the existance of an invariant $I$ which follows oblications O1\textendash O2 in \cite{Alpern:1989}.
+Thus, the method of \NHK is sound and complete by \cite{Alpern:1989}.
 %
 %%% exploring state space
 %
