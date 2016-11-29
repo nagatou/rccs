@@ -627,7 +627,7 @@ For all \(\alpha (\in {\cal A})\), and for all $i$ \((q_i\in Q)\),
 
 Finally, we present conditions to ensure that $m$ cannot reject \(\sigma\) by failing to enter accepting state infinitely often (scenario (2) above).
 A set $Q'$ of automaton states is a subset of $Q$ that contains no accepting states.
-Let \(Q_{\INF}\) be a set of states that infinitly often appear on a history of a program,
+Let \(Q_{\INF}\) be a set of states that infinitely often appear on a history of a program,
 if $m$ reject a history then \(Q_{\INF}\) restricts to $Q'$.
 To ensure that \(Q_{\INF}\) of a history is not restricted to $Q'$, we construct a variant function
  \(v_k:Q\times S\rightarrow N\), where $N$ is Natural numbers.
@@ -685,7 +685,7 @@ P_2&=&\bijection{a}(2)\colon\ZERO\mbox{++}a(z)\colon\bijection{a}(z+1)\colon\ZER
     \end{array}
   \end{displaymath}
 It does not produce a change of variables except input-output pairs.
-If changes except the pairs are abvairable, axiom Communication is meaningless.
+If changes except the pairs are available, axiom Communication is meaningless.
 
 We present the following proof rules for all possible constructs of processes, according to \cite{Apt:1980}.
   \begin{displaymath}
@@ -843,21 +843,33 @@ If \(env_j\models B_i\) then the automaton reaches to \(E_T\), otherwise \(E_F\)
 The semantics of {\tt if} operator in verification mode are provided as follow:
 \begin{center}
   \begin{tabular}{c}
-\inference[If(1)]
-{(P,env)\trans{[\alpha,\overline{\alpha}]}(P',env') & env'\models B}
+\inference[IF(1)]
+{(P,env)\trans{[\alpha,\overline{\alpha}]}(P',env') & env'\models B&\neg\mbox{is-if}(E_F)}
 {\langle[(P,env),k,ch],({\tt if}\ B\ E_T\ E_F)\rangle\trans{ }\langle[(P',env'),k',ch'],E_T\rangle}
 \\\\
-\inference[If(2)]
+\inference[IF(2)]
+{(P,env)\trans{[\alpha,\overline{\alpha}]}(P',env') & env'\models B&\mbox{is-if}(E_F)}
+{\langle[(P,env),k,ch],({\tt if}\ B\ E_T\ E_F)\rangle\trans{ }\langle[(P',env'),k',ch'],\mbox{eval}(E_T,env)\rangle}
+\\\\
+\inference[IF(3)]
 {(P,env)\trans{[\alpha,\overline{\alpha}]}(P,env')' & env'\not\models B&\neg\mbox{is-if}(E_F)}
 {\langle[(P,env),k,ch],({\tt if}\ B\ E_T\ E_F)\rangle\trans{ }\langle[(P',env'),k',ch'],E_F\rangle}
 \\\\
-\inference[If(3)]
+\inference[IF(4)]
 {(P,env)\trans{[\alpha,\overline{\alpha}]}(P,env')' & env'\not\models B&\mbox{is-if}(F)}
 {\langle[(P,env),k,ch],({\tt if}\ B\ E_T\ E_F)\rangle\trans{ }\langle[(P',env'),k',ch'],\mbox{eval}(E_F,env)\rangle}
   \end{tabular}
 \end{center}
 where \(\mbox{is-if}(E)\) holds if the most outer operator of \(E\) is {\tt if}.
-If {\tt Abort} occurs, \NHK explores other execution paths of a model.
+If {\tt Abort} which is a special constant process without arguments occurs, \NHK explores other execution paths of a model.
+\begin{center}
+  \begin{tabular}{c}
+\inference[ABORT]
+{}
+{\langle[(P,env),k,ch],({\tt Abort})\rangle\trans{ }\langle[\emptyset,\emptyset,\emptyset],({\tt Abort})\rangle},
+  \end{tabular}
+\end{center}
+where \([\emptyset,\emptyset,\emptyset]\) means to terminate exploration on a path. 
 
 Transition predicate \(T_{ij}\) is derived from transition function \(\delta: (Q\times S)\rightarrow 2^Q\) such that \(q_j\in\delta(q_i,s_j)\).
 \(T_{ij}\) holds for all \(s_j\) such that \(q_j\in\delta(q_i,s_j)\).
@@ -908,8 +920,8 @@ There are two ways that $m$ fails to accept history \(\sigma\) of model \(M\):
   \begin{enumerate}
 \renewcommand{\theenumi}{\roman{enumi}}
 \renewcommand{\labelenumi}{(\roman{enumi})}
-\item a model attempts an undefined transtion when reading \(\sigma\), or \label{line:UndefTrans}
-\item a model never reachs to an accepting state after some finite prefix of \(\sigma\). \label{line:NeverAccept}
+\item a model attempts an undefined transition when reading \(\sigma\), or \label{line:UndefTrans}
+\item a model never reaches to an accepting state after some finite prefix of \(\sigma\). \label{line:NeverAccept}
   \end{enumerate}
 In order to prove that every history of \(M\), it suffices to show that (\ref{line:UndefTrans}) and (\ref{line:NeverAccept}) are impossible.
 The above proof tree shows it in addition to the correspondence invariant.
@@ -934,7 +946,7 @@ Since subset \(Q'\) is well-ordered by \(\ll\), the least element \(q{_\xi}\) of
 If $m$ rejects a history by (\ref{line:NeverAccept}) then there exists a path from \(q_{\eta}\) to \(q_{\xi}\).
 We construct a variant function \(v(q_{\eta},s)\) which is zero when \(\rho(q_{\xi})=\rho(q_{\eta})+1\).
 
-A propety $P$ is liveness if and only if;
+A property $P$ is liveness if and only if;
   \begin{displaymath}
 \forall\alpha\in S^{*}\colon\exists\beta\in S^{\omega}\colon\alpha\beta\models\varphi.
   \end{displaymath}
@@ -951,8 +963,8 @@ Thus, let \(q_{\xi}\) be the least element, \(\delta(q_{\eta},s_{\xi})\neq q_{\x
 Given \(v(q_{\eta},s)\) with \(\xi-\eta-1\), \(v(q_{\eta},s)=0\Rightarrow\neg C_{\xi}\).
 In \NHK, \(v(q_{\eta},env_{\eta})=0\Rightarrow\neg Env_i\).
 
-Linveness properties require a subset containg no accepting states since an automaton specifing a liveness property moves to some state by all reading input.
-To ensure that \(\alpha\) such that for any inifinte sequence \(\beta\) the automaton rejects \(\alpha\beta\), does not exist.
+Liveness properties require a subset containing no accepting states since an automaton specifying a liveness property moves to some state by all reading input.
+To ensure that \(\alpha\) such that for any infinite sequence \(\beta\) the automaton rejects \(\alpha\beta\), does not exist.
 we show that the variant function is decreased by every matching action pair, 
 and introduce the axiom for communication;
   \begin{displaymath}
@@ -1004,7 +1016,7 @@ In addition, we retrieve the following inferences on \(\bijection{a}(x)\colon Q\
   \end{center}
 
 The variant function follows obligations O3\textendash O4 in \cite{Alpern:1989}, and
-the existance of \(C_{i}\) and \(T_{ij}\) means the existance of an invariant $I$ which follows oblications O1\textendash O2 in \cite{Alpern:1989}.
+the existence of \(C_{i}\) and \(T_{ij}\) means the existence of an invariant $I$ which follows obligations O1\textendash O2 in \cite{Alpern:1989}.
 Thus, the method of \NHK is sound and complete by \cite{Alpern:1989}.
 %
 %%% exploring state space
