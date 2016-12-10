@@ -73,7 +73,6 @@ void * error(error_code_t code,const char *format,...)/*B028*/
       case FATAL:{
          epilogue();
          exit(code);
-//      abort();
          break;
       }
       case SUCCESS:

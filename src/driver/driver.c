@@ -286,6 +286,10 @@ static list_t lookup1(const element_t name,list_t env)
    else{
       value = getls(car(env));
       lval = car(value);
+//      if (eqel(name,lval))
+//         return(getls(car(cdr(value))));
+//      else
+//         return(lookup1(name,cdr(env)));
       switch(name.type){
          case TOKEN:
             switch(lval.type){
@@ -293,17 +297,18 @@ static list_t lookup1(const element_t name,list_t env)
                   return((list_t)error(FATAL|EEL,"%s already released by GC(lookup1234).\n", lval));
                   break;
                case TOKEN:
-                  if ((name.entry.tk->token_name==ID)&&(lval.entry.tk->token_name==ID)){
-                     if (strcmp(name.entry.tk->attr.id.spl_ptr,lval.entry.tk->attr.id.spl_ptr)==0)
-                        return(getls(car(cdr(value))));
-                     else
-                        return(lookup1(name,cdr(env)));
+//                  if ((name.entry.tk->token_name==ID)&&(lval.entry.tk->token_name==ID)){
+//                     if (strcmp(name.entry.tk->attr.id.spl_ptr,lval.entry.tk->attr.id.spl_ptr)==0)
+                  if (eqel(name,lval)){
+                     return(getls(car(cdr(value))));
+//                     else
+//                        return(lookup1(name,cdr(env)));
                   }
                   else
                      return(lookup1(name,cdr(env)));
                   break;
                case LIST:{
-                  list_t ret = lookup2(name,getls(car(env)));
+                  list_t ret = lookup2(name,value); //                  list_t ret = lookup2(name,getls(car(env)));
                   if (ret==(list_t)NIL)
                      return(lookup1(name,cdr(env)));
                   else
@@ -417,8 +422,6 @@ static list_t lookup(element_t name,list_t env,queue_t ch)
    if (ret == (list_t)NIL){
       if ((ret=lookup_ch1(ch,name))==(list_t)NIL){
          if (!(g_step_exec==FALSE)&&(!isempty_buf(&formula)))
-/*** It is here to modify for each initial value which is regarded as zero in current.  ***/
-//            longjmp(when_length_of_path_is_zero,1);
             return(ret);
          else
             return((list_t)error(WARNING|EEL,"unbound(driver.c:lookup406): %s\n",name));
@@ -429,7 +432,7 @@ static list_t lookup(element_t name,list_t env,queue_t ch)
    else
       return(ret);
 }
-static list_t lookup_env(element_t name,list_t env,queue_t ch)
+static list_t lookup_env(element_t name,list_t env)
 {
    list_t ret=lookup1(name,env);
 #  ifdef DEBUG_ENV
@@ -694,7 +697,14 @@ static elementp derivatives1(element_t rate,
          }
          break;
       case SEND:
-         return(&label);
+         if (isouter_action(label))
+            return(&label);
+         else{
+            if (istrans_in_act(label,env,ch))
+               return((elementp)NIL);
+            else
+               return(&label);
+         }
          break;
       default:
          return((elementp)error(FATAL|EEL,"invalid primitive agent expression(derivatives1402) (%s)\n", rate));
@@ -749,12 +759,12 @@ static elementp derivatives(list_t exp,list_t env,queue_t ch)
             return((elementp)!NIL);
          else{
             if (isempty(getls(car(cdr(cdr(exp))))))     /* B027 */
-               return(derivatives(getls(car(cdr(lookup_env(car(cdr(exp)),env,ch)))),/* B043*/
+               return(derivatives(getls(car(cdr(lookup_env(car(cdr(exp)),env)))),/* B043*/
                                   env,                /* B027 */
                                   ch)); /* B043 */
             else                                        /* B027 */
-               return(derivatives(getls(car(cdr(lookup_env(car(cdr(exp)),env,ch)))), /* B043 */
-                                  n_boundls(getls(car(lookup(car(cdr(exp)),env,ch))), /* B043 */
+               return(derivatives(getls(car(cdr(lookup_env(car(cdr(exp)),env)))), /* B043 */
+                                  n_boundls(getls(car(lookup_env(car(cdr(exp)),env))), /* B043 */
                                             getls(car(cdr(cdr(exp)))),
                                             env),
                                    ch)); /* B043 */
@@ -1510,7 +1520,7 @@ static list_t evalval(element_t val,list_t env,queue_t ch)                /* B01
          break;                                            /* B010 */
       case ID:                                           /* B010 */
          if (!(g_step_exec==FALSE)&&(!isempty_buf(&formula))){
-            list_t enforce = lookup(car(getls(val)),env,ch);
+            list_t enforce = lookup1(car(getls(val)),env);
             if (enforce == (list_t)NIL){
                longjmp(when_length_of_path_is_zero,1);
                return((list_t)NIL);
@@ -1519,7 +1529,7 @@ static list_t evalval(element_t val,list_t env,queue_t ch)                /* B01
                return(evalval(*makelet(LIST,enforce),env,ch));
          }
          else
-            return(evalval(*makelet(LIST,lookup(car(getls(val)),env,ch)),env,ch));
+            return(evalval(*makelet(LIST,lookup_env(car(getls(val)),env)),env,ch));
          break;                                            /* B007 */
       default:                                             /* B010 */
          return(valapply(car(getls(val)),         /* B028 */
@@ -1803,7 +1813,7 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch)
          printf("if->");
          fflush(stdout);
 #        endif
-         if (!(g_step_exec==FALSE)&&(!isempty_buf(&formula))){
+         if ((g_step_exec==TRUE)&&(!isempty_buf(&formula))){
             if ((ret=setjmp(when_length_of_path_is_zero))==0){
                cond=evalval(car(cdr(exp)),env,ch);
                if (getval(car(cond))){
@@ -1829,24 +1839,26 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch)
                   }
                   else
                      return(resume(else_part,cont));
-//                  return(resume(getls(car(cdr(cdr(cdr(exp))))),cont));
                }
             }
             else{
-               list_t else_part=getls(car(cdr(cdr(cdr(exp))))); /* undefined variables strongly hold */
-               if (isif(car(else_part))){
-                  cond=evalval(car(cdr(else_part)),env,ch);
+               list_t branch=(list_t)NIL;
+               if (acceptance_condition==ACC_WEAKLY)
+                  branch=getls(car(cdr(cdr(exp)))); /* undefined variables weakly hold */
+               else
+                  branch=getls(car(cdr(cdr(cdr(exp))))); /* undefined variables strongly hold */
+               if (isif(car(branch))){
+                  cond=evalval(car(cdr(branch)),env,ch);
                   if (getval(car(cond)))
-                     return(resume(getls(car(cdr(cdr(else_part)))),cont));
+                     return(resume(getls(car(cdr(cdr(branch)))),cont));
                   else
-                     return(resume(getls(car(cdr(cdr(cdr(else_part))))),cont));
+                     return(resume(getls(car(cdr(cdr(cdr(branch))))),cont));
                }
                else
-                  return(resume(else_part,cont));
-//                  return(resume(getls(car(cdr(cdr(cdr(exp))))),cont));
+                  return(resume(branch,cont));
             }
          }
-         else{
+         else{ /*** simulatin mode***/
             if ((cond=evalval(car(cdr(exp)),env,ch))== (list_t)NIL)
                return(resume(getls(car(cdr(cdr(cdr(exp))))),cont));
             if (getval(car(cond))) /* B023 */
@@ -1892,9 +1904,8 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch)
          } /* B010 */
          else{
             if (isempty(getls(car(cdr(cdr(exp)))))){     /* B027 */
-               if (istrans(getls(car(cdr(lookup_env(car(cdr(exp)),env,ch)))),env,ch))
-                  return(eval(getls(car(cdr(lookup_env(car(cdr(exp)),env,ch)))),/* B027 */
-//                  return(eval(getls(car(cdr(lookup_env(car(cdr(exp)),env,ch)))),env),/* B027 */
+               if (istrans(getls(car(cdr(lookup_env(car(cdr(exp)),env)))),env,ch))
+                  return(eval(getls(car(cdr(lookup_env(car(cdr(exp)),env)))),/* B027 */
                               env,                         /* B027 */
                               cont,                      /* B027 */
                               ch));
@@ -1906,8 +1917,8 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch)
                }
             }
             else                                       /* B027 */
-               if (istrans(getls(car(cdr(lookup_env(car(cdr(exp)),env,ch)))),env,ch))
-                  return(eval(getls(car(cdr(lookup_env(car(cdr(exp)),env,ch)))), /* B043 */
+               if (istrans(getls(car(cdr(lookup_env(car(cdr(exp)),env)))),env,ch))
+                  return(eval(getls(car(cdr(lookup_env(car(cdr(exp)),env)))), /* B043 */
                               n_boundls(getls(car(lookup(car(cdr(exp)),env,ch))), /* B043 */
                                         evalval_ls(getls(car(cdr(cdr(exp)))),env,ch),
                                         env),/* B010 */

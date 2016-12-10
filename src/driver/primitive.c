@@ -134,8 +134,13 @@ void prologue(char * log)
    initsf(NIL,log);/***/
    /*------ register primitive action -----*/
    regprimact(primconametbl,primnametbl);
-//   /*------ install siganal handler -----*/
-//   set_signal();
+   /*------ Set the default values to options-----*/
+   trace_on = OFF;        /* Set default */
+   interactive_mode = OFF;/* Set default */
+   channel_order=C_STACK; /* Set default */
+   acceptance_condition=ACC_STRONGLY; /* Set default */
+   initbuf(&target);   /* The default value is empty sequence */
+   initbuf(&formula);  /* The default value is empty sequence */
 }
 /*****************************************************
  *  this function close sockets.                     * 

@@ -110,6 +110,8 @@ typedef struct{
 EXTERN seed_t seed;
 typedef enum{C_QUEUE,C_STACK} channel_order_t;
 EXTERN channel_order_t channel_order;
+typedef enum{ACC_WEAKLY,ACC_STRONGLY} acceptance_condition_t;
+EXTERN acceptance_condition_t acceptance_condition;
 
 /*** function decroletar ***/
 /*--- file handler ---*/

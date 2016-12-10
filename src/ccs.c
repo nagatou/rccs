@@ -46,11 +46,13 @@ when you don't give both -f and -d, I will run the model in the emulation mode.\
    printf("\n\tOPTIONS::\n");
    printf("\t-t\t\t:turns the trace flag on.\n");
    printf("\t-f \"formula\"\t:specifies a formula.\n");
-   printf("\t-d \"target\" [\"arguments\"]\t:specifies a target program.\n");
+   printf("\t-d \"target\" [\"arguments\"]\t:specifies a debugging program.\n");
    printf("\t-m \"model\"\tNot yet: specifies a source file written in RCCS.\n");
-   printf("\t-q \t\t:changes channels in RCCS to queue buffer(Default).\n");
-   printf("\t-s \t\t:changes channels in RCCS to stack buffer.\n");
+//   printf("\t-q \t\t:changes channels in RCCS to queue buffer.\n");
+//   printf("\t-s \t\t:changes channels in RCCS to stack buffer (Default).\n");
    printf("\t-i \t\t:provids the interactive execution.\n");
+   printf("\t-g \t\t:stronG view of the semantics(Default).\n");
+   printf("\t-k \t\t:weaK view of the semantics.\n");
 }
 static void analyse_options1(int count, int number, char *options[]);
 static void analyse_f_option(int count,int number,char *options[],buffer *formula)
@@ -121,7 +123,15 @@ static void analyse_options1(int count, int number, char *options[])
                channel_order=C_STACK;
                analyse_options1(count+1,number,options);
                break;
-            case 'm':
+            case 'k':
+               acceptance_condition=ACC_WEAKLY;
+               analyse_options1(count+1,number,options);
+               break;
+            case 'g':
+               acceptance_condition=ACC_STRONGLY;
+               analyse_options1(count+1,number,options);
+               break;
+            case 'm': /* reserved */
             default:
                help();
                error(FATAL,"Invalid options(analyse_options111):%s\n",options[count]);
@@ -138,10 +148,6 @@ static void analyse_options(int number, char *options[])
    if (options==(char **)NIL)
       error(FATAL,"invalid argments(analyse_options109)\n");
    else{
-      trace_on = OFF;        /* Set default */
-      channel_order=C_STACK;
-      initbuf(&target);
-      initbuf(&formula);
       analyse_options1(1,number,options);
    }
 }
@@ -149,6 +155,7 @@ int main(int argi,char *argv[])
 {
    char *log=(char *)NIL;
 
+   prologue(log);
    switch(argi){
       case 1:
          log = (char *)NIL;
@@ -168,14 +175,13 @@ int main(int argi,char *argv[])
          analyse_options(argi,argv);
    }
 /*--Body----------------------------------------*/
-   prologue(log);
    if (!isempty_buf(&target)){
       int ret=mc_init_debugger(target.buf,NIL);
       if (ret==ERROR)
          return((int)error(FATAL,"Cannot run a debbuger.\n"));
    }
-   if (!isempty_buf(&formula)) /*** fix channel_order at C_STACK in verifier mode. ***/
-      channel_order=C_STACK;
+//   if (!isempty_buf(&formula)) /*** fix channel_order at C_STACK in verifier mode. ***/
+//      channel_order=C_STACK;
    driver();
    epilogue();
    return(0);

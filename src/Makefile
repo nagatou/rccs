@@ -10,6 +10,7 @@
 CC=gcc
 CHECK=
 MAKE=make
+TEX=pdflatex
 
 INSTALL_PATH=/usr/local/bin/
 
@@ -60,7 +61,7 @@ clean:
 
 doc:
 	cd Docs;\
-	platex manual.tex
+	${TEX} manual-en.tex
 te_rccs : ${FRC} ${SRCS} ${COMPONENTS}
 	${CC} -o $@ ${SRCS}\
 		${CFLAGS}\

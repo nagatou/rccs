@@ -464,8 +464,6 @@ Describing an action sequence \(\alpha_1,\cdots,\alpha_n\) in which each element
 \(\derivative{\ZERO}\) is \(\{\ZERO\}\).
 \subsection{RCCS Operational Semantics}\label{sec:OPERATINAL_SEMANTICS}
 \input{manual-sem}
-\section{Coroutine-Like Sequencing}
-An important application of coroutine is discrete event simulation, where coroutine may be used to simulate parallel processes within the framework of a sequential program.
 \section{Syntax of Formulae}
 We use LTL to describe goal properties of processes.
 We first assume that a trace has initial states and is a finite sequence of states.
@@ -1019,9 +1017,12 @@ The variant function follows obligations O3\textendash O4 in \cite{Alpern:1989},
 the existence of \(C_{i}\) and \(T_{ij}\) means the existence of an invariant $I$ which follows obligations O1\textendash O2 in \cite{Alpern:1989}.
 Thus, the method of \NHK is sound and complete by \cite{Alpern:1989}.
 %
-%%% exploring state space
+%%% Exploring State Space
 %
-%\section{exploring state space}
+\section{Exploring State Space}
+The algorithm in \NHK consists of two depth-first searchs \cite{Courcoubetis:1991}.
+\subsection{Coroutine-Like Sequencing}
+An important application of coroutine is discrete event simulation, where coroutine may be used to simulate parallel processes within the framework of a sequential program.
 %
 %%% bibliography
 %
