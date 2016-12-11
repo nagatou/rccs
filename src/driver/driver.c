@@ -2104,7 +2104,8 @@ void driver(void)
    if ((ret=sigsetjmp(signal_driver_env,2))==0)
       driver1();
    else{
-      error(FATAL,"RCCS: stack overflow\n");
+      error(SUCCESS,"RCCS: terminated by stack overflow\n");
+      driver1();
       return;
    }
 }

@@ -299,6 +299,7 @@ static list_t secondDFS(list_t exp,
                        queue_t ch,
                        int depth_counter)
 {
+   list_t marked_states=makenull(NIL);
 #  ifdef DEBUG_VERIFIER2
    printf("secondDFS->");
 #  endif
@@ -341,11 +342,11 @@ static list_t secondDFS(list_t exp,
          printf("sum->");
          fflush(stdout);
 #        endif
-         secondDFS(getls(car(cdr(exp))),assertion,env,cont,history,for_firstDFS,for_secondDFS,ch,depth_counter);
+         marked_states=secondDFS(getls(car(cdr(exp))),assertion,env,cont,history,for_firstDFS,for_secondDFS,ch,depth_counter);
          if (trace_on)
             printf("-- back track ----------\n");
          gc(&memory_control_table);
-         secondDFS(getls(car(cdr(cdr(exp)))),assertion,env,cont,history,for_firstDFS,for_secondDFS,ch,depth_counter);
+         secondDFS(getls(car(cdr(cdr(exp)))),assertion,env,cont,history,for_firstDFS,marked_states,ch,depth_counter);
          return(makenull(NIL));
          break;
 /*   (COM  rand     rand           )          */
@@ -354,11 +355,11 @@ static list_t secondDFS(list_t exp,
          printf("com->");
          fflush(stdout);
 #        endif
-         secondDFS(getls(car(cdr(exp))),assertion,env,make_cont(LEFT,exp,cont),history,for_firstDFS,for_secondDFS,ch,depth_counter);
+         marked_states=secondDFS(getls(car(cdr(exp))),assertion,env,make_cont(LEFT,exp,cont),history,for_firstDFS,for_secondDFS,ch,depth_counter);
          if (trace_on)
             printf("-- back track ----------\n");
          gc(&memory_control_table);
-         secondDFS(getls(car(cdr(cdr(exp)))),assertion,env,make_cont(RIGHT,exp,cont),history,for_firstDFS,for_secondDFS,ch,depth_counter);
+         secondDFS(getls(car(cdr(cdr(exp)))),assertion,env,make_cont(RIGHT,exp,cont),history,for_firstDFS,marked_states,ch,depth_counter);
          return(makenull(NIL));
          break;
 /*   (IF   bool-exp rand rand      )          */
