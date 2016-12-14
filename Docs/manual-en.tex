@@ -36,6 +36,25 @@
 \newtheorem{lemma}{LEMMA}[section]
 \usepackage[inference,shorthand]{semantic}
 \mathlig{->}{\rightarrow}
+\lstset{
+   language=C,%
+   basicstyle={\ttfamily},%
+   lineskip=-1.5pt,%
+   commentstyle=\textit,%
+   classoffset=1,%
+   keywordstyle=\bfseries,%
+   breaklines=true,
+   frame=lines,%
+   framesep=5pt,%
+   showstringspaces=false,%
+   numbers=left,%
+   numbersep=3pt,%
+   stepnumber=1,%
+   numberstyle={\ttfamily},%
+%   numberstyle={\tiny},%
+   numberblanklines=true,
+   morekeywords={def, end, while, if, for, in, else, then, return}%
+}%
 \input{style}
 %----------------------------------------------------------
 \title{Welcome to the world of \NHK\\
@@ -462,6 +481,9 @@ All derivatives lie in \(\sort{P}\) of \(P\) is syntactic immediate derivatives.
 Describing an action sequence \(\alpha_1,\cdots,\alpha_n\) in which each element is an element of \(\sort{P}\) of \(P\), we call a process of the sequence
  and a set of them writes \(\derivative{P}\).
 \(\derivative{\ZERO}\) is \(\{\ZERO\}\).
+%
+%%% SEMANTICS
+%
 \subsection{RCCS Operational Semantics}\label{sec:OPERATINAL_SEMANTICS}
 \input{manual-sem}
 \section{Syntax of Formulae}
@@ -485,7 +507,7 @@ Let $\varphi$ and $\psi$ be temporal formulas, a temporal formula is inductively
 
 We provide the formal syntax with BNF notation.
 \input{manual-ltlgrm}
-\section{Semantics of Property Description Language}
+\section{Semantics of Property Description Language}\label{sec:SemOfProp}
 We next define two semantics of temporal formulas over a finite trace according to \cite{Eisner:2003}.
 If trace \(\sigma\) satisfies property \(\varphi\), then we write \(\sigma\models\varphi\).
 \subsection{Strong Semantics}
@@ -1021,8 +1043,44 @@ Thus, the method of \NHK is sound and complete by \cite{Alpern:1989}.
 %
 \section{Exploring State Space}
 The algorithm in \NHK consists of two depth-first searchs \cite{Courcoubetis:1991}.
-\subsection{Coroutine-Like Sequencing}
-An important application of coroutine is discrete event simulation, where coroutine may be used to simulate parallel processes within the framework of a sequential program.
+The two searchs are performed by evaluation on the modeling language.
+The second search is performed after the other.
+The first depth-first search is called {\tt firstDFS()}, and the second depth-first search {\tt secondDFS()}.
+  \begin{center}
+    \begin{lstlisting}[caption=FirstDFS]
+firstDFS(m,f,S1,S2){
+   if [m,f] is not a member of S1
+      push([m,f],S1)
+      if m' s.t. m->m' exists
+         firstDFS(m',f',S1,S2)
+      else
+         return(S1)
+      if [m,f] is an accepting state
+         secondDFS(m,f,S,S2)
+   else
+      return(S1)
+}
+    \end{lstlisting}
+  \end{center}
+  \begin{center}
+    \begin{lstlisting}[caption=SecondDFS]
+secondDFS(m,f,S1,S2){
+   if [m,f] is not a member of S2
+      push([m,f],S2)
+      if [m,f] is a member of S1
+         terminate(True)
+      else
+         if m' s.t. m->m' exists
+            secondDFS(m',f',S1,push([m,f],S2))
+   else
+      return(S2)
+}
+    \end{lstlisting}
+  \end{center}
+{\tt m'} and {\tt f'} are produced following the semantics in \secref{sec:OPERATINAL_SEMANTICS} and \secref{sec:SemOfProp}.
+
+%\subsection{Coroutine-Like Sequencing}
+%An important application of coroutine is discrete event simulation, where coroutine may be used to simulate parallel processes within the framework of a sequential program.
 %
 %%% bibliography
 %

@@ -160,7 +160,8 @@ static list_t secondDFS2(list_t exp,
       gc(&memory_control_table);
       if (ismember_on_stack(for_firstDFS,make_current_state(exp,cont,tmp,ch,env))){
          g_emptyness=TRUE;
-         return((list_t)(error(SUCCESS|EEL,"Emptyness: TRUE, %s",*makelet(LIST,history))));
+         error(SUCCESS|EEL,"Emptyness: TRUE, %s",*makelet(LIST,history));
+         return(for_secondDFS);
       }
       else
          return(secondDFS2(exp,tmp,env,cont,history,for_firstDFS,on_stack(make_current_state(exp,cont,tmp,ch,env),for_secondDFS),g_step_exec=FALSE,ch,depth_counter));
@@ -359,8 +360,7 @@ static list_t secondDFS(list_t exp,
          if (trace_on)
             printf("-- back track ----------\n");
          gc(&memory_control_table);
-         secondDFS(getls(car(cdr(cdr(exp)))),assertion,env,make_cont(RIGHT,exp,cont),history,for_firstDFS,marked_states,ch,depth_counter);
-         return(makenull(NIL));
+         return(secondDFS(getls(car(cdr(cdr(exp)))),assertion,env,make_cont(RIGHT,exp,cont),history,for_firstDFS,marked_states,ch,depth_counter));
          break;
 /*   (IF   bool-exp rand rand      )          */
       case IF:
@@ -478,13 +478,14 @@ static list_t n_accept(list_t exp,
 #  endif
    return(secondDFS(exp,getls(car(cdr(cdr(cdr(assertion))))),env,cont,history,on_stack(make_current_state(exp,cont,assertion,ch,env),for_firstDFS),makenull(NIL),ch, depth_counter));
 }
-static list_t firstDFS(list_t,list_t,list_t,list_t,list_t,list_t,queue_t,int);
+static list_t firstDFS(list_t,list_t,list_t,list_t,list_t,list_t,list_t,queue_t,int);
 static list_t firstDFS2(list_t exp,
                         list_t assertion,
                         list_t env,
                         list_t cont,
                         list_t history,
                         list_t for_firstDFS,
+                        list_t for_secondDFS,
                         bool sw,
                         queue_t ch,
                         int depth_counter)
@@ -507,21 +508,21 @@ static list_t firstDFS2(list_t exp,
             return(for_firstDFS); /*** is not accepted ***/
          else{
             if (isaccept(assertion)){
-               list_t marked_states=firstDFS(exp,getls(car(cdr(cdr(cdr(assertion))))),env,cont,history,for_firstDFS,ch,depth_counter);
+               list_t marked_states=firstDFS(exp,getls(car(cdr(cdr(cdr(assertion))))),env,cont,history,for_firstDFS,for_secondDFS,ch,depth_counter);
                return(secondDFS(exp,getls(car(cdr(cdr(cdr(assertion))))),env,cont,history,marked_states,on_stack(make_current_state(exp,cont,assertion,ch,env),makenull(NIL)),ch, depth_counter));
             }
             else
-               return(firstDFS(exp,assertion,env,cont,history,for_firstDFS,ch,depth_counter));
+               return(firstDFS(exp,assertion,env,cont,history,for_firstDFS,for_secondDFS,ch,depth_counter));
          }
       }
    }
    else{ /*** push([m,f]) step ***/
       list_t tmp = eval(assertion,env,makenull(NIL),make_ch());
       gc(&memory_control_table);
-      if (ismember_on_stack(for_firstDFS,make_current_state(exp,cont,assertion,ch,env)))
+      if (ismember_on_stack(for_firstDFS,make_current_state(exp,cont,tmp,ch,env)))
          return(for_firstDFS);
       else
-         return(firstDFS2(exp,tmp,env,cont,history,on_stack(make_current_state(exp,cont,tmp,ch,env),for_firstDFS),g_step_exec=FALSE,ch,depth_counter));
+         return(firstDFS2(exp,tmp,env,cont,history,on_stack(make_current_state(exp,cont,tmp,ch,env),for_firstDFS),for_secondDFS,g_step_exec=FALSE,ch,depth_counter));
    }
 }
 static list_t firstDFS1(element_t rate,
@@ -533,6 +534,7 @@ static list_t firstDFS1(element_t rate,
                         list_t cont,
                         list_t history,
                         list_t for_firstDFS,
+                        list_t for_secondDFS,
                         queue_t ch,
                         list_t exp,
                         int depth_counter)
@@ -575,6 +577,7 @@ static list_t firstDFS1(element_t rate,
                        makenull(NIL),
                        cons(*makelet(LIST,dotpair(rate,*makelet(LIST,at_once))),history),
                        for_firstDFS,
+                       for_secondDFS,
                        g_step_exec=TRUE,
                        new_ch,
                        ++depth_counter);
@@ -604,6 +607,7 @@ static list_t firstDFS1(element_t rate,
                               makenull(NIL),
                               cons(*makelet(LIST,cons(rate,dotpair(label,*makelet(LIST,at_once)))),history),
                               on_stack(make_current_state(_MODEL,cont,assertion,ch,env),for_firstDFS),
+                              for_secondDFS,
                               ch,
                               depth_counter);
                if (retrieval1(label)!=(bindLSp)NIL)
@@ -617,6 +621,7 @@ static list_t firstDFS1(element_t rate,
                                makenull(NIL),
                                cons(*makelet(LIST,cons(rate,dotpair(label,*makelet(LIST,at_once)))),history),
                                on_stack(make_current_state(_MODEL,cont,assertion,ch,env),for_firstDFS),
+                               for_secondDFS,
                                ch,
                                depth_counter));
          }
@@ -628,6 +633,7 @@ static list_t firstDFS1(element_t rate,
                             makenull(NIL),
                             cons(*makelet(LIST,cons(rate,dotpair(label,*makelet(LIST,at_once)))),history),
                             for_firstDFS,
+                            for_secondDFS,
                             n_bound_ch(*makelet(LIST,cons(label,makenull(NIL))),
                                        *makelet(LIST,at_once),
                                         ch),
@@ -644,6 +650,7 @@ static list_t firstDFS(list_t exp,
                        list_t cont,
                        list_t history,
                        list_t for_firstDFS,
+                       list_t for_secondDFS,
                        queue_t ch,
                        int depth_counter)
 {
@@ -665,7 +672,7 @@ static list_t firstDFS(list_t exp,
       fflush(stdout);
    }
    if (!istrans(resume(exp,cont),env,ch)) /*** When a model cannot produce transition, set FALSE to g_step_exec and LIMIT to depth_counter. ***/
-      return(firstDFS2(resume(exp,cont),assertion,env,makenull(NIL),history,for_firstDFS,g_step_exec=FALSE,ch,DEPTH_LIMIT));
+      return(firstDFS2(resume(exp,cont),assertion,env,makenull(NIL),history,for_firstDFS,for_secondDFS,g_step_exec=FALSE,ch,DEPTH_LIMIT));
    switch(getop(car(exp))){
 /*   (RECV label    val-var-ls rand)          */
 /*   (SEND label    val-exp-ls rand)          */
@@ -675,7 +682,7 @@ static list_t firstDFS(list_t exp,
             if (ismember_on_stack(for_firstDFS,make_current_state(_MODEL,cont,assertion,ch,env))) /* don't explore same state */
                return(for_firstDFS);
             else
-               return(firstDFS1(car(exp),car(cdr(exp)),getls(car(cdr(cdr(exp)))),getls(car(cdr(cdr(cdr(exp))))),assertion,env,cont,history,for_firstDFS,ch,exp,depth_counter));
+               return(firstDFS1(car(exp),car(cdr(exp)),getls(car(cdr(cdr(exp)))),getls(car(cdr(cdr(cdr(exp))))),assertion,env,cont,history,for_firstDFS,for_secondDFS,ch,exp,depth_counter));
          }
          else
             return(for_firstDFS);
@@ -686,7 +693,7 @@ static list_t firstDFS(list_t exp,
          printf("rec->");
          fflush(stdout);
 #        endif
-         return(firstDFS(getls(car(cdr(exp))),assertion,cons(*makelet(LIST,getls(car(cdr(cdr(exp))))),env),cont,history,for_firstDFS,ch,depth_counter));
+         return(firstDFS(getls(car(cdr(exp))),assertion,cons(*makelet(LIST,getls(car(cdr(cdr(exp))))),env),cont,history,for_firstDFS,for_secondDFS,ch,depth_counter));
          break;
 /*   (SUM  rand     rand           )          */
       case SUM:
@@ -695,10 +702,10 @@ static list_t firstDFS(list_t exp,
          fflush(stdout);
 #        endif
          gc(&memory_control_table);
-         marked_states=firstDFS(getls(car(cdr(exp))),assertion,env,cont,history,for_firstDFS,ch,depth_counter);
+         marked_states=firstDFS(getls(car(cdr(exp))),assertion,env,cont,history,for_firstDFS,for_secondDFS,ch,depth_counter);
          if (trace_on)
             printf("-- back track ----------\n");
-         return(firstDFS(getls(car(cdr(cdr(exp)))),assertion,env,cont,history,marked_states,ch,depth_counter));
+         return(firstDFS(getls(car(cdr(cdr(exp)))),assertion,env,cont,history,marked_states,for_secondDFS,ch,depth_counter));
          break;
 /*   (COM  rand     rand           )          */
       case COM:
@@ -707,10 +714,10 @@ static list_t firstDFS(list_t exp,
          fflush(stdout);
 #        endif
          gc(&memory_control_table);
-         marked_states=firstDFS(getls(car(cdr(exp))),assertion,env,make_cont(LEFT,exp,cont),history,for_firstDFS,ch,depth_counter);
+         marked_states=firstDFS(getls(car(cdr(exp))),assertion,env,make_cont(LEFT,exp,cont),history,for_firstDFS,for_secondDFS,ch,depth_counter);
          if (trace_on)
             printf("-- back track ----------\n");
-         return(firstDFS(getls(car(cdr(cdr(exp)))),assertion,env,make_cont(RIGHT,exp,cont),history,marked_states,ch,depth_counter));
+         return(firstDFS(getls(car(cdr(cdr(exp)))),assertion,env,make_cont(RIGHT,exp,cont),history,marked_states,for_secondDFS,ch,depth_counter));
          break;
 /*   (IF   bool-exp rand rand      )          */
       case IF:
@@ -719,9 +726,9 @@ static list_t firstDFS(list_t exp,
          fflush(stdout);
 #        endif
          if (getval(car(evalval(car(cdr(exp)),env,ch)))) /* B043 */
-            return(firstDFS(getls(car(cdr(cdr(exp)))),assertion,env,cont,history,for_firstDFS,ch,depth_counter));
+            return(firstDFS(getls(car(cdr(cdr(exp)))),assertion,env,cont,history,for_firstDFS,for_secondDFS,ch,depth_counter));
          else
-            return(firstDFS(getls(car(cdr(cdr(cdr(exp))))),assertion,env,cont,history,for_firstDFS,ch,depth_counter));
+            return(firstDFS(getls(car(cdr(cdr(cdr(exp))))),assertion,env,cont,history,for_firstDFS,for_secondDFS,ch,depth_counter));
          break;
 /*   (CON  a-cons   val-exp-ls     )          */
       case CON:
@@ -740,10 +747,10 @@ static list_t firstDFS(list_t exp,
             }
             else{
                if (isempty(getls(car(cdr(cdr(exp))))))
-                  return(firstDFS(getls(car(cdr(lookup_env(car(cdr(exp)),env)))),assertion,env,cont,history,for_firstDFS,ch,depth_counter));
+                  return(firstDFS(getls(car(cdr(lookup_env(car(cdr(exp)),env)))),assertion,env,cont,history,for_firstDFS,for_secondDFS,ch,depth_counter));
                else{
                   list_t args = evalval_ls(getls(car(cdr(cdr(exp)))),env,ch); /* B043 */
-                  return(firstDFS(getls(car(cdr(lookup_env(car(cdr(exp)),env)))),assertion,n_boundls(getls(car(lookup_env(car(cdr(exp)),env))),args,env),cont,history,for_firstDFS,ch,depth_counter));
+                  return(firstDFS(getls(car(cdr(lookup_env(car(cdr(exp)),env)))),assertion,n_boundls(getls(car(lookup_env(car(cdr(exp)),env))),args,env),cont,history,for_firstDFS,for_secondDFS,ch,depth_counter));
                }
             }
          }
@@ -769,6 +776,7 @@ static list_t firstDFS(list_t exp,
                      makenull(NIL),
                      history,
                      for_firstDFS,
+                     for_secondDFS,
                      ch,
                      depth_counter);
          else
@@ -797,7 +805,7 @@ list_t verifier(list_t exp,
       return((list_t)error(FATAL,"Segmentation fault(verifier832).\n"));
    else{
       g_emptyness=FALSE;
-      if (isempty(firstDFS(exp,assertion,top_env,cont,makenull(NIL),makenull(NIL),ch,0))){
+      if (isempty(firstDFS(exp,assertion,top_env,cont,makenull(NIL),makenull(NIL),makenull(NIL),ch,0))){
          if (g_emptyness==TRUE)
             return(makenull(NIL));
          else
