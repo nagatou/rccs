@@ -365,7 +365,7 @@ static list_t secondDFS(list_t exp,
          if (trace_on)
             printf("-- back track ----------\n");
          gc(&memory_control_table);
-         secondDFS(getls(car(cdr(cdr(exp)))),assertion,env,cont,history,for_firstDFS,marked_states,ch,depth_counter);
+         secondDFS(getls(car(cdr(cdr(exp)))),assertion,env,cont,history,for_firstDFS,for_secondDFS,ch,depth_counter);
          return(makenull(NIL));
          break;
 /*   (COM  rand     rand           )          */
@@ -378,7 +378,7 @@ static list_t secondDFS(list_t exp,
          if (trace_on)
             printf("-- back track ----------\n");
          gc(&memory_control_table);
-         return(secondDFS(getls(car(cdr(cdr(exp)))),assertion,env,make_cont(RIGHT,exp,cont),history,for_firstDFS,marked_states,ch,depth_counter));
+         return(secondDFS(getls(car(cdr(cdr(exp)))),assertion,env,make_cont(RIGHT,exp,cont),history,for_firstDFS,for_secondDFS,ch,depth_counter));
          break;
 /*   (IF   bool-exp rand rand      )          */
       case IF:
