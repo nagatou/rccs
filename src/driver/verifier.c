@@ -87,7 +87,17 @@ static list_t on_stack(list_t state,list_t stack)
    if ((state==(list_t)NIL)||(stack==(list_t)NIL))
       return((list_t)error(FATAL,"Segmentation fault(on_stack49).\n"));
    else
-      return(mark(state,stack,(bool)FALSE));
+      return(mark(state,stack,(bool)TRUE));
+}
+static bool ismember_on_queue(queue_t queue,list_t state)
+{
+#  ifdef DEBUG_VERIFIER1
+   printf("ismember_on_queue->");
+#  endif
+   if (ismember(getls(car(queue)),*makelet(LIST,state)))
+      return((bool)TRUE);
+   else
+      return((bool)FALSE);
 }
 static bool ismember_on_stack(list_t stack,list_t state)
 {
@@ -98,6 +108,13 @@ static bool ismember_on_stack(list_t stack,list_t state)
       return((bool)TRUE);
    else
       return((bool)FALSE);
+}
+static bool ismember_of_stack(list_t stack,list_t state)
+{
+#  ifdef DEBUG_VERIFIER1
+   printf("ismember_of_stack->");
+#  endif
+   return(ismember_on_queue(stack,state));
 }
 static bool isaccept_abort(list_t ltl_automaton)
 {
@@ -141,7 +158,7 @@ static list_t secondDFS2(list_t exp,
             return(for_secondDFS); /*** is not accepted ***/
       }
       else{
-         if (ismember_on_stack(for_secondDFS,make_current_state(exp,cont,assertion,ch,env)))
+         if (ismember_on_queue(for_secondDFS,make_current_state(exp,cont,assertion,ch,env)))
             return(for_secondDFS);
          else{
             if (isabort(assertion))
@@ -158,7 +175,7 @@ static list_t secondDFS2(list_t exp,
    else{ /*** push([m,f]) step ***/
       list_t tmp = eval(assertion,env,makenull(NIL),make_ch());
       gc(&memory_control_table);
-      if (ismember_on_stack(for_firstDFS,make_current_state(exp,cont,tmp,ch,env))){
+      if (ismember_of_stack(for_firstDFS,make_current_state(exp,cont,tmp,ch,env))){
          g_emptyness=TRUE;
          error(SUCCESS|EEL,"Emptyness: TRUE, %s",*makelet(LIST,history));
          return(for_secondDFS);
@@ -213,7 +230,7 @@ static list_t secondDFS1(element_t rate,
                   return((list_t)error(FATAL,"Invalid channel type(secondDFS1:181)\n"));
             }
          }
-         if (ismember_on_stack(for_secondDFS,make_current_state(_MODEL,cont,assertion,ch,env))) /* don't explore same states */
+         if (ismember_of_stack(for_secondDFS,make_current_state(_MODEL,cont,assertion,ch,env))) /* don't explore same states */
             return(for_secondDFS);
          ret=secondDFS2(resume(body,cont),
                         assertion,
@@ -241,7 +258,7 @@ static list_t secondDFS1(element_t rate,
          printf("send->");
          fflush(stdout);
 #        endif
-         if (ismember_on_stack(for_secondDFS,make_current_state(_MODEL,cont,assertion,ch,env))) /* don't explore same states */
+         if (ismember_of_stack(for_secondDFS,make_current_state(_MODEL,cont,assertion,ch,env))) /* don't explore same states */
             return(for_firstDFS);
          if (isouter_action(label)){
             list_t at_once=evalval_ls(val_ls,env,ch); /* B043 */
@@ -267,7 +284,8 @@ static list_t secondDFS1(element_t rate,
                                 makenull(NIL),
                                 cons(*makelet(LIST,cons(rate,dotpair(label,*makelet(LIST,at_once)))),history),
                                 for_firstDFS,
-                                on_stack(make_current_state(_MODEL,cont,assertion,ch,env),for_secondDFS),
+//                                on_stack(make_current_state(_MODEL,cont,assertion,ch,env),for_secondDFS),
+                                for_secondDFS,
                                 ch,
                                 depth_counter));
          }
@@ -296,7 +314,7 @@ static list_t secondDFS(list_t exp,
                        list_t cont,
                        list_t history,
                        list_t for_firstDFS,
-                       queue_t for_secondDFS,
+                       list_t for_secondDFS,
                        queue_t ch,
                        int depth_counter)
 {
@@ -313,7 +331,7 @@ static list_t secondDFS(list_t exp,
       printf("================== (channel) =====\n");
       fflush(stdout);
    }
-   if (!istrans(resume(exp,cont),env,ch)) /*** When a model cannot produce a transition, set g_step_exec to FALSE and depth_counter to LIMIT. ***/
+   if (!istrans(resume(exp,cont),env,ch)) /*** When a model cannot produce a transition, then set FALSE to g_step_exec and LIMIT to depth_counter. ***/
       return(secondDFS2(resume(exp,cont),assertion,env,makenull(NIL),history,for_firstDFS,for_secondDFS,g_step_exec=FALSE,ch,DEPTH_LIMIT));
    switch(getop(car(exp))){
 /*   (RECV label    val-var-ls rand)          */
@@ -321,7 +339,7 @@ static list_t secondDFS(list_t exp,
       case RECV:
       case SEND:
          if (istrans(exp,env,ch)){
-            if (ismember_on_stack(for_secondDFS,make_current_state(_MODEL,cont,assertion,ch,env)))
+            if (ismember_of_stack(for_secondDFS,make_current_state(_MODEL,cont,assertion,ch,env)))
                return(for_secondDFS);
             else
                return(secondDFS1(car(exp),car(cdr(exp)),getls(car(cdr(cdr(exp)))),getls(car(cdr(cdr(cdr(exp))))),assertion,env,cont,history,for_firstDFS,for_secondDFS,ch,exp,depth_counter));
@@ -509,7 +527,8 @@ static list_t firstDFS2(list_t exp,
          else{
             if (isaccept(assertion)){
                list_t marked_states=firstDFS(exp,getls(car(cdr(cdr(cdr(assertion))))),env,cont,history,for_firstDFS,for_secondDFS,ch,depth_counter);
-               return(secondDFS(exp,getls(car(cdr(cdr(cdr(assertion))))),env,cont,history,marked_states,on_stack(make_current_state(exp,cont,assertion,ch,env),makenull(NIL)),ch, depth_counter));
+               secondDFS(exp,getls(car(cdr(cdr(cdr(assertion))))),env,cont,history,marked_states,on_stack(make_current_state(exp,cont,assertion,ch,env),for_secondDFS),ch, depth_counter);
+               return(for_firstDFS);
             }
             else
                return(firstDFS(exp,assertion,env,cont,history,for_firstDFS,for_secondDFS,ch,depth_counter));
@@ -519,7 +538,7 @@ static list_t firstDFS2(list_t exp,
    else{ /*** push([m,f]) step ***/
       list_t tmp = eval(assertion,env,makenull(NIL),make_ch());
       gc(&memory_control_table);
-      if (ismember_on_stack(for_firstDFS,make_current_state(exp,cont,tmp,ch,env)))
+      if (ismember_of_stack(for_firstDFS,make_current_state(exp,cont,tmp,ch,env)))
          return(for_firstDFS);
       else
          return(firstDFS2(exp,tmp,env,cont,history,on_stack(make_current_state(exp,cont,tmp,ch,env),for_firstDFS),for_secondDFS,g_step_exec=FALSE,ch,depth_counter));
@@ -671,7 +690,7 @@ static list_t firstDFS(list_t exp,
       printf("================== (channel) =====\n");
       fflush(stdout);
    }
-   if (!istrans(resume(exp,cont),env,ch)) /*** When a model cannot produce transition, set FALSE to g_step_exec and LIMIT to depth_counter. ***/
+   if (!istrans(resume(exp,cont),env,ch)) /*** When a model cannot produce transition, then set FALSE to g_step_exec and LIMIT to depth_counter. ***/
       return(firstDFS2(resume(exp,cont),assertion,env,makenull(NIL),history,for_firstDFS,for_secondDFS,g_step_exec=FALSE,ch,DEPTH_LIMIT));
    switch(getop(car(exp))){
 /*   (RECV label    val-var-ls rand)          */
@@ -679,7 +698,7 @@ static list_t firstDFS(list_t exp,
       case RECV:
       case SEND:
          if (istrans(exp,env,ch)){
-            if (ismember_on_stack(for_firstDFS,make_current_state(_MODEL,cont,assertion,ch,env))) /* don't explore same state */
+            if (ismember_of_stack(for_firstDFS,make_current_state(_MODEL,cont,assertion,ch,env))) /* don't explore same state */
                return(for_firstDFS);
             else
                return(firstDFS1(car(exp),car(cdr(exp)),getls(car(cdr(cdr(exp)))),getls(car(cdr(cdr(cdr(exp))))),assertion,env,cont,history,for_firstDFS,for_secondDFS,ch,exp,depth_counter));
@@ -805,7 +824,7 @@ list_t verifier(list_t exp,
       return((list_t)error(FATAL,"Segmentation fault(verifier832).\n"));
    else{
       g_emptyness=FALSE;
-      if (isempty(firstDFS(exp,assertion,top_env,cont,makenull(NIL),makenull(NIL),makenull(NIL),ch,0))){
+      if (isempty(firstDFS(exp,assertion,top_env,cont,makenull(NIL),make_que(),make_que(),ch,0))){
          if (g_emptyness==TRUE)
             return(makenull(NIL));
          else
