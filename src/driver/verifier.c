@@ -152,7 +152,8 @@ static list_t secondDFS2(list_t exp,
       if (depth_counter>DEPTH_LIMIT){
          if (acceptance_condition==ACC_WEAKLY){
             g_emptyness=TRUE;
-            return((list_t)(error(SUCCESS|EEL,"Emptyness(2): TRUE, %s",*makelet(LIST,history))));
+            error(SUCCESS|EEL,"Emptyness(2): TRUE, %s",*makelet(LIST,history));
+            return(for_secondDFS);
          }
          else
             return(for_secondDFS); /*** is not accepted ***/
@@ -297,7 +298,8 @@ static list_t secondDFS1(element_t rate,
                              makenull(NIL),
                              cons(*makelet(LIST,cons(rate,dotpair(label,*makelet(LIST,at_once)))),history),
                              for_firstDFS,
-                             on_stack(make_current_state(_MODEL,cont,assertion,ch,env),for_secondDFS),
+//                             on_stack(make_current_state(_MODEL,cont,assertion,ch,env),for_secondDFS),
+                             for_secondDFS,
                              n_bound_ch(*makelet(LIST,cons(label,makenull(NIL))),
                                         *makelet(LIST,at_once),
                                         ch),
@@ -365,8 +367,7 @@ static list_t secondDFS(list_t exp,
          if (trace_on)
             printf("-- back track ----------\n");
          gc(&memory_control_table);
-         secondDFS(getls(car(cdr(cdr(exp)))),assertion,env,cont,history,for_firstDFS,for_secondDFS,ch,depth_counter);
-         return(makenull(NIL));
+         return(secondDFS(getls(car(cdr(cdr(exp)))),assertion,env,cont,history,for_firstDFS,marked_states,ch,depth_counter));
          break;
 /*   (COM  rand     rand           )          */
       case COM:
@@ -378,7 +379,7 @@ static list_t secondDFS(list_t exp,
          if (trace_on)
             printf("-- back track ----------\n");
          gc(&memory_control_table);
-         return(secondDFS(getls(car(cdr(cdr(exp)))),assertion,env,make_cont(RIGHT,exp,cont),history,for_firstDFS,for_secondDFS,ch,depth_counter));
+         return(secondDFS(getls(car(cdr(cdr(exp)))),assertion,env,make_cont(RIGHT,exp,cont),history,for_firstDFS,marked_states,ch,depth_counter));
          break;
 /*   (IF   bool-exp rand rand      )          */
       case IF:
