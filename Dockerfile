@@ -10,4 +10,4 @@ RUN cd rccs/src \
     && make rccs\
     && cp rccs /bin
 
-CMD ["../bin/rccs"]
+#CMD ["../bin/rccs"]
