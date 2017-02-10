@@ -9,3 +9,5 @@ RUN cd rccs/src \
     && make rccs\
     && cp rccs /bin
 #RUN -i -t /bin/bash
+
+CMD [ "/bin/bash" ]
