@@ -1,5 +1,5 @@
 FROM debian:latest
-MAINTAINER presystems Inc.
+MAINTAINER PRESYSTEMS Inc.
 RUN apt-get update && apt-get install -y git libglib2.0-dev gcc make
 
 WORKDIR /root
