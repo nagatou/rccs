@@ -1,6 +1,5 @@
 FROM debian:latest
-MAINTAINER 45deg
-
+MAINTAINER presystems Inc.
 RUN apt-get update && apt-get install -y git libglib2.0-dev gcc make
 
 WORKDIR /root
@@ -9,5 +8,4 @@ RUN cd rccs/src \
     && mkdir -p /usr/lib/glib-2.0 && ln -s `pkg-config --cflags glib-2.0 | awk '{print substr($2,3)}'` /usr/lib/glib-2.0 \
     && make rccs\
     && cp rccs /bin
-
-CMD ["/bin/bash"]
+RUN -i -t /bin/bash
