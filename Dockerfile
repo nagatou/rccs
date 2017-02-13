@@ -10,4 +10,4 @@ RUN cd rccs/src \
     && cp rccs /bin
 #RUN -i -t /bin/bash
 
-CMD [ "/bin/bash" ]
+CMD [ "bin/rccs" ]
