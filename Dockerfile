@@ -8,4 +8,4 @@ RUN cd rccs/src \
     && mkdir -p /usr/lib/glib-2.0 && ln -s `pkg-config --cflags glib-2.0 | awk '{print substr($2,3)}'` /usr/lib/glib-2.0 \
     && make rccs
 
-CMD [ "/bin/bash", "rccs/src/rccs" ]
+#CMD [ "/bin/bash", "rccs/src/rccs" ]
