@@ -1,12 +1,12 @@
 %\onecolumn
 \footnotesize
   \begin{verbatim}
-Agent_Exp     ::= ( define ID ( ID_Seq ) Agent_Exp )
+Command_Form  ::= ( define ID ( ID_Seq ) Agent_Exp )
                |  ( bind ID Strings )
-               |  ( globalvar IDs Strings )
-               |  ( if ( B_exp ) Agent_Exp Agent_Exp )
-               |  ( A_Binary_Exp )
+               |  ( Agent_Exp )
                |  (  )
+Agent_Exp     ::= if ( B_exp ) Agent_Exp Agent_Exp
+               |  A_Binary_Exp
 A_Binary_Exp  ::= A_Binary_Exp ++ A_Label_Exp
                |  A_Binary_Exp || A_Label_Exp
                |  A_Label_Exp
