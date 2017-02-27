@@ -1682,7 +1682,7 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch)
          }
          break;
 /*   (REC  rand     env        cont)          */
-      case REC:  /*** Notice that REC is used as differce meaning for Verifier ***/
+      case REC:  /*** Notice that REC is used as differnt meaning for Verifier ***/
 #        ifdef DEBUG_EVAL
          printf("rec->");
          fflush(stdout);
