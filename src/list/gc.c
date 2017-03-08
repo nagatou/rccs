@@ -85,7 +85,7 @@ void init_MBCT(MBCT *table)
 #  ifdef DEBUG_GC
    printf("init_MBCT->");
 #  endif
-   printf("The size of a cell is %d\n",sizeof(cell_t));
+   printf("The size of a cell is %d, memory limit %d Mb\n",sizeof(cell_t),(sizeof(cell_t)*CellCapacity)/1000000);
    table->ls_area.area = (list_t)(create_heap_area(sizeof(cell_t)*(CellCapacity)));
    table->ls_area.area_top = (list_t)(table->ls_area.area+CellCapacity);
    table->ls_area.gc_counter = 0;

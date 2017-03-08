@@ -86,10 +86,10 @@ static field_t getop(element_t el)
           (el.entry.tk->token_name==KEY_WORD))
          return(el.entry.tk->attr.op.type);
       else
-         return((int)error(FATAL|EEL,"invalid type(getop59) element=%s.\n", el));
+         return((int)error(FATAL|EEL,"invalid type(getop89) element=%s.\n", el));
    }
    else
-      return((int)error(FATAL|EEL,"invalid type(getop62) element=%s, type=%d\n", el, el.type));
+      return((int)error(FATAL|EEL,"invalid type(getop92) element=%s, type=%d\n", el, el.type));
 }
 static bool isdef(element_t el)
 {
@@ -190,7 +190,7 @@ list_t getls(element_t el)
    if (el.type == LIST)
       return(el.entry.list);
    else
-      return(error(FATAL,"invalid element_t(getls183) %d.\n",el.type));
+      return(error(FATAL,"invalid element_t(getls193) %d.\n",el.type));
 }
 token gettk(element_t el)
 {
@@ -772,8 +772,9 @@ static elementp derivatives(list_t exp,list_t env,queue_t ch)
          break;
       }
       case REC:
-      case BIND:
-         return((elementp)!NIL); /* B040 */
+         return(derivatives(getls(car(cdr(exp))),
+                            cdr(cdr(exp)),
+                            ch));
          break;
       case REL:
       case RES:
@@ -882,27 +883,31 @@ static bool ishole(list_t continuation)
       return(FALSE);
 }
 #define OUT_MOST
-static list_t resume(const list_t exp,list_t continuation)/* B035 */
+static list_t resume(const list_t exp,list_t continuation)
 {
 #  ifdef DEBUG_CONT
    printf("resume->");
 #  endif
    if (isempty(exp)){
 #     ifdef OUT_MOST
-      switch(getop(car(continuation))){
-         case SUM:
-         case COM:
-            if (ishole(getls(car(cdr(continuation)))))
-               return(getls(car(cdr(cdr(continuation)))));
-            else{
-               if (ishole(getls(car(cdr(cdr(continuation))))))
-                  return(getls(car(cdr(continuation))));
-               else
-                  return(continuation);
-            }
-            break;
+      if (isempty(continuation))
+         return(exp);
+      else{
+          switch(getop(car(continuation))){
+             case SUM:
+             case COM:
+                if (ishole(getls(car(cdr(continuation)))))
+                   return(getls(car(cdr(cdr(continuation)))));
+                else{
+                   if (ishole(getls(car(cdr(cdr(continuation))))))
+                      return(getls(car(cdr(continuation))));
+                   else
+                      return(continuation);
+                }
+                break;
          default:
             return(continuation);
+         }
       }
 #     else
       {
@@ -915,9 +920,8 @@ static list_t resume(const list_t exp,list_t continuation)/* B035 */
 #     endif
    }
    else{
-      if (isempty(continuation)){
+      if (isempty(continuation))
          return(exp);
-      }
       else{
          switch(getop(car(continuation))){
             case SUM:
@@ -1062,18 +1066,18 @@ static list_t make_cont1(enum mkcont_t op,list_t exp,list_t continuation)
          return(make_cont_switch(exp,continuation));
          break;
       case RIGHT:
-         return(resume(cons(car(exp), /* B035 */
+         return(resume(cons(car(exp),
                             (cons(car(cdr(exp)),
                                   (cons(*makelet(LIST,makenull(NIL)),
                                         makenull(NIL)))))),
-                       continuation)); /* B035 */
+                       continuation));
          break;
       case LEFT:
-         return(resume(cons(car(exp), /* B035 */
+         return(resume(cons(car(exp),
                             (cons(*makelet(LIST,makenull(NIL)),
                                   (cons(car(cdr(cdr(exp))),
                                         makenull(NIL)))))),
-                       continuation)); /* B035 */
+                       continuation));
          break;
       default:
          return((list_t)error(FATAL,"please contact me(make_cont564) (%d)\n", op));
@@ -1337,7 +1341,7 @@ static list_t applytoeq(list_t args) /* B028 */
                return(cons(*makelet(TOKEN,regsym(cvtia(result),VALUE,ICONST)),makenull(NIL)));
             }
             default:
-               return((list_t)error(FATAL|ELS,"operands are imcompatible type(applytoeq868) (%s)\n", args));
+               return((list_t)error(FATAL|ELS,"operands are imcompatible(applytoeq868) (%s)\n", args));
          }
          break;
       default:
@@ -1549,6 +1553,11 @@ static list_t evalval_ls(list_t val_ls,list_t env,queue_t ch)/* B010 */
                    evalval_ls(cdr(val_ls),env,ch)));           /* B010 */
    }                                                       /* B010 */
 }                                                          /* B010 */
+static list_t make_cls(list_t exp, list_t cont, list_t env)
+{
+   return(cons(*makelet(TOKEN,makesym(AGENT_OP,REC)),
+               cons(*makelet(LIST,exp),env)));
+}
 static list_t evalprefix(element_t rate,
                         element_t label,
                         list_t val_ls,
@@ -1593,8 +1602,9 @@ static list_t evalprefix(element_t rate,
                   return((list_t)error(FATAL,"Invalid channel type(evalprefix1721)\n"));
             }
          }
-         return(eval(resume(body,cont),
-                     n_boundls(val_ls,data,env),
+         return(eval(resume(make_cls(body,cont,n_boundls(val_ls,data,env)),cont),
+//                     n_boundls(val_ls,data,env),
+                     env,
                      makenull(NIL),
                      new_ch));
          break;
@@ -1610,24 +1620,24 @@ static list_t evalprefix(element_t rate,
             if (!isempty(cont))
                return(eval(resume(makenull(NIL),cont),
                            env,
-                           make_cont(SWITCH,body,cont),
+                           make_cont(SWITCH,make_cls(body,cont,env),cont),
                            ch));
             else
-               return(eval(resume(body,cont),/* B035 */
-                           env,              /* B035 */
-                           makenull(NIL),  /* B035 */
+               return(eval(resume(make_cls(body,cont,env),cont),
+                           env,
+                           makenull(NIL),
                            ch));
          }
          else{ /* is a inner-action */
             if (!isempty(cont))
                return(eval(resume(makenull(NIL),cont),
                            env,
-                           make_cont(SWITCH,body,cont),
+                           make_cont(SWITCH,make_cls(body,cont,env),cont),
                            n_bound_ch(*makelet(LIST,cons(label,makenull(NIL))),
                                       *makelet(LIST,evalval_ls(val_ls,env,ch)),
                                       ch)));
             else
-               return(eval(resume(body,cont),
+               return(eval(resume(make_cls(body,cont,env),cont),
                            env,
                            makenull(NIL),
                            n_bound_ch(*makelet(LIST,cons(label,makenull(NIL))),
@@ -1672,27 +1682,14 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch)
                               cont,
                               ch));
          else{
-            if (isempty(cont)) /* B042 */
-               return(exp);    /* B042 */
-            else               /* B042 */
-               return(eval(resume(exp,cont),/* B035 */
-                           env,             /* B035 */
-                           makenull(NIL),   /* B035 */
+            if (isempty(cont))
+               return(exp);
+            else
+               return(eval(resume(make_cls(exp,cont,env),cont),
+                           env,
+                           makenull(NIL),
                            ch));
          }
-         break;
-/*   (REC  rand     env        cont)          */
-      case REC:  /*** Notice that REC is used as differnt meaning for Verifier ***/
-#        ifdef DEBUG_EVAL
-         printf("rec->");
-         fflush(stdout);
-#        endif
-         return(eval(getls(car(cdr(exp))),
-                     cons(*makelet(LIST,
-                                   getls(car(cdr(cdr(exp))))),
-                          env),
-                     cont,
-                     ch));
          break;
 /*   (SUM  rand     rand           )          */
       case SUM:{
@@ -1758,7 +1755,7 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch)
                case 'L':{
                   return(eval(getls(car(cdr(exp))),
                               env,
-                              make_cont(LEFT, exp, cont),
+                              make_cont(LEFT,exp,cont),
                               ch));
                   break;
                }
@@ -1766,7 +1763,7 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch)
                default:{
                   return(eval(getls(car(cdr(cdr(exp)))),
                               env,
-                              make_cont(RIGHT, exp, cont),
+                              make_cont(RIGHT,exp,cont),
                               ch));
                   break;
                }
@@ -1776,29 +1773,24 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch)
             if (istrans(getls(car(cdr(exp))),env,ch)){
                return(eval(getls(car(cdr(exp))),
                            env,
-                           make_cont(LEFT,   /* B035 */
-                                     exp,    /* B035 */
-                                     cont),/* B035 */
+                           make_cont(LEFT,exp,cont),
                            ch));
             }
             else{
                if (istrans(getls(car(cdr(cdr(exp)))),env,ch)){
                   return(eval(getls(car(cdr(cdr(exp)))),
                               env,
-                              make_cont(RIGHT,  /* B035 */
-                                        exp,    /* B035 */
-                                        cont),/* B035 */
+                              make_cont(RIGHT,exp,cont),
                               ch));
                }
-               else{                           /* B024 */
-                  if (isempty(cont))  /* B042 */
-                     return(exp);     /* B042 */
-                  else{                /* B042 */
-                     return(eval(resume(exp,cont),/* B024 *//* B035 */
-                                 env,             /* B024 *//* B035 */
-                                 makenull(NIL), /* B024 *//* B035 */
+               else{
+                  if (isempty(cont))
+                     return(exp);
+                  else
+                     return(eval(resume(exp,cont),
+                                 env,
+                                 makenull(NIL),
                                  ch));
-                  }
                }
             }
          }
@@ -1868,6 +1860,24 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch)
          }
          break;
       }
+/*   (REC  body env)          */
+      case REC:  /*** Notice that REC is used as a closure ***/
+#        ifdef DEBUG_EVAL
+         printf("rec->");
+         fflush(stdout);
+#        endif
+         if (istrans(getls(car(cdr(exp))),cdr(cdr(exp)),ch))
+            return(eval(getls(car(cdr(exp))),
+                        cdr(cdr(exp)),
+                        cont,
+                        ch));
+         else{
+            if (isempty(cont))
+               return(exp);
+            else
+               return(eval(resume(exp,cont),env,makenull(NIL),ch));
+         }
+         break;
 /*   (CON  a-cons   val-exp-ls     )          */
       case CON:
 #        ifdef DEBUG_EVAL
@@ -1888,49 +1898,31 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch)
                                  env,
                                  ch));
          }
-         if (isprimagnt(car(cdr(exp)))){ /* B010 */ /* B022 */
+         if (isprimagnt(car(cdr(exp)))){
             if (isempty(getls(car(cdr(cdr(exp))))))
                return(primagnteval(car(cdr(exp)),
                                  getls(car(cdr(cdr(exp)))),
                                  env,
                                  ch));
-            else                                     /* B010 */
-               return(primagnteval(car(cdr(exp)),      /* B010 */
-                                 getls(car(evalval_ls(getls(car(cdr(cdr(exp)))), /* B020 */
-                                                      env,/* B010 */
-                                                      ch))),/* B043 */
-                                 env,                         /* B010 */
+            else
+               return(primagnteval(car(cdr(exp)),
+                                 getls(car(evalval_ls(getls(car(cdr(cdr(exp)))),
+                                                      env,
+                                                      ch))),
+                                 env,
                                  ch));
-         } /* B010 */
+         }
          else{
-            if (isempty(getls(car(cdr(cdr(exp)))))){     /* B027 */
-               if (istrans(getls(car(cdr(lookup_env(car(cdr(exp)),env)))),env,ch))
-                  return(eval(getls(car(cdr(lookup_env(car(cdr(exp)),env)))),/* B027 */
-                              env,                         /* B027 */
-                              cont,                      /* B027 */
-                              ch));
-               else{
-                  if (isempty(cont))
-                     return(exp);
-                  else
-                     return(eval(resume(exp,cont),env,makenull(NIL),ch));
-               }
-            }
-            else                                       /* B027 */
-               if (istrans(getls(car(cdr(lookup_env(car(cdr(exp)),env)))),env,ch))
-                  return(eval(getls(car(cdr(lookup_env(car(cdr(exp)),env)))), /* B043 */
-                              n_boundls(getls(car(lookup(car(cdr(exp)),env,ch))), /* B043 */
-                                        evalval_ls(getls(car(cdr(cdr(exp)))),env,ch),
-                                        env),/* B010 */
-                              cont,
-                              ch));
-               else{
-                  if (isempty(cont))
-                     return(exp);
-                  else
-                     return(eval(resume(exp,cont),env,makenull(NIL),ch));
-               }
-         }/* B027 */
+            return(eval(resume(make_cls(getls(car(cdr(lookup_env(car(cdr(exp)),env)))),
+                                        cont,
+                                        n_boundls(getls(car(lookup_env(car(cdr(exp)),env))),
+                                                  evalval_ls(getls(car(cdr(cdr(exp)))),env,ch),
+                                                  env)),
+                               cont),
+                        env,
+                        makenull(NIL),
+                        ch));
+         }
          break;
 /*   (REL  rand    (rel-ls)        )          */
       case REL:
@@ -1940,21 +1932,6 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch)
       case RES:
          return((list_t)error(FATAL|ELS,"sorry. operater RES has not been implemented yet. (%s)\n", exp));
          break;
-/*   (BIND label    port           )          */
-      case BIND:{                                  /* B031 */
-         n_bind(car(cdr(exp)),car(cdr(cdr(exp)))); /* B031 */
-         if (!isempty(cont))                       /* B031 */
-            return(eval(resume(cons(*makelet(TOKEN,makesym(AGENT_OP,CON)),          /* B037 */
-                                    dotpair(*makelet(TOKEN,addattr(regsym("stop",ID),A_CON)), /* B037 */
-                                            *makelet(LIST,makenull(NIL)))),
-                               cont),                                               /* B037 */
-                        env,                       /* B031 */
-                        makenull(NIL),           /* B031 */
-                        ch));
-         else                                      /* B031 */
-            return(makenull(NIL));                 /* B031 */
-         break;                                    /* B031 */
-      }
       default:
          return((list_t)error(FATAL|ELS,"invalid primitive agent expression(eval1352) (%s)\n", exp));
    }
@@ -2051,9 +2028,11 @@ static list_t driver_loop(list_t env)
                                                       *makelet(LIST,makenull(NIL))));
                      verifier((initial_form=form),env,makenull(NIL),ASSERTION,make_ch());
                      gc(&memory_control_table);
-                     end_tt = clock();
-                     if (!(end_tt==(clock_t)-1))
-                        printf("\n\ncpu-time(%f) = %f\n",(double)CLOCKS_PER_SEC,(double)((end_tt-begin_tt)/CLOCKS_PER_SEC));
+                     if (!isempty_buf(&formula)){
+                        end_tt = clock();
+                        if (!(end_tt==(clock_t)-1))
+                           printf("\n\ncpu-time(%f) = %f\n",(double)CLOCKS_PER_SEC,(double)((end_tt-begin_tt)/CLOCKS_PER_SEC));
+                     }
                   }
                   goto LOOP;
                }
@@ -2064,9 +2043,11 @@ static list_t driver_loop(list_t env)
    else{
       if (ret!=1){
          gc(&memory_control_table);
-         end_tt = clock();
-         if (!(end_tt==(clock_t)-1))
-            printf("\n\ncpu-time(%f) = %f\n",(double)CLOCKS_PER_SEC,(double)((end_tt-begin_tt)/CLOCKS_PER_SEC));
+         if (!isempty_buf(&formula)){
+            end_tt = clock();
+            if (!(end_tt==(clock_t)-1))
+               printf("\n\ncpu-time(%f) = %f\n",(double)CLOCKS_PER_SEC,(double)((end_tt-begin_tt)/CLOCKS_PER_SEC));
+         }
          goto LOOP;
       }
       else

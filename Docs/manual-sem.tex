@@ -72,8 +72,8 @@ We show the operational semantics of RCCS in \figref{fig:semRCCS}
 } \\\\
 \multicolumn{2}{c}{
 \inference[Sum(2)]
-{[(Q,env_{2}),k,ch]\trans{\alpha}[(Q',env_{2}'),k',ch']\\
- P\not\in\derivative{[(P,env_{1}),k,ch]}}
+{[(Q,env_{2}),k,ch]\trans{\alpha}[(Q',env_{2}'),k',ch']}%\\
+% P\not\in\derivative{[(P,env_{1}),k,ch]}}
 {[((P,env_{1})\mbox{++}(Q,env_{2}),k,ch]\trans{\alpha}[(Q',env_{2}'),k',ch']}
 }\\\\
 \multicolumn{2}{c}{
@@ -83,19 +83,25 @@ We show the operational semantics of RCCS in \figref{fig:semRCCS}
 }\\\\
 \multicolumn{2}{c}{
 \inference[Com(2)]
-{[(Q,env_2),k,ch]\trans{\alpha}[(Q',env_{2}'),k[P\|\hole],ch']\\
- P\not\in\derivative{[(P,env_{1}),k,ch]}}
+{[(Q,env_2),k,ch]\trans{\alpha}[(Q',env_{2}'),k[P\|\hole],ch']}%\\
+% P\not\in\derivative{[(P,env_{1}),k,ch]}}
 {[((P,env_1)||(Q,env_2),k,ch]\trans{\alpha}[(Q',env_{2}'),k[P\|\hole],ch']}
 }\\\\
 \multicolumn{2}{c}{
 \inference[Com(3)]
 {[(P,env_{1}),k[\hole\|(Q,env_{2})],ch]\trans{\overline{\alpha}}[(P',env_{1}'),k',ch']\\
  [(Q,env_{2}),k[(P,env_{1})\|\hole],ch]\trans{\alpha}[(Q',env_{2}'),k'',ch'']}
-{[(P,env_1)\|(Q,env_2),k,ch]\trans{(\overline{\alpha},\alpha)}[(k[(P',env_{1}')\|(Q',env_{2}')],\hole,ch]}
+{[(P,env_1)\|(Q,env_2),k,ch]\trans{(\overline{\alpha},\alpha)}[(k[(P',env_{1}')\|(Q',env_{2}')]),\hole,ch]}
 }\\\\
 \multicolumn{2}{c}{
-\inference[Ins]
-{[(P(x),env[A\leftarrow P][\langle x\rangle\leftarrow\langle v\rangle]),k,ch]\trans{\alpha}[(P',env[A\leftarrow P][\langle x\rangle\leftarrow\langle v\rangle]),k,ch]}
+\inference[Instance]
+{[(A(v),env[A\leftarrow P(x)]),k,ch]}
+{[(A(v),env[A\leftarrow P(x)]),k,ch]\trans{}[(k[(P,env[A\leftarrow P][\langle x\rangle\leftarrow\langle v\rangle])]),\hole,ch]}
+}\\\\
+\multicolumn{2}{c}{
+\inference[Constant]
+{[(A(v),env[A\leftarrow P(x)]),k,ch]\trans{}[(P,env[A\leftarrow P(x)][\langle x\rangle\leftarrow\langle v\rangle]),k,ch]\\
+[(P(x),env[A\leftarrow P][\langle x\rangle\leftarrow\langle v\rangle]),k,ch]\trans{\alpha}[(P',env[A\leftarrow P][\langle x\rangle\leftarrow\langle v\rangle]),k,ch]}
 {[(A(v),env[A\leftarrow P]),k,ch]\trans{\alpha}[(P',env[A\leftarrow P][\langle x\rangle\leftarrow\langle v\rangle]),k,ch]}
 }\\\\
 %\multicolumn{2}{c}{

@@ -149,7 +149,7 @@ static list_t secondDFS2(list_t exp,
    printf("secondDFS2->");
 #  endif
    if (sw == FALSE){
-      if (depth_counter>DEPTH_LIMIT){
+      if (depth_counter>=DEPTH_LIMIT){
          if (acceptance_condition==ACC_WEAKLY){
             g_emptyness=TRUE;
             error(SUCCESS|EEL,"Emptyness(2): TRUE, %s",*makelet(LIST,history));
@@ -233,9 +233,9 @@ static list_t secondDFS1(element_t rate,
          }
          if (ismember_of_stack(for_secondDFS,make_current_state(_MODEL,cont,assertion,ch,env))) /* don't explore same states */
             return(for_secondDFS);
-         ret=secondDFS2(resume(body,cont),
+         ret=secondDFS2(resume(make_cls(body,cont,n_boundls(val_ls,data,env)),cont),
                         assertion,
-                        n_boundls(val_ls,data,env),
+                        env,
                         makenull(NIL),
                         cons(*makelet(LIST,dotpair(rate,*makelet(LIST,at_once))),history),
                         for_firstDFS,
@@ -250,7 +250,6 @@ static list_t secondDFS1(element_t rate,
             }
          }
          return(ret);
-         
          break;
       }
 /*   (SEND label    val-exp-ls rand)          */
@@ -265,7 +264,7 @@ static list_t secondDFS1(element_t rate,
             list_t at_once=evalval_ls(val_ls,env,ch); /* B043 */
             n_send(label,at_once);
             if (!isempty_buf(&target)){
-               ret = secondDFS(resume(body,cont),
+               ret = secondDFS(resume(make_cls(body,cont,env),cont),
                                assertion,
                                env,
                                makenull(NIL),
@@ -279,7 +278,7 @@ static list_t secondDFS1(element_t rate,
                return(ret);
             }
             else
-               return(secondDFS(resume(body,cont),
+               return(secondDFS(resume(make_cls(body,cont,env),cont),
                                 assertion,
                                 env,
                                 makenull(NIL),
@@ -292,7 +291,7 @@ static list_t secondDFS1(element_t rate,
          }
          else{ /* is an inner-action */
             list_t at_once=evalval_ls(val_ls,env,ch);
-            return(secondDFS(resume(body,cont),
+            return(secondDFS(resume(make_cls(body,cont,env),cont),
                              assertion,
                              env,
                              makenull(NIL),
@@ -349,14 +348,6 @@ static list_t secondDFS(list_t exp,
          else
             return(for_secondDFS);
          break;
-/*   (REC  rand     env        cont)          */
-      case REC:
-#        ifdef DEBUG_VERIFIER
-         printf("rec->");
-         fflush(stdout);
-#        endif
-         return(secondDFS(getls(car(cdr(exp))),assertion,cons(*makelet(LIST,getls(car(cdr(cdr(exp))))),env),cont,history,for_firstDFS,for_secondDFS,ch,depth_counter));
-         break;
 /*   (SUM  rand     rand           )          */
       case SUM:
 #        ifdef DEBUG_VERIFIER
@@ -408,6 +399,22 @@ static list_t secondDFS(list_t exp,
                             ch,
                             depth_counter));
          break;
+/*   (REC  rand     env        cont)          */
+      case REC:
+#        ifdef DEBUG_VERIFIER
+         printf("rec->");
+         fflush(stdout);
+#        endif
+         if (istrans(getls(car(cdr(exp))),cdr(cdr(exp)),ch))
+            return(secondDFS(getls(car(cdr(exp))),assertion,cdr(cdr(exp)),cont,history,for_firstDFS,for_secondDFS,ch,depth_counter));
+         else{
+            return(for_secondDFS);
+//            if (isempty(cont))
+//               return(exp);
+//            else
+//               return(secondDFS(resume(exp,cont),assertion,env,makenull(NIL),history,for_firstDFS,for_secondDFS,ch,depth_counter));
+         }
+         break;
 /*   (CON  a-cons   val-exp-ls     )          */
       case CON:
 #        ifdef DEBUG_VERIFIER
@@ -424,31 +431,22 @@ static list_t secondDFS(list_t exp,
                   return(primagnteval(car(cdr(exp)),getls(car(evalval_ls(getls(car(cdr(cdr(exp)))),env,ch))),env,ch));
             }
             else{
-               if (isempty(getls(car(cdr(cdr(exp))))))
-                  return(secondDFS(getls(car(cdr(lookup_env(car(cdr(exp)),env)))), /* B043 */
-                                   assertion,
-                                   env,
-                                   cont,
-                                   history,
-                                   for_firstDFS,
-                                   for_secondDFS,
-                                   ch,
-                                   depth_counter));
-               else
-                  return(secondDFS(getls(car(cdr(lookup_env(car(cdr(exp)),env)))), /* B043 */
-                                  assertion,
-                                  n_boundls(getls(car(lookup_env(car(cdr(exp)),env))), /* B043 */
-                                            evalval_ls(getls(car(cdr(cdr(exp)))),env,ch),
-                                            env),
-                                  cont,
-                                  history,
-                                  for_firstDFS,
-                                  for_secondDFS,
-                                  ch,
-                                  depth_counter));
+               return(secondDFS(resume(make_cls(getls(car(cdr(lookup_env(car(cdr(exp)),env)))),
+                                                cont,
+                                                n_boundls(getls(car(lookup(car(cdr(exp)),env,ch))),
+                                                          evalval_ls(getls(car(cdr(cdr(exp)))),env,ch),
+                                                          env)),
+                                       cont),
+                                assertion,
+                                env,
+                                makenull(NIL),
+                                history,
+                                for_firstDFS,
+                                for_secondDFS,
+                                ch,
+                                depth_counter));
             }
          }
-         
          break;
 /*   (REL  rand    (rel-ls)        )          */
       case REL:
@@ -458,26 +456,6 @@ static list_t secondDFS(list_t exp,
       case RES:
          return((list_t)error(FATAL|ELS,"sorry. operater RES has not been implemented yet. (%s)\n", exp));
          break;
-/*   (BIND label    port           )          */
-      case BIND:{
-         n_bind(car(cdr(exp)),car(cdr(cdr(exp))));
-         if (!isempty(cont))
-            return(secondDFS(resume(cons(*makelet(TOKEN,makesym(AGENT_OP,CON)),
-                                         dotpair(*makelet(TOKEN,addattr(regsym("stop",ID),A_CON)),
-                                                  *makelet(LIST,makenull(NIL)))),
-                                   cont),
-                            assertion,
-                            env,
-                            makenull(NIL),
-                            history,
-                            for_firstDFS,
-                            for_secondDFS,
-                            ch,
-                            depth_counter));
-         else
-            return(makenull(NIL));
-         break;
-      }
       default:
          return((list_t)error(FATAL|ELS,"invalid primitive agent expression(secondDFS1597) (%s)\n", exp));
    }
@@ -513,7 +491,7 @@ static list_t firstDFS2(list_t exp,
    printf("firstDFS2->");
 #  endif
    if (sw == FALSE){
-      if (depth_counter>DEPTH_LIMIT){
+      if (depth_counter>=DEPTH_LIMIT){
          if (acceptance_condition==ACC_WEAKLY){
             g_emptyness=TRUE;
             error(SUCCESS|EEL,"Emptyness(2): TRUE, %s",*makelet(LIST,history));
@@ -591,9 +569,9 @@ static list_t firstDFS1(element_t rate,
                   return((list_t)error(FATAL,"Invalid channel type(firstDFS1:687)\n"));
             }
          }
-         ret=firstDFS2(resume(body,cont),
+         ret=firstDFS2(resume(make_cls(body,cont,n_boundls(val_ls,data,env)),cont),
                        assertion,
-                       n_boundls(val_ls,data,env),
+                       env,
                        makenull(NIL),
                        cons(*makelet(LIST,dotpair(rate,*makelet(LIST,at_once))),history),
                        for_firstDFS,
@@ -608,7 +586,6 @@ static list_t firstDFS1(element_t rate,
             }
          }
          return(ret);
-         
          break;
       }
 /*   (SEND label    val-exp-ls rand)          */
@@ -621,7 +598,7 @@ static list_t firstDFS1(element_t rate,
             list_t at_once=evalval_ls(val_ls,env,ch); /* B043 */
             n_send(label,at_once);
             if (!isempty_buf(&target)){
-               ret = firstDFS(resume(body,cont),
+               ret = firstDFS(resume(make_cls(body,cont,env),cont),
                               assertion,
                               env,
                               makenull(NIL),
@@ -635,7 +612,7 @@ static list_t firstDFS1(element_t rate,
                return(ret);
             }
             else
-               return(firstDFS(resume(body,cont),
+               return(firstDFS(resume(make_cls(body,cont,env),cont),
                                assertion,
                                env,
                                makenull(NIL),
@@ -647,7 +624,7 @@ static list_t firstDFS1(element_t rate,
          }
          else{ /* is an inner-action */
             list_t at_once=evalval_ls(val_ls,env,ch);
-            return(firstDFS(resume(body,cont),
+            return(firstDFS(resume(make_cls(body,cont,env),cont),
                             assertion,
                             env,
                             makenull(NIL),
@@ -707,14 +684,6 @@ static list_t firstDFS(list_t exp,
          else
             return(for_firstDFS);
          break;
-/*   (REC  rand     env        cont)          */
-      case REC:
-#        ifdef DEBUG_VERIFIER
-         printf("rec->");
-         fflush(stdout);
-#        endif
-         return(firstDFS(getls(car(cdr(exp))),assertion,cons(*makelet(LIST,getls(car(cdr(cdr(exp))))),env),cont,history,for_firstDFS,for_secondDFS,ch,depth_counter));
-         break;
 /*   (SUM  rand     rand           )          */
       case SUM:
 #        ifdef DEBUG_VERIFIER
@@ -750,6 +719,22 @@ static list_t firstDFS(list_t exp,
          else
             return(firstDFS(getls(car(cdr(cdr(cdr(exp))))),assertion,env,cont,history,for_firstDFS,for_secondDFS,ch,depth_counter));
          break;
+/*   (REC  rand     env        cont)          */
+      case REC:
+#        ifdef DEBUG_VERIFIER
+         printf("rec->");
+         fflush(stdout);
+#        endif
+         if (istrans(getls(car(cdr(exp))),cdr(cdr(exp)),ch))
+            return(firstDFS(getls(car(cdr(exp))),assertion,cdr(cdr(exp)),cont,history,for_firstDFS,for_secondDFS,ch,depth_counter));
+         else{
+            return(for_firstDFS);
+//            if (isempty(cont))
+//               return(exp);
+//            else
+//               return(firstDFS(resume(exp,cont),assertion,env,makenull(NIL),history,for_firstDFS,for_secondDFS,ch,depth_counter));
+         }
+         break;
 /*   (CON  a-cons   val-exp-ls     )          */
       case CON:
 #        ifdef DEBUG_VERIFIER
@@ -766,12 +751,20 @@ static list_t firstDFS(list_t exp,
                   primagnteval(car(cdr(exp)),getls(car(evalval_ls(getls(car(cdr(cdr(exp)))),env,ch))),env,ch);
             }
             else{
-               if (isempty(getls(car(cdr(cdr(exp))))))
-                  return(firstDFS(getls(car(cdr(lookup_env(car(cdr(exp)),env)))),assertion,env,cont,history,for_firstDFS,for_secondDFS,ch,depth_counter));
-               else{
-                  list_t args = evalval_ls(getls(car(cdr(cdr(exp)))),env,ch); /* B043 */
-                  return(firstDFS(getls(car(cdr(lookup_env(car(cdr(exp)),env)))),assertion,n_boundls(getls(car(lookup_env(car(cdr(exp)),env))),args,env),cont,history,for_firstDFS,for_secondDFS,ch,depth_counter));
-               }
+               return(firstDFS(resume(make_cls(getls(car(cdr(lookup_env(car(cdr(exp)),env)))),
+                                               cont,
+                                               n_boundls(getls(car(lookup(car(cdr(exp)),env,ch))),
+                                                         evalval_ls(getls(car(cdr(cdr(exp)))),env,ch),
+                                                         env)),
+                                      cont),
+                               assertion,
+                               env,
+                               makenull(NIL),
+                               history,
+                               for_firstDFS,
+                               for_secondDFS,
+                               ch,
+                               depth_counter));
             }
          }
          break;
@@ -783,26 +776,6 @@ static list_t firstDFS(list_t exp,
       case RES:
          return((list_t)error(FATAL|ELS,"sorry. operater RES has not been implemented yet. (%s)\n", exp));
          break;
-/*   (BIND label    port           )          */
-      case BIND:{
-         n_bind(car(cdr(exp)),car(cdr(cdr(exp))));
-         if (!isempty(cont))
-            firstDFS(resume(cons(*makelet(TOKEN,makesym(AGENT_OP,CON)),
-                                  dotpair(*makelet(TOKEN,addattr(regsym("stop",ID),A_CON)),
-                                          *makelet(LIST,makenull(NIL)))),
-                            cont),
-                     assertion,
-                     env,
-                     makenull(NIL),
-                     history,
-                     for_firstDFS,
-                     for_secondDFS,
-                     ch,
-                     depth_counter);
-         else
-            return(makenull(NIL));
-         break;
-      }
       default:
          return((list_t)error(FATAL|ELS,"invalid primitive agent expression(firstDFS1597) (%s)\n", exp));
    }

@@ -341,9 +341,11 @@ static splp operand(buffer *buf,const list_t ls)
                ins_buf(buf," ");
                operators(buf,car(cdr(cdr(ls))));
                break;
+            case REC:
+               operand(buf,getls(car(cdr(ls))));
+               break;
             case RES:
             case REL:
-            case REC:
             default:
                return((splp)error(FATAL,"Please contact me(operand331). (%d)\n", car(ls).entry.tk->attr.op.type));
                break;
