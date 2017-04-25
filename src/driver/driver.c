@@ -1553,7 +1553,7 @@ static list_t evalval_ls(list_t val_ls,list_t env,queue_t ch)/* B010 */
                    evalval_ls(cdr(val_ls),env,ch)));           /* B010 */
    }                                                       /* B010 */
 }                                                          /* B010 */
-static list_t make_cls(list_t exp, list_t cont, list_t env)
+static list_t make_cls(list_t exp, list_t env)
 {
    return(cons(*makelet(TOKEN,makesym(AGENT_OP,REC)),
                cons(*makelet(LIST,exp),env)));
@@ -1602,8 +1602,7 @@ static list_t evalprefix(element_t rate,
                   return((list_t)error(FATAL,"Invalid channel type(evalprefix1721)\n"));
             }
          }
-         return(eval(resume(make_cls(body,cont,n_boundls(val_ls,data,env)),cont),
-//                     n_boundls(val_ls,data,env),
+         return(eval(resume(make_cls(body,n_boundls(val_ls,data,env)),cont),
                      env,
                      makenull(NIL),
                      new_ch));
@@ -1620,10 +1619,10 @@ static list_t evalprefix(element_t rate,
             if (!isempty(cont))
                return(eval(resume(makenull(NIL),cont),
                            env,
-                           make_cont(SWITCH,make_cls(body,cont,env),cont),
+                           make_cont(SWITCH,make_cls(body,env),cont),
                            ch));
             else
-               return(eval(resume(make_cls(body,cont,env),cont),
+               return(eval(resume(make_cls(body,env),cont),
                            env,
                            makenull(NIL),
                            ch));
@@ -1632,12 +1631,12 @@ static list_t evalprefix(element_t rate,
             if (!isempty(cont))
                return(eval(resume(makenull(NIL),cont),
                            env,
-                           make_cont(SWITCH,make_cls(body,cont,env),cont),
+                           make_cont(SWITCH,make_cls(body,env),cont),
                            n_bound_ch(*makelet(LIST,cons(label,makenull(NIL))),
                                       *makelet(LIST,evalval_ls(val_ls,env,ch)),
                                       ch)));
             else
-               return(eval(resume(make_cls(body,cont,env),cont),
+               return(eval(resume(make_cls(body,env),cont),
                            env,
                            makenull(NIL),
                            n_bound_ch(*makelet(LIST,cons(label,makenull(NIL))),
@@ -1665,6 +1664,7 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch)
       printf("================== (eval) =====\n");
       fflush(stdout);
    }
+   g_state_counter += 1;
    switch(getop(car(exp))){
 /*   (RECV label    val-var-ls rand)          */
 /*   (SEND label    val-exp-ls rand)          */
@@ -1685,7 +1685,7 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch)
             if (isempty(cont))
                return(exp);
             else
-               return(eval(resume(make_cls(exp,cont,env),cont),
+               return(eval(resume(make_cls(exp,env),cont),
                            env,
                            makenull(NIL),
                            ch));
@@ -1914,7 +1914,6 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch)
          }
          else{
             return(eval(resume(make_cls(getls(car(cdr(lookup_env(car(cdr(exp)),env)))),
-                                        cont,
                                         n_boundls(getls(car(lookup_env(car(cdr(exp)),env))),
                                                   evalval_ls(getls(car(cdr(cdr(exp)))),env,ch),
                                                   env)),
@@ -1999,6 +1998,7 @@ static list_t driver_loop(list_t env)
    if (source_file == stdin)
       printf("\nRCCS>>"), fflush(stdout);
    begin_tt = clock();
+   g_state_counter = 0;
    if ((ret=setjmp(driver_env))==0){
       if ((form = n_read()) == (list_t)NIL){
          n_end();
@@ -2031,7 +2031,7 @@ static list_t driver_loop(list_t env)
                      if (!isempty_buf(&formula)){
                         end_tt = clock();
                         if (!(end_tt==(clock_t)-1))
-                           printf("\n\ncpu-time(%f) = %f\n",(double)CLOCKS_PER_SEC,(double)((end_tt-begin_tt)/CLOCKS_PER_SEC));
+                           printf("\n\n%d states explored in %f seconds. (%f clocks)\n",g_state_counter,(double)((end_tt-begin_tt)/CLOCKS_PER_SEC),(double)CLOCKS_PER_SEC);
                      }
                   }
                   goto LOOP;

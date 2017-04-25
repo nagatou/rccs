@@ -233,7 +233,7 @@ static list_t secondDFS1(element_t rate,
          }
          if (ismember_of_stack(for_secondDFS,make_current_state(_MODEL,cont,assertion,ch,env))) /* don't explore same states */
             return(for_secondDFS);
-         ret=secondDFS2(resume(make_cls(body,cont,n_boundls(val_ls,data,env)),cont),
+         ret=secondDFS2(resume(make_cls(body,n_boundls(val_ls,data,env)),cont),
                         assertion,
                         env,
                         makenull(NIL),
@@ -264,7 +264,7 @@ static list_t secondDFS1(element_t rate,
             list_t at_once=evalval_ls(val_ls,env,ch); /* B043 */
             n_send(label,at_once);
             if (!isempty_buf(&target)){
-               ret = secondDFS(resume(make_cls(body,cont,env),cont),
+               ret = secondDFS(resume(make_cls(body,env),cont),
                                assertion,
                                env,
                                makenull(NIL),
@@ -278,7 +278,7 @@ static list_t secondDFS1(element_t rate,
                return(ret);
             }
             else
-               return(secondDFS(resume(make_cls(body,cont,env),cont),
+               return(secondDFS(resume(make_cls(body,env),cont),
                                 assertion,
                                 env,
                                 makenull(NIL),
@@ -291,7 +291,7 @@ static list_t secondDFS1(element_t rate,
          }
          else{ /* is an inner-action */
             list_t at_once=evalval_ls(val_ls,env,ch);
-            return(secondDFS(resume(make_cls(body,cont,env),cont),
+            return(secondDFS(resume(make_cls(body,env),cont),
                              assertion,
                              env,
                              makenull(NIL),
@@ -334,6 +334,7 @@ static list_t secondDFS(list_t exp,
    }
    if (!istrans(resume(exp,cont),env,ch)) /*** When a model cannot produce a transition, then set FALSE to g_step_exec and LIMIT to depth_counter. ***/
       return(secondDFS2(resume(exp,cont),assertion,env,makenull(NIL),history,for_firstDFS,for_secondDFS,g_step_exec=FALSE,ch,DEPTH_LIMIT));
+   g_state_counter += 1;
    switch(getop(car(exp))){
 /*   (RECV label    val-var-ls rand)          */
 /*   (SEND label    val-exp-ls rand)          */
@@ -432,7 +433,6 @@ static list_t secondDFS(list_t exp,
             }
             else{
                return(secondDFS(resume(make_cls(getls(car(cdr(lookup_env(car(cdr(exp)),env)))),
-                                                cont,
                                                 n_boundls(getls(car(lookup(car(cdr(exp)),env,ch))),
                                                           evalval_ls(getls(car(cdr(cdr(exp)))),env,ch),
                                                           env)),
@@ -569,7 +569,7 @@ static list_t firstDFS1(element_t rate,
                   return((list_t)error(FATAL,"Invalid channel type(firstDFS1:687)\n"));
             }
          }
-         ret=firstDFS2(resume(make_cls(body,cont,n_boundls(val_ls,data,env)),cont),
+         ret=firstDFS2(resume(make_cls(body,n_boundls(val_ls,data,env)),cont),
                        assertion,
                        env,
                        makenull(NIL),
@@ -598,7 +598,7 @@ static list_t firstDFS1(element_t rate,
             list_t at_once=evalval_ls(val_ls,env,ch); /* B043 */
             n_send(label,at_once);
             if (!isempty_buf(&target)){
-               ret = firstDFS(resume(make_cls(body,cont,env),cont),
+               ret = firstDFS(resume(make_cls(body,env),cont),
                               assertion,
                               env,
                               makenull(NIL),
@@ -612,7 +612,7 @@ static list_t firstDFS1(element_t rate,
                return(ret);
             }
             else
-               return(firstDFS(resume(make_cls(body,cont,env),cont),
+               return(firstDFS(resume(make_cls(body,env),cont),
                                assertion,
                                env,
                                makenull(NIL),
@@ -624,7 +624,7 @@ static list_t firstDFS1(element_t rate,
          }
          else{ /* is an inner-action */
             list_t at_once=evalval_ls(val_ls,env,ch);
-            return(firstDFS(resume(make_cls(body,cont,env),cont),
+            return(firstDFS(resume(make_cls(body,env),cont),
                             assertion,
                             env,
                             makenull(NIL),
@@ -752,7 +752,6 @@ static list_t firstDFS(list_t exp,
             }
             else{
                return(firstDFS(resume(make_cls(getls(car(cdr(lookup_env(car(cdr(exp)),env)))),
-                                               cont,
                                                n_boundls(getls(car(lookup(car(cdr(exp)),env,ch))),
                                                          evalval_ls(getls(car(cdr(cdr(exp)))),env,ch),
                                                          env)),
