@@ -62,7 +62,7 @@ typedef enum {
 /*** enumrating field type for parenthsis ***/
    FR=50,AF,
 /*** enumrating field type for operators ***/
-   DEF=70,IF,LET,FIX,BIND,
+   DEF=70,DEFINIT,IF,LET,FIX,BIND,
 /*** enumrating field type for AGENT_OP ***/
    PRE=80,SUM,COM,RES,REL,CON,REC,CO,SEND,RECV,
 /*** enumrating field type for COMP_OP ***/
@@ -161,9 +161,9 @@ EXTERN hash_entry_t *hash_table[HASH_TBL_SIZE];
  *  methods:                                       *
  *    isin();                                      *
  ***************************************************/
-#define SYM_SIZE 10
+#define SYM_SIZE 11
 static char *nccskwd[SYM_SIZE]={
-   "define","if","let","fix","res",
+   "define","if","definit","let","fix","res",
    "TRUE","FALSE","true","false",
    "bind",
 };

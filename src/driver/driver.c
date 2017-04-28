@@ -42,6 +42,7 @@ static list_t n_read(void)
    agent_exp = parser(&agent_exp,(char *)NIL);
    if (agent_exp == (list_t)NIL){
       printf("\nEOF\n");
+      clear_in_buf(&seed);
       return(agent_exp);
    }
    else{
@@ -97,6 +98,16 @@ static bool isdef(element_t el)
    printf("isdef->");
 #  endif
    if (getop(el)==DEF)
+      return((bool)TRUE);
+   else
+      return((bool)FALSE);
+}
+static bool isdefinit(element_t el)
+{
+#  ifdef DEBUG_EVAL
+   printf("isdefinit->");
+#  endif
+   if (getop(el)==DEFINIT)
       return((bool)TRUE);
    else
       return((bool)FALSE);
@@ -1664,7 +1675,6 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch)
       printf("================== (eval) =====\n");
       fflush(stdout);
    }
-   g_state_counter += 1;
    switch(getop(car(exp))){
 /*   (RECV label    val-var-ls rand)          */
 /*   (SEND label    val-exp-ls rand)          */
@@ -2020,21 +2030,27 @@ static list_t driver_loop(list_t env)
                   goto LOOP;
                }
                else{
-                  if (isempty_buf(&formula))
-                     n_print(eval(form,env,makenull(NIL),make_ch()));/*B043*/
-                  else{
-                     list_t ASSERTION = cons(*makelet(TOKEN,makesym(AGENT_OP,CON)),
-                                              dotpair(*makelet(TOKEN,addattr(regsym(INIT_NODE_NAME,ID),A_CON)),
-                                                      *makelet(LIST,makenull(NIL))));
-                     verifier((initial_form=form),env,makenull(NIL),ASSERTION,make_ch());
-                     gc(&memory_control_table);
-                     if (!isempty_buf(&formula)){
-                        end_tt = clock();
-                        if (!(end_tt==(clock_t)-1))
-                           printf("\n\n%d states explored in %f seconds. (%f clocks)\n",g_state_counter,(double)((end_tt-begin_tt)/CLOCKS_PER_SEC),(double)CLOCKS_PER_SEC);
-                     }
+                  if (isdefinit(car(form))){
+                     env=n_boundls(getls(car(cdr(form))),getls(car(cdr(cdr(form)))),env);
+                     goto LOOP;
                   }
-                  goto LOOP;
+                  else{
+                     if (isempty_buf(&formula))
+                        n_print(eval(form,env,makenull(NIL),make_ch()));
+                     else{
+                        list_t ASSERTION = cons(*makelet(TOKEN,makesym(AGENT_OP,CON)),
+                                                 dotpair(*makelet(TOKEN,addattr(regsym(INIT_NODE_NAME,ID),A_CON)),
+                                                         *makelet(LIST,makenull(NIL))));
+                        verifier((initial_form=form),env,makenull(NIL),ASSERTION,make_ch());
+                        gc(&memory_control_table);
+                        if (!isempty_buf(&formula)){
+                           end_tt = clock();
+                           if (!(end_tt==(clock_t)-1))
+                              printf("\n\n%d states explored in %f seconds. (%f clocks)\n",g_state_counter,(double)((end_tt-begin_tt)/CLOCKS_PER_SEC),(double)CLOCKS_PER_SEC);
+                        }
+                     }
+                     goto LOOP;
+                  }
                }
             }
          }

@@ -152,7 +152,7 @@ static list_t secondDFS2(list_t exp,
       if (depth_counter>=DEPTH_LIMIT){
          if (acceptance_condition==ACC_WEAKLY){
             g_emptyness=TRUE;
-            error(SUCCESS|EEL,"Emptyness(2): TRUE, %s",*makelet(LIST,history));
+            error(SUCCESS|EEL,"Emptyness(limit): TRUE, %s",*makelet(LIST,history));
             return(for_secondDFS);
          }
          else
@@ -400,7 +400,7 @@ static list_t secondDFS(list_t exp,
                             ch,
                             depth_counter));
          break;
-/*   (REC  rand     env        cont)          */
+/*   (REC  rand     env        cont)   Used as a representation of closure */
       case REC:
 #        ifdef DEBUG_VERIFIER
          printf("rec->");
@@ -410,10 +410,6 @@ static list_t secondDFS(list_t exp,
             return(secondDFS(getls(car(cdr(exp))),assertion,cdr(cdr(exp)),cont,history,for_firstDFS,for_secondDFS,ch,depth_counter));
          else{
             return(for_secondDFS);
-//            if (isempty(cont))
-//               return(exp);
-//            else
-//               return(secondDFS(resume(exp,cont),assertion,env,makenull(NIL),history,for_firstDFS,for_secondDFS,ch,depth_counter));
          }
          break;
 /*   (CON  a-cons   val-exp-ls     )          */
@@ -494,7 +490,7 @@ static list_t firstDFS2(list_t exp,
       if (depth_counter>=DEPTH_LIMIT){
          if (acceptance_condition==ACC_WEAKLY){
             g_emptyness=TRUE;
-            error(SUCCESS|EEL,"Emptyness(2): TRUE, %s",*makelet(LIST,history));
+            error(SUCCESS|EEL,"Emptyness(limit): TRUE, %s",*makelet(LIST,history));
             return(for_firstDFS);
          }
          else
@@ -670,6 +666,7 @@ static list_t firstDFS(list_t exp,
    }
    if (!istrans(resume(exp,cont),env,ch)) /*** When a model cannot produce transition, then set FALSE to g_step_exec and LIMIT to depth_counter. ***/
       return(firstDFS2(resume(exp,cont),assertion,env,makenull(NIL),history,for_firstDFS,for_secondDFS,g_step_exec=FALSE,ch,DEPTH_LIMIT));
+   g_state_counter += 1;
    switch(getop(car(exp))){
 /*   (RECV label    val-var-ls rand)          */
 /*   (SEND label    val-exp-ls rand)          */
@@ -729,10 +726,6 @@ static list_t firstDFS(list_t exp,
             return(firstDFS(getls(car(cdr(exp))),assertion,cdr(cdr(exp)),cont,history,for_firstDFS,for_secondDFS,ch,depth_counter));
          else{
             return(for_firstDFS);
-//            if (isempty(cont))
-//               return(exp);
-//            else
-//               return(firstDFS(resume(exp,cont),assertion,env,makenull(NIL),history,for_firstDFS,for_secondDFS,ch,depth_counter));
          }
          break;
 /*   (CON  a-cons   val-exp-ls     )          */

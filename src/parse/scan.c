@@ -36,7 +36,7 @@ static void int_state(buffer *lexeme,token *sym)
    else{
       ungetnch(chr);
       *sym = regsym(lexeme->buf,VALUE,ICONST);
-      longjmp(env,1);
+      longjmp(scan_env,1);
    }
 }
 
@@ -66,11 +66,11 @@ static void id_state(buffer *lexeme,token *sym)
 #        ifdef DEBUG
          printf("\nscan116\n");
 #        endif
-         longjmp(env,1);
+         longjmp(scan_env,1);
       }
       else{
          *sym = regsym(lexeme->buf,ID);
-         longjmp(env,1);
+         longjmp(scan_env,1);
       }
    }
 }
@@ -159,7 +159,7 @@ static void str_state(buffer *lexeme,token *sym)
    else{
       if (chr == '"'){
          *sym = regsym(lexeme->buf,VALUE,STR);
-         longjmp(env,1);
+         longjmp(scan_env,1);
       }
       else{
          if (chr == '/')
@@ -208,121 +208,121 @@ static void start_state(buffer *lexeme,token *sym)
    switch(chr){
       case '(':
          *sym = regsym(lexeme->buf,PARENTHE,FR);
-         longjmp(env,1);
+         longjmp(scan_env,1);
          break;
       case ')':
          *sym = regsym(lexeme->buf,PARENTHE,AF);
-         longjmp(env,1);
+         longjmp(scan_env,1);
          break;
       case '[':
          *sym = regsym(lexeme->buf,BRACKET,FR);
-         longjmp(env,1);
+         longjmp(scan_env,1);
          break;
       case ']':
          *sym = regsym(lexeme->buf,BRACKET,AF);
-         longjmp(env,1);
+         longjmp(scan_env,1);
          break;
       case '{':
          *sym = regsym(lexeme->buf,BRACE,FR);
-         longjmp(env,1);
+         longjmp(scan_env,1);
          break;
       case '}':
          *sym = regsym(lexeme->buf,BRACE,AF);
-         longjmp(env,1);
+         longjmp(scan_env,1);
          break;
       case ',':
          *sym = regsym(lexeme->buf,VALUE_OP,SEQ);
-         longjmp(env,1);
+         longjmp(scan_env,1);
          break;
       case '+':
          lookahead = getnch();
          if (lookahead == '+'){
             *sym = regsym(lexeme->buf,AGENT_OP,SUM);
-            longjmp(env,1);
+            longjmp(scan_env,1);
          }
          else{
             ungetnch(lookahead);
             *sym = regsym(lexeme->buf,VALUE_OP,PLUS);
-            longjmp(env,1);
+            longjmp(scan_env,1);
          }
          break;
       case '-':
          *sym = regsym(lexeme->buf,VALUE_OP,MINS);
-         longjmp(env,1);
+         longjmp(scan_env,1);
          break;
       case '*':
          *sym = regsym(lexeme->buf,VALUE_OP,MULT);
-         longjmp(env,1);
+         longjmp(scan_env,1);
          break;
       case '/':
          *sym = regsym(lexeme->buf,VALUE_OP,DIV);
-         longjmp(env,1);
+         longjmp(scan_env,1);
          break;
       case '%':
          *sym = regsym(lexeme->buf,VALUE_OP,MOD);
-         longjmp(env,1);
+         longjmp(scan_env,1);
          break;
       case ':':
          *sym = regsym(lexeme->buf,AGENT_OP,PRE);
-         longjmp(env,1);
+         longjmp(scan_env,1);
          break;
       case '~':
          *sym = regsym(lexeme->buf,AGENT_OP,CO);
-         longjmp(env,1);
+         longjmp(scan_env,1);
          break;
       case '|':
          lookahead = getnch();
          if (lookahead == '|'){
             *sym = regsym(lexeme->buf,AGENT_OP,COM);
-            longjmp(env,1);
+            longjmp(scan_env,1);
          }
          else{
             ungetnch(lookahead);
             *sym = regsym(lexeme->buf,BOOL_OP,OR);
-            longjmp(env,1);
+            longjmp(scan_env,1);
          }
          break;
       case '&':
          *sym = regsym(lexeme->buf,BOOL_OP,AND);
-         longjmp(env,1);
+         longjmp(scan_env,1);
          break;
       case '!':
          *sym = regsym(lexeme->buf,BOOL_OP,NOT);
-         longjmp(env,1);
+         longjmp(scan_env,1);
          break;
       case '<':
          lookahead = getnch();
          if (lookahead == '='){
             *sym = regsym(lexeme->buf,COMP_OP,LT);
-            longjmp(env,1);
+            longjmp(scan_env,1);
          }
          else{
             ungetnch(lookahead);
             *sym = regsym(lexeme->buf,COMP_OP,LE);
-            longjmp(env,1);
+            longjmp(scan_env,1);
          }
          break;
       case '>':
          lookahead = getnch();
          if (lookahead == '='){
             *sym = regsym(lexeme->buf,COMP_OP,GT);
-            longjmp(env,1);
+            longjmp(scan_env,1);
          }
          else{
             ungetnch(lookahead);
             *sym = regsym(lexeme->buf,COMP_OP,GR);
-            longjmp(env,1);
+            longjmp(scan_env,1);
          }
          break;
       case '=':
          *sym = regsym(lexeme->buf,COMP_OP,EQ);
-         longjmp(env,1);
+         longjmp(scan_env,1);
          break;
       case ERROR:
          start_state(lexeme,sym);
          break;
       case EOF:
-         longjmp(env,2);
+         longjmp(scan_env,2);
          break;
       default:
          error(WARNING,"syntax error(%c)(start_state326)\n",chr);
@@ -343,7 +343,7 @@ token scanner(token *sym)
    printf("scanner-> ");
 #  endif
    initbuf(&lexeme);
-   if ((ret=setjmp(env))==0){
+   if ((ret=setjmp(scan_env))==0){
       start_state(&lexeme,sym);
    }
    else{

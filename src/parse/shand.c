@@ -303,6 +303,7 @@ token makesym(token_t name_type,...)
             case REC:  /*** agent of ***/
             case NOT:  /*** boolean op ***/
             case DEF:  /*** agent of ***/
+            case DEFINIT:  /*** agent of ***/
             case IF:   /*** agent of ***/
             case BIND: /*** agent of ***/
             case RECV: /*** agent of ***/
@@ -914,6 +915,12 @@ void prtsym(int fun,token sym,...)
                   ins_buf(buf,"define");
                else
                   printf("DEF");
+               break;
+            case DEFINIT:
+               if (fun==BUF)
+                  ins_buf(buf,"definit");
+               else
+                  printf("DEFINIT");
                break;
             case BIND:
                if (fun==BUF)

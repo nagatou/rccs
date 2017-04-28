@@ -1281,6 +1281,45 @@ static list_t agent_exp(void)
             else
                return((list_t)error(WARNING|ETK,"syntax error(agent_exp1318) %s\n", lah));
          } /*** end of if ***/
+         else{
+            if ((lah->token_name==KEY_WORD)&&(strcmp(lah->attr.keywd.str,"definit")==0)){
+               lah = scanner(&lah);
+               if ((lah->token_name == PARENTHE)&&
+                   (lah->attr.par.fr_or_af == FR)){
+                  lah = scanner(&lah);
+                  syp = id_seq();
+                  if ((lah->token_name == PARENTHE)&&
+                      (lah->attr.par.fr_or_af == AF)){
+                     lah = scanner(&lah);
+                     if ((lah->token_name == PARENTHE)&&
+                         (lah->attr.par.fr_or_af == FR)){
+                        lah = scanner(&lah);
+                        syp1 = value_seq();
+                        if ((lah->token_name == PARENTHE)&&
+                            (lah->attr.par.fr_or_af == AF)){
+                           lah = scanner(&lah);
+                           if ((lah->token_name == PARENTHE)&&
+                               (lah->attr.par.fr_or_af == AF)){
+                                return(cons(*makelet(TOKEN,makesym(AGENT_OP,DEFINIT)),
+                                             dotpair(*makelet(LIST,syp),
+                                                     *makelet(LIST,syp1))));
+                           }
+                           else
+                              return((list_t)error(WARNING|ETK,"syntax error(agent_exp1307) %s\n", lah));
+                        }
+                        else
+                           return((list_t)error(WARNING|ETK,"syntax error(agent_exp1310) %s\n", lah));
+                     }
+                     else
+                        return((list_t)error(WARNING|ETK,"syntax error(agent_exp1313) %s\n", lah));
+                  }
+                  else
+                     return((list_t)error(WARNING|ETK,"syntax error(agent_exp1316) %s\n", lah));
+               }
+               else
+                  return((list_t)error(WARNING|ETK,"syntax error(agent_exp1319) %s\n", lah));
+            }
+         } /*** end of definit ***/
       } /*** end of bind ***/
    } /*** end of define ***/
    return(a_binary_exp());
@@ -1335,7 +1374,7 @@ static list_t ex_start(void)
 
 /*****************************************************
  * return to abstract syntax tree represented by     *
- * S-expression.                                     *
+ * list.                                     *
  *---------------------------------------------------*
  *  ret = parse(lspp);                               *
  *                                                   *

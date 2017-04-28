@@ -2,6 +2,9 @@
 \footnotesize
   \begin{verbatim}
 Command_Form  ::= ( define ID ( ID_Seq ) Agent_Exp )
+               |  ( definit ( ID_Seq ) ( Value_Seq ) )
+               |  ( load ( Strings ) )
+               |  ( quit )
                |  ( bind ID Strings )
                |  ( Agent_Exp )
                |  ( )

@@ -17,7 +17,7 @@
  *      setjmp();                                  *
  *      longjmp();                                 *
  ***************************************************/
-EXTERN jmp_buf env;
+EXTERN jmp_buf scan_env;
 
 #ifdef SCAN
 /*** function decroletar ***/

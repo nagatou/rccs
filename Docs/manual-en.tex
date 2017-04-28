@@ -455,9 +455,6 @@ Those special processes do not distinguish between upper letters and lower lette
 \subsection{Scope}
 In expression (define P (x) body), the scope of x becomes body.
 In expression (\bijection{a}(x)\(\colon\) body), the scope of x becomes body.
-
-Unfortunately, we use dynamic binding.
-In future, we will fix it.
 \subsection{Syntax of the Description Language}\label{sec:RCCSsyntax}
 \input{ss02-grm}
 \subsection{Sorts and Derivatives of Processes}
@@ -667,7 +664,7 @@ We show later that those theorems hold in \NHK.
 %
 %%% Proving Safety Properties
 %
-\subsection{A Proof Systems for The Modelling Language}\label{sec:ProofSystems}
+\subsection{A Proof System for The Modelling Language}\label{sec:ProofSystems}
 A model \(\pi\) written by our model language has the form: \(\pi=\pi_1\|\cdots\|\pi_n\).
 Processes synchronize and communicate using input actions and output actions.
 For a channel \(a\), a value of \(exp\) and a variable \(var\), execution of an output action
