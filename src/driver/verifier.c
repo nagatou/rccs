@@ -406,11 +406,11 @@ static list_t secondDFS(list_t exp,
          printf("rec->");
          fflush(stdout);
 #        endif
-         if (istrans(getls(car(cdr(exp))),cdr(cdr(exp)),ch))
+//         if (istrans(getls(car(cdr(exp))),cdr(cdr(exp)),ch))
             return(secondDFS(getls(car(cdr(exp))),assertion,cdr(cdr(exp)),cont,history,for_firstDFS,for_secondDFS,ch,depth_counter));
-         else{
-            return(for_secondDFS);
-         }
+//         else{
+//            return(for_secondDFS);
+//         }
          break;
 /*   (CON  a-cons   val-exp-ls     )          */
       case CON:
@@ -722,11 +722,11 @@ static list_t firstDFS(list_t exp,
          printf("rec->");
          fflush(stdout);
 #        endif
-         if (istrans(getls(car(cdr(exp))),cdr(cdr(exp)),ch))
+//         if (istrans(getls(car(cdr(exp))),cdr(cdr(exp)),ch))
             return(firstDFS(getls(car(cdr(exp))),assertion,cdr(cdr(exp)),cont,history,for_firstDFS,for_secondDFS,ch,depth_counter));
-         else{
-            return(for_firstDFS);
-         }
+//         else{
+//            return(for_firstDFS);
+//         }
          break;
 /*   (CON  a-cons   val-exp-ls     )          */
       case CON:
