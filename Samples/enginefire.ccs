@@ -1,0 +1,58 @@
+;;; A procedure for a pilot in case of engine fire
+; 1. Reduce engine thrust to idle
+; 2. Wait 10 seconds
+; 3. Fire shot one
+; 4. If warnig clears, shutdown engine
+; 5. If warning persists, fire shot two
+; 6. If warning clears, shutdown engine
+;; Mode: RCCS
+;; Formulae: -f "<> (engineFire=0)"
+;; fire size: {0:none, 1:minor, 2:major}
+;; location: {"none", "left", "right"}
+
+(definit (location, engineFire) ("none", 2))
+
+(define ExtinguishFire(engineFire)
+  (~extinguish(engineFire):shutdown(location):Zero))
+(define FireTwo(engineFire,engineSpeed)
+  ~extinguish(engineFire):
+    (if (engineFire=0)
+        (ExtinguishFire(engineFire-1))
+        (Zero)))
+(define FireOne (engineFire,engineSpeed)
+  ~extinguish(engineFire):
+    (if (engineFire=0)
+        (ExtinguishFire(engineFire))
+        (shottwo:FireTwo(engineFire-1,engineSpeed))))
+(define ReduceSpeed (engineFire,engineSpeed)
+  shotone:
+    (if (engineSpeed<=50)
+        (FireOne(engineFire-1,engineSpeed))
+        (FireOne(engineFire,engineSpeed))))
+(define EngineFire (location, engineSpeed)
+  ~enginefire(location):
+    idle(location):
+      wait:
+        (if (engineSpeed>50)
+            (ReduceSpeed(engineFire,engineSpeed-50))
+            (ReduceSpeed(engineFire,0))))
+(define Beep (location)
+  extinguish(engineFire):
+    (if (engineFire=0)
+        (~warningclear:Zero)
+        (~inBeep:Beep(location))))
+(define WarningSystem ()
+  (enginefire(location):
+    (~firewarning(location):Beep(location))))
+(define Pilot ()
+  firewarning(location):
+   ~idle(location):
+     ~wait:
+       ~shotone:
+         ((warningclear:
+             ~shutdown(location):Zero)
+           ++(inBeep:
+               ~shottwo:
+                  warningclear:
+                    ~shutdown(location):Zero)))
+(Pilot||(WarningSystem||EngineFire("left",100)))
