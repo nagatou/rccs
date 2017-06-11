@@ -1566,7 +1566,7 @@ static list_t evalval_ls(list_t val_ls,list_t env,queue_t ch)/* B010 */
 }                                                          /* B010 */
 static list_t make_cls(list_t exp, list_t env)
 {
-   return(cons(*makelet(TOKEN,makesym(AGENT_OP,REC)),
+   return(cons(*makelet(TOKEN,regsym("dummy_REC",AGENT_OP,REC)),
                cons(*makelet(LIST,exp),env)));
 }
 static list_t evalprefix(element_t rate,
@@ -2038,7 +2038,7 @@ static list_t driver_loop(list_t env)
                      if (isempty_buf(&formula))
                         n_print(eval(form,env,makenull(NIL),make_ch()));
                      else{
-                        list_t ASSERTION = cons(*makelet(TOKEN,makesym(AGENT_OP,CON)),
+                        list_t ASSERTION = cons(*makelet(TOKEN,regsym("dummy_CON",AGENT_OP,CON)),
                                                  dotpair(*makelet(TOKEN,addattr(regsym(INIT_NODE_NAME,ID),A_CON)),
                                                          *makelet(LIST,makenull(NIL))));
                         verifier((initial_form=form),env,makenull(NIL),ASSERTION,make_ch());

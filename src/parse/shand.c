@@ -133,7 +133,7 @@ static unsigned int hash1(char *strings)
    printf("hash1(%d)-> ",);
 #  endif
    if (*strings=='\x00')
-      return(0);
+      return(HASH_TBL_SIZE);
    else
       return(alpha * (hash1(strings+1)) + (unsigned int)(*strings));
 }
@@ -379,7 +379,7 @@ static hash_entry_t * ismember_sym(hash_entry_t *ls,splp lexeme,token_t name,...
                      }
                         break;
                      default:
-                        return((hash_entry_t *)error(FATAL,"a invalid name type(ismember_sym380) %d\n",name));
+                        return((hash_entry_t *)error(FATAL,"invalid name type(ismember_sym380) %d\n",name));
                   }
                }
             }
@@ -394,8 +394,17 @@ static hash_entry_t * ismember_sym(hash_entry_t *ls,splp lexeme,token_t name,...
                      return(ismember_sym(ls->next,lexeme,name,fld_type));
                      break;
                   }
+                  case AGENT_OP:
+                  case COMP_OP:
+                  case BOOL_OP:
+                  case VALUE_OP:{
+                     field_t fld_type=va_arg(ap,field_t);
+                     va_end(ap);
+                     return(ismember_sym(ls->next,lexeme,name,fld_type));
+                     break;
+                  }
                   default:
-                     return((hash_entry_t *)error(FATAL,"a invalid name type(ismember_sym394) %d\n",name));
+                     return((hash_entry_t *)error(FATAL,"invalid name type(ismember_sym394) %d\n",name));
                }
             }
             break;
@@ -414,7 +423,7 @@ static hash_entry_t * ismember_sym(hash_entry_t *ls,splp lexeme,token_t name,...
                         return(ismember_sym(ls->next,lexeme,name,va_arg(ap,field_t)));
                         break;
                      default:
-                        return((hash_entry_t *)error(FATAL,"a invalid name type(ismember_sym379) %d\n",name));
+                        return((hash_entry_t *)error(FATAL,"invalid name type(ismember_sym379) %d\n",name));
                   }
                }
             }
@@ -428,7 +437,7 @@ static hash_entry_t * ismember_sym(hash_entry_t *ls,splp lexeme,token_t name,...
                      return(ismember_sym(ls->next,lexeme,name,va_arg(ap,field_t)));
                      break;
                   default:
-                     return((hash_entry_t *)error(FATAL,"a invalid name type(ismember_sym425) %d\n",name));
+                     return((hash_entry_t *)error(FATAL,"invalid name type(ismember_sym425) %d\n",name));
                }
             }
             break;
@@ -450,7 +459,7 @@ static hash_entry_t * ismember_sym(hash_entry_t *ls,splp lexeme,token_t name,...
                                  return(ismember_sym(ls->next,lexeme,name,fld_type));
                                  break;
                               default:
-                                 return((hash_entry_t *)error(FATAL,"a invalid name type(ismember_sym447) %d\n",name));
+                                 return((hash_entry_t *)error(FATAL,"invalid name type(ismember_sym447) %d\n",name));
                            }
                         }
                      }
@@ -464,7 +473,7 @@ static hash_entry_t * ismember_sym(hash_entry_t *ls,splp lexeme,token_t name,...
                               return(ismember_sym(ls->next,lexeme,name,fld_type));
                               break;
                            default:
-                              return((hash_entry_t *)error(FATAL,"a invalid name type(ismember_sym461) %d\n",name));
+                              return((hash_entry_t *)error(FATAL,"invalid name type(ismember_sym461) %d\n",name));
                         }
                      }
                      break;
@@ -482,7 +491,7 @@ static hash_entry_t * ismember_sym(hash_entry_t *ls,splp lexeme,token_t name,...
                                  return(ismember_sym(ls->next,lexeme,name,fld_type));
                                  break;
                               default:
-                                 return((hash_entry_t *)error(FATAL,"a invalid name type(ismember_sym479) %d\n",name));
+                                 return((hash_entry_t *)error(FATAL,"invalid name type(ismember_sym479) %d\n",name));
                            }
                         }
                      }
@@ -496,7 +505,7 @@ static hash_entry_t * ismember_sym(hash_entry_t *ls,splp lexeme,token_t name,...
                               return(ismember_sym(ls->next,lexeme,name,fld_type));
                               break;
                            default:
-                              return((hash_entry_t *)error(FATAL,"a invalid name type(ismember_sym493) %d\n",name));
+                              return((hash_entry_t *)error(FATAL,"invalid name type(ismember_sym493) %d\n",name));
                         }
                      }
                      break;
@@ -516,7 +525,7 @@ static hash_entry_t * ismember_sym(hash_entry_t *ls,splp lexeme,token_t name,...
                   }
                      break;
                   default:
-                     return((hash_entry_t *)error(FATAL,"a invalid name type(ismember_sym511) %d\n",name));
+                     return((hash_entry_t *)error(FATAL,"invalid name type(ismember_sym511) %d\n",name));
                }
             }
          }
@@ -767,9 +776,18 @@ token regsym(splp lexeme,token_t name_type,...)
       case AGENT_OP:
       case COMP_OP:
       case BOOL_OP:
-      case VALUE_OP:
-         sym = makesym(name_type,va_arg(ap,int));
+      case VALUE_OP:{
+         fld_type = va_arg(ap,field_t);
+         if ((ety=ismember_sym(hash_table[hash(lexeme)],lexeme,name_type,fld_type))!=(hash_entry_t *)NIL){
+            va_end(ap);
+            return(ety->sym_p);
+         }
+         else{
+            va_end(ap);
+            return((apdLS_sym(&(hash_table[hash(lexeme)]),lexeme,name_type,fld_type))->sym_p);
+         }
          break;
+      }
       default:
          return((token)error(FATAL,"invalid name type(regsym582) %d\n", name_type));
    }
