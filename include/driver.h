@@ -14,7 +14,7 @@
  *  class name:g_step_exec 
  *-------------------------------------------------*
  *  this is global and static, and
- * in verification mode, eval() become single-step
+ * in verification mode, eval() becomes single-step
  * execution mode.
  *-------------------------------------------------*
  *  methods:              
@@ -22,8 +22,12 @@
 static bool g_step_exec=FALSE;
 static bool g_emptyness=FALSE;
 static bool g_state_counter=0;
+static int g_counter_for_counterexamples=0;
 #ifndef DEPTH_LIMIT
 #  define DEPTH_LIMIT 64 
+#endif
+#ifndef MAX_COUNTEREXAMPLES
+#  define MAX_COUNTEREXAMPLES 5
 #endif
 
 /***************************************************

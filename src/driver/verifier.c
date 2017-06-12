@@ -152,8 +152,15 @@ static list_t secondDFS2(list_t exp,
       if (depth_counter>=DEPTH_LIMIT){
          if (acceptance_condition==ACC_WEAKLY){
             g_emptyness=TRUE;
-            error(SUCCESS|EEL,"Emptyness(limit): TRUE, %s",*makelet(LIST,history));
-            return(for_secondDFS);
+            if (g_counter_for_counterexamples++ < MAX_COUNTEREXAMPLES){
+               error(SUCCESS|EEL,"Emptyness(limit): TRUE, %s",*makelet(LIST,history));
+               return(for_secondDFS);
+            }
+            else{
+               g_counter_for_counterexamples=0;
+               error(WARNING,"Terminate by the limit on the number of counterexample");
+               return(for_secondDFS);
+            }
          }
          else
             return(for_secondDFS); /*** is not accepted ***/
@@ -178,8 +185,15 @@ static list_t secondDFS2(list_t exp,
       gc(&memory_control_table);
       if (ismember_of_stack(for_firstDFS,make_current_state(exp,cont,tmp,ch,env))){
          g_emptyness=TRUE;
-         error(SUCCESS|EEL,"Emptyness: TRUE, %s",*makelet(LIST,history));
-         return(for_secondDFS);
+         if ((g_counter_for_counterexamples++)<MAX_COUNTEREXAMPLES){
+            error(SUCCESS|EEL,"Emptyness: TRUE, %s",*makelet(LIST,history));
+            return(for_secondDFS);
+         }
+         else{
+            g_counter_for_counterexamples=0;
+            error(WARNING,"Terminate by the limit on the number of counterexample");
+            return(for_secondDFS);
+         }
       }
       else
          return(secondDFS2(exp,tmp,env,cont,history,for_firstDFS,on_stack(make_current_state(exp,cont,tmp,ch,env),for_secondDFS),g_step_exec=FALSE,ch,depth_counter));
@@ -490,8 +504,15 @@ static list_t firstDFS2(list_t exp,
       if (depth_counter>=DEPTH_LIMIT){
          if (acceptance_condition==ACC_WEAKLY){
             g_emptyness=TRUE;
-            error(SUCCESS|EEL,"Emptyness(limit): TRUE, %s",*makelet(LIST,history));
-            return(for_firstDFS);
+            if (g_counter_for_counterexamples++ < MAX_COUNTEREXAMPLES){
+               error(SUCCESS|EEL,"Emptyness(limit): TRUE, %s",*makelet(LIST,history));
+               return(for_firstDFS);
+            }
+            else{
+               g_counter_for_counterexamples=0;
+               error(WARNING,"Terminate by the limit on the number of counterexample");
+               return(for_secondDFS);
+            }
          }
          else
             return(for_firstDFS); /*** is not accepted ***/
