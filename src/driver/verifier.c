@@ -53,9 +53,8 @@ static list_t make_current_state(list_t exp,list_t cont,list_t assertion, list_t
       return((list_t)error(FATAL,"segmentation fault(make_current_state36)\n"));
    else
       return(cons(*makelet(LIST,resume(exp,cont)),
-                   cons(*makelet(LIST,assertion),makenull(NIL))));
-//                   cons(*makelet(LIST,ch),makenull(NIL))));
-//                   cons(*makelet(LIST,cont),makenull(NIL))));
+                   cons(*makelet(LIST,assertion),
+                        cons(*makelet(LIST,ch),makenull(NIL)))));
 }
 static list_t mark(list_t state,list_t stack,bool side_effect)
 {

@@ -2046,7 +2046,7 @@ static list_t driver_loop(list_t env)
                         if (!isempty_buf(&formula)){
                            end_tt = clock();
                            if (!(end_tt==(clock_t)-1))
-                              printf("\n\n%d states explored in %10f seconds.\n",g_state_counter,((double)(end_tt-begin_tt)/CLOCKS_PER_SEC));
+                              printf("\n\n%d states explored in %10f seconds(2).\n",g_state_counter,((double)(end_tt-begin_tt)/CLOCKS_PER_SEC));
                         }
                      }
                      goto LOOP;
@@ -2062,7 +2062,7 @@ static list_t driver_loop(list_t env)
          if (!isempty_buf(&formula)){
             end_tt = clock();
             if (!(end_tt==(clock_t)-1))
-               printf("\n\n%d states explored in %10f seconds.\n",g_state_counter,((double)(end_tt-begin_tt)/CLOCKS_PER_SEC));
+               printf("\n\n%d states explored in %10f seconds(1).\n",g_state_counter,((double)(end_tt-begin_tt)/CLOCKS_PER_SEC));
          }
          goto LOOP;
       }
