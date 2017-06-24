@@ -38,7 +38,7 @@ OPT=-I${INCLUDE} -I${RCCS_HOME}/src/gdb_interface\
                  -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include
 #                 -I/usr/include/glib-1.2 -I/usr/lib/glib/include
 DEBUG_FLAG=-g -O0 -Wall # empty now, but assign -g -p for debugging
-MC_FLAGS = -D MC_LINUX -D DEBUG_MC_S #Cannot remove for Linux
+MC_FLAGS = -D MC_LINUX #Cannot remove for Linux
 CFLAGS=${OPT} ${DEBUG_FLAG} ${MC_FLAGS}
 
 LDFLAGS=-L${LIBPATH}
