@@ -72,12 +72,15 @@ static ltl_token_details get_token_details(ltl_lexeme *lexeme) {
         case TERM_BOOLEAN:          return LTL_BOOLVALUE;
 
         case CLOSEBRACKET_PATH_TERM:
+            error(FATAL|ECHAR,"syntax error: unmatched closing bracket\n");
             printf("syntax error: unmatched closing bracket\n");
             return LTL_UNKNOWN_DETAIL;
         case EOT:
+            error(FATAL|ECHAR,"LTL syntax error: reached unexpected end\n");
             printf("syntax error: reached unexpected end\n");
             return LTL_UNKNOWN_DETAIL;
         default: 
+            error(FATAL|ECHAR,"LTL syntax error: invalid symbol: %s\n", lexeme->lit);
             printf("syntax error: invalid symbol: %s\n", lexeme->lit);
             return LTL_UNKNOWN_DETAIL;
     }
@@ -163,6 +166,7 @@ void ltl_parse(ltl_parser_state *state, ltl_lexeme *lexeme) {
                         // ok, we found our closing bracket, climb up one more
                         climb_up(state);
                     } else {
+                        error(FATAL|ECHAR,"syntax error: unmatched opening bracket\n");
                         printf("syntax error: unmatched opening bracket\n");
                         exit(1); // TODO check error handling
                     }
@@ -178,6 +182,7 @@ void ltl_parse(ltl_parser_state *state, ltl_lexeme *lexeme) {
             case LTL_UNKNOWN_DETAIL:
                 printf("unexpected token\n");
                 exit(1); // TODO check error handling
+//                error(SYNTAX|ECHAR,"unexpected token\n");
         }
     }
     else { 
@@ -198,6 +203,7 @@ void ltl_parse(ltl_parser_state *state, ltl_lexeme *lexeme) {
             else {
                 printf("syntax error: unexpected symbol: %s\n", lexeme->lit);
                 exit(1); // TODO check error handling
+//                error(SYNTAX|ECHAR,"syntax error: unexpected symbol: %s\n", lexeme->lit);
             }
         }
     }

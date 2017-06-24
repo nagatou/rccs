@@ -1,5 +1,5 @@
 LDLIBS = -L/usr/lib -L/opt/gnome/lib -lglib -L../../lib -ldriver -lerror -lparse -lprint -llist -L../ltl -lltl
-CFLAGS = -I. -I../../include -I/usr/include/glib-1.2 -I/usr/lib/glib/include \
+CFLAGS = -I. -I../../include -I/usr/include/glib-2.0 -I/usr/lib/glib/include \
 		 -D MC_LOG ${CFLAGS}
 
 SRCS=debugger.c errors.c log_printf.c mi_parser.c utils.c mc_interface.c gdb_control.c

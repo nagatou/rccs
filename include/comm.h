@@ -91,7 +91,7 @@ typedef struct{
 #endif
 
 /*header file for mc_interface*/
-#ifndef DEBUG_MC
+#ifndef DEBUG_MC_GDB
 #include "mc_interface.h"
 #endif
 
@@ -112,6 +112,7 @@ typedef enum{C_QUEUE,C_STACK} channel_order_t;
 EXTERN channel_order_t channel_order;
 typedef enum{ACC_WEAKLY,ACC_STRONGLY} acceptance_condition_t;
 EXTERN acceptance_condition_t acceptance_condition;
+EXTERN bool dotfile_condition;
 
 /*** function decroletar ***/
 /*--- file handler ---*/

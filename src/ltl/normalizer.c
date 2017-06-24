@@ -59,6 +59,6 @@ static ltl_token *rewrite_to_basic_ops(ltl_token *token) {
 
 ltl_token *ltl_normalize(ltl_token *token) {
     token = rewrite_to_basic_ops(token);
-    // pushdown_nots(token);
+//    pushdown_nots(token);
     return token;
 }

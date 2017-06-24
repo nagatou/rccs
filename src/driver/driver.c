@@ -17,10 +17,11 @@
 #undef EXTERN
 #define EXTERN extern
 #include "setupsignalstack.h"
+#include "../ltl/ltl-test.h"
 
 static jmp_buf when_length_of_path_is_zero;
 
-#ifdef DEBUG_MC
+#ifdef DEBUG_MC_M
 static char *ltl2ccs(char *ba,buffer *prop)
 {
    ins_buf(prop,ba);
@@ -2081,7 +2082,9 @@ void driver1(void)
          if (ltl2ccs(formula.buf,&(seed.buf)) ==(char *)NIL)
             error(FATAL,"ltl2ccs: cannot translate the LTL formula: %s.\n",formula.buf);
          else{
-            seed.ptr = 0; /* initialize just the pointer to the top of seed buffer, not the clean of an input buffer.*/
+            if (dotfile_condition==TRUE)
+               dotest(formula.buf);
+            seed.ptr = 0; /* initialize just the pointer to the top of seed buffer, do not clean an input buffer.*/
             driver_loop(makenull(NIL));
          }
       }

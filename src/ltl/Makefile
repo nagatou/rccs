@@ -6,9 +6,9 @@
 #
 
 LDLIBS =
-CFLAGS = -I../gdb_interface -I../../include -I/usr/include/glib-1.2 -I/usr/lib/glib/include -I. -g -Wall
+CFLAGS = -I../gdb_interface -I../../include -I/usr/include/glib-2.0 -I/usr/lib/glib/include -I. -g -Wall
 
-SRCS=linked-list.c ltl-scanner.c ltl-parser.c ltl-token.c buchi-node.c ltl-converter.c buchi-converter.c normalizer.c ltl.c
+SRCS=linked-list.c ltl-scanner.c ltl-parser.c ltl-token.c buchi-node.c ltl-converter.c buchi-converter.c normalizer.c ltl.c ltl-test.c ltl2dot.c buchi2dot.c
 OBJS=${SRCS:.c=.o}
 HEADERS=${SRCS:.c=.h}
 
@@ -25,17 +25,17 @@ libltl.a : ${OBJS}
 
 test: linked-list-test ltl-test
 	./linked-list-test
-	#./ltl-test "[] <> ! (ax = 3)"
-	#./ltl-test "[]!(ax = 3)\/(bx=4)" #NG?
-	#./ltl-test "<>!(ax = 3)\/(bx=4)"
-	./ltl-test "<>(ax = 15)"
-	#./ltl-test "((<> (name_on_label_Tube="Bob")) \/ ([] <> ! (name_on_label_Tube=says_name_Receipt)))"
+#	./ltl-test "[] <> ! (ax = 3)"
+#	./ltl-test "[]!(ax = 3)\/(bx=4)" #NG?
+#	./ltl-test "<>!(ax = 3)\/(bx=4)"
+#	./ltl-test "<>(ax = 15)"
+#	./ltl-test "((<> (name_on_label_Tube="Bob")) \/ ([] <> ! (name_on_label_Tube=says_name_Receipt)))"
 	dot -Tpng -o ltl-tree.png ltl-tree.dot
 	dot -Tpng -o ltl-tree-norm.png ltl-tree-norm.dot
 	dot -Tpng -o buchi-graph.png buchi-graph.dot
 
 linked-list-test: linked-list-test.c linked-list.*
-	gcc -o linked-list-test ${LDLIBS} ${CFLAGS} -DLINKED_LIST_TEST linked-list-test.c linked-list.c
+	gcc -o linked-list-test ${LDLIBS} ${CFLAGS} -DDEBUG_MC_GDB -DLINKED_LIST_TEST linked-list-test.c linked-list.c
 
 ltl-test: ltl-test.c linked-list.* ltl-scanner.* ltl-parser.* ltl-token.* normalizer.* buchi-node.* ltl-converter.* buchi-converter.* ltl2dot.c buchi2dot.c
 	gcc -o ltl-test ${LDLIBS} ${CFLAGS} -DLTL_TEST -DLTL_SCANNER_DEBUG -DLTL_PARSER_DEBUG -DLTL_CONVERTER_DEBUG ltl-test.c linked-list.c ltl-scanner.c ltl-parser.c ltl-token.c buchi-node.c ltl-converter.c normalizer.c ltl2dot.c buchi2dot.c buchi-converter.c ../driver/fhand.c

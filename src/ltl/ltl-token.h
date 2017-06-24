@@ -12,6 +12,7 @@ typedef enum {
     LTL_UNARY_OP = 1,
     LTL_BINARY_OP = 2,
     LTL_BRACKETS = 3,
+    LTL_STRING = 4,
     LTL_UNKNOWN_TYPE = -1
 } ltl_token_type;
 

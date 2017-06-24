@@ -151,8 +151,8 @@ static list_t secondDFS2(list_t exp,
       if (depth_counter>=DEPTH_LIMIT){
          if (acceptance_condition==ACC_WEAKLY){
             g_emptyness=TRUE;
-            if (g_counter_for_counterexamples++ < MAX_COUNTEREXAMPLES){
-               error(SUCCESS|EEL,"Emptyness(limit): TRUE, %s",*makelet(LIST,history));
+            error(SUCCESS|EEL,"Emptyness(limit): TRUE, %s",*makelet(LIST,history));
+            if ((++g_counter_for_counterexamples) < MAX_COUNTEREXAMPLES){
                return(for_secondDFS);
             }
             else{
@@ -184,8 +184,8 @@ static list_t secondDFS2(list_t exp,
       gc(&memory_control_table);
       if (ismember_of_stack(for_firstDFS,make_current_state(exp,cont,tmp,ch,env))){
          g_emptyness=TRUE;
-         if ((g_counter_for_counterexamples++)<MAX_COUNTEREXAMPLES){
-            error(SUCCESS|EEL,"Emptyness: TRUE, %s",*makelet(LIST,history));
+         error(SUCCESS|EEL,"Emptyness: TRUE, %s",*makelet(LIST,history));
+         if ((++g_counter_for_counterexamples) < MAX_COUNTEREXAMPLES){
             return(for_secondDFS);
          }
          else{
@@ -503,8 +503,8 @@ static list_t firstDFS2(list_t exp,
       if (depth_counter>=DEPTH_LIMIT){
          if (acceptance_condition==ACC_WEAKLY){
             g_emptyness=TRUE;
-            if (g_counter_for_counterexamples++ < MAX_COUNTEREXAMPLES){
-               error(SUCCESS|EEL,"Emptyness(limit): TRUE, %s",*makelet(LIST,history));
+            error(SUCCESS|EEL,"Emptyness(limit): TRUE, %s",*makelet(LIST,history));
+            if ((++g_counter_for_counterexamples) < MAX_COUNTEREXAMPLES){
                return(for_firstDFS);
             }
             else{

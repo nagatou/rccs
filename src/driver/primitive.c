@@ -141,6 +141,7 @@ void prologue(char * log)
    acceptance_condition=ACC_STRONGLY; /* Set default */
    initbuf(&target);   /* The default value is empty sequence */
    initbuf(&formula);  /* The default value is empty sequence */
+   dotfile_condition=FALSE; /* Set default */
 }
 /*****************************************************
  *  this function close sockets.                     * 

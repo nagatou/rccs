@@ -15,7 +15,7 @@
 # define main_ltl_test main
 #endif
 
-static void dotest(char *ltl) {
+void dotest(char *ltl) {
     ltl_scanner_info scinfo;
     scinfo.src = ltl;
     ltl_lexeme l;
@@ -25,33 +25,33 @@ static void dotest(char *ltl) {
     
     do {
         l = get_next_lexeme(&scinfo);
-        printf("got lexeme \"%s\" (Id: %d)\n", l.lit, l.type);
+//        printf("got lexeme \"%s\" (Id: %d)\n", l.lit, l.type);
         ltl_parse(&painfo, &l);
-        initbuf(&buf);
-        printf(" -> %s\n", ltl_token2string(painfo.top, &buf));
+//        initbuf(&buf);
+//        printf(" -> %s\n", ltl_token2string(painfo.top, &buf));
         free(l.lit);
     } while ( l.type != EOT );
 
-    ltl2dot(painfo.top, "ltl-tree.dot");
-    initbuf(&buf);
-    printf("%s\n", ltl_token2string(painfo.top, &buf));
+   ltl2dot(painfo.top, "ltl-tree.dot");
+//   initbuf(&buf);
+//   printf("%s\n", ltl_token2string(painfo.top, &buf));
 
     painfo.top = ltl_normalize(painfo.top);
-    printf("normalizer done...");
+//    printf("normalizer done...");
     
     ltl2dot(painfo.top, "ltl-tree-norm.dot");
-    initbuf(&buf);
-    printf("normalized: %s\n", ltl_token2string(painfo.top, &buf));
+//    initbuf(&buf);
+//    printf("normalized: %s\n", ltl_token2string(painfo.top, &buf));
     
     linked_list nodes = ltl2buchi(painfo.top);
     buchi2dot(&nodes, "buchi-graph.dot");
     
-    initbuf(&buf);
-    printf("%s\n", buchi2ccs(&nodes, &buf));
+//    initbuf(&buf);
+//    printf("%s\n", buchi2ccs(&nodes, &buf));
     
     free_ltl_token(painfo.top);
     free_buchi_nodes(&nodes);
-    printf("done\n");
+//    printf("done\n");
 }
 
 int main_ltl_test(int argc,char *argv[]) {

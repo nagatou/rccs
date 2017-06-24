@@ -12,7 +12,7 @@
 #define EXTERN
 #include "comm.h"
 
-#ifdef DEBUG_MC
+#ifdef DEBUG_MC_GDB
 static int mc_init_debugger(char *target,char *args)
 {
    return(TRUE);
@@ -53,6 +53,7 @@ when you don't give both -f and -d, I will run the model in the emulation mode.\
    printf("\t-i \t\t:provids the interactive execution.\n");
    printf("\t-g \t\t:stronG view of the semantics(Default).\n");
    printf("\t-k \t\t:weaK view of the semantics.\n");
+   printf("\t-a \t\t:Create a dot file for the specified formula.\n");
 }
 static void analyse_options1(int count, int number, char *options[]);
 static void analyse_f_option(int count,int number,char *options[],buffer *formula)
@@ -131,10 +132,14 @@ static void analyse_options1(int count, int number, char *options[])
                acceptance_condition=ACC_STRONGLY;
                analyse_options1(count+1,number,options);
                break;
+            case 'a':
+               dotfile_condition=TRUE;
+               analyse_options1(count+1,number,options);
+               break;
             case 'm': /* reserved */
             default:
                help();
-               error(FATAL,"Invalid options(analyse_options111):%s\n",options[count]);
+               error(FATAL,"Invalid options(analyse_options142):%s\n",options[count]);
          }
       }
       else{

@@ -27,7 +27,7 @@ static int g_counter_for_counterexamples=0;
 #  define DEPTH_LIMIT 64 
 #endif
 #ifndef MAX_COUNTEREXAMPLES
-#  define MAX_COUNTEREXAMPLES 8
+#  define MAX_COUNTEREXAMPLES 1
 #endif
 
 /***************************************************
