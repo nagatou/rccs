@@ -183,7 +183,7 @@ int main(int argi,char *argv[])
    if (!isempty_buf(&target)){
       int ret=mc_init_debugger(target.buf,NIL);
       if (ret==ERROR)
-         return((int)error(FATAL,"Cannot run a debbuger.\n"));
+         return((intptr_t)error(FATAL,"Cannot run a debbuger.\n"));
    }
 //   if (!isempty_buf(&formula)) /*** fix channel_order at C_STACK in verifier mode. ***/
 //      channel_order=C_STACK;
