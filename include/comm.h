@@ -32,7 +32,7 @@
 //typedef enum boolean bool;
 typedef int bool;
    #ifndef FALSE
-      #define FALSE (int)NIL
+      #define FALSE (intptr_t)NIL
    #endif
    #ifndef TRUE
       #define TRUE !FALSE
