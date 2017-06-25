@@ -368,7 +368,7 @@ int n_print(const list_t ls)
    int ret;
 
    if (ls==(list_t)NIL)
-      return((int)error(FATAL,"Segmentation fault(print350)\n"));
+      return((intptr_t)error(FATAL,"Segmentation fault(print350)\n"));
    else{
       initbuf(&output);
 //      printf("\n");

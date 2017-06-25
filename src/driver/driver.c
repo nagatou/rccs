@@ -88,10 +88,10 @@ static field_t getop(element_t el)
           (el.entry.tk->token_name==KEY_WORD))
          return(el.entry.tk->attr.op.type);
       else
-         return((int)error(FATAL|EEL,"invalid type(getop89) element=%s.\n", el));
+         return((intptr_t)error(FATAL|EEL,"invalid type(getop89) element=%s.\n", el));
    }
    else
-      return((int)error(FATAL|EEL,"invalid type(getop92) element=%s, type=%d\n", el, el.type));
+      return((intptr_t)error(FATAL|EEL,"invalid type(getop92) element=%s, type=%d\n", el, el.type));
 }
 static bool isdef(element_t el)
 {
@@ -217,7 +217,7 @@ token gettk(element_t el)
 int getval(element_t el)
 {
    token tk=NIL;
-   int ret=ERROR;
+   intptr_t ret=ERROR;
 
 #  ifdef DEBUG_EVAL
    printf("getval->");
@@ -229,15 +229,15 @@ int getval(element_t el)
             ret = tk->attr.value.fld.iconst.int_v;
             break;
          case STR:
-            ret = (int)(tk->attr.value.fld.strings.str);
+            ret = (intptr_t)(tk->attr.value.fld.strings.str);
             break;
          default:
-            return((int)error(FATAL|ETK,"invalid element(getval209) token=%s, token_name=%d\n", tk, tk->token_name));
+            return((intptr_t)error(FATAL|ETK,"invalid element(getval209) token=%s, token_name=%d\n", tk, tk->token_name));
       }
       return(ret);
    }
    else
-      return((int)error(FATAL|ETK,"invalid element(getval158) token=%s, token_name=%d\n", tk, tk->token_name));
+      return((intptr_t)error(FATAL|ETK,"invalid element(getval158) token=%s, token_name=%d\n", tk, tk->token_name));
 }
 static list_t lookup21(const element_t name,list_t lvals,list_t rvals)
 {
@@ -2047,7 +2047,7 @@ static list_t driver_loop(list_t env)
                         if (!isempty_buf(&formula)){
                            end_tt = clock();
                            if (!(end_tt==(clock_t)-1))
-                              printf("\n\n%d states explored in %10f seconds(2).\n",g_state_counter,((double)(end_tt-begin_tt)/CLOCKS_PER_SEC));
+                              printf("\n\n%ld states explored in %10f seconds(2).\n",g_state_counter,((double)(end_tt-begin_tt)/CLOCKS_PER_SEC));
                         }
                      }
                      goto LOOP;
@@ -2063,7 +2063,7 @@ static list_t driver_loop(list_t env)
          if (!isempty_buf(&formula)){
             end_tt = clock();
             if (!(end_tt==(clock_t)-1))
-               printf("\n\n%d states explored in %10f seconds(1).\n",g_state_counter,((double)(end_tt-begin_tt)/CLOCKS_PER_SEC));
+               printf("\n\n%ld states explored in %10f seconds(1).\n",g_state_counter,((double)(end_tt-begin_tt)/CLOCKS_PER_SEC));
          }
          goto LOOP;
       }

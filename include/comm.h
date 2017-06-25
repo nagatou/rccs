@@ -30,7 +30,7 @@
 //enum boolean {FALSE=NIL,TRUE=!NIL};
 //enum boolean {FALSE=NIL,TRUE=!NIL,OTHERWISE=2,ERROR=NIL,OFF=NIL,ON=!NIL};
 //typedef enum boolean bool;
-typedef int bool;
+typedef intptr_t bool;
    #ifndef FALSE
       #define FALSE (intptr_t)NIL
    #endif

@@ -196,8 +196,8 @@ static void aly_addr_serv(splp addr,splp servc)
 #  ifdef DEBUG_EHAND
    printf("aly_addr_serv->");
 #  endif
-   if (*addr==(char)NIL){
-      *servc = (char)NIL;
+   if (*addr==(char)(intptr_t)NIL){
+      *servc = (char)(intptr_t)NIL;
       servc++;
    }
    else{
@@ -211,7 +211,7 @@ static void aly_addr_host(splp addr,splp hsc,splp servc)
    printf("aly_addr_host->");
 #  endif
    if (*addr==':'){
-      *hsc = (char)NIL;
+      *hsc = (char)(intptr_t)NIL;
       aly_addr_serv(addr+1,servc);
    }
    else{
@@ -225,7 +225,7 @@ static void anly_cs(splp addr,splp cs,splp hsc,splp servc)
    printf("anly_cs->");
 #  endif
    if (*addr==':'){
-      *cs = (char)NIL;
+      *cs = (char)(intptr_t)NIL;
       aly_addr_host(addr+1,hsc,servc);
    }
    else{
@@ -378,7 +378,7 @@ static int retrieval(element_t label)
    bindLSp ret=retrieval1(label);
 
    if (ret==(bindLSp)(NIL))
-      return((int)error(FATAL,"unboud label(retrieval416):%s\n",gettk(label)->attr.id.spl_ptr));
+      return((intptr_t)error(FATAL,"unboud label(retrieval416):%s\n",gettk(label)->attr.id.spl_ptr));
    else
       return(ret->pair.line_or_socket);
 }
@@ -437,13 +437,13 @@ int syscallname_to_num(char *name)
    printf("syscallname_to_num->");
 #  endif
    if (name==(char *)NIL)
-      return((int)error(FATAL,"Segmentation fault(syscallname_to_num431)\n"));
+      return((intptr_t)error(FATAL,"Segmentation fault(syscallname_to_num431)\n"));
    for(num=0;num<NUMofSYSCALL;num++){
       if (!strcmp(n_tolower(syscalls[num],&tmpbuf),
                   n_tolower(name,&buftmp)))
          return(num);
    }
-   return((int)error(FATAL,"Invalid function call:%s(syscallname_to_num450)\n",name));
+   return((intptr_t)error(FATAL,"Invalid function call:%s(syscallname_to_num450)\n",name));
 }
 //#ifdef DEBUG_MC
 //int mc_set_breakpoint(char *file,int lineno,char flag){
@@ -536,7 +536,7 @@ static char *ls2ary(list_t data,char *array)
    if (isempty(data))
       return(array);
    else{
-      char *test = (char *)(getval(car(getls(car(data)))));
+      char *test = (char *)(intptr_t)(getval(car(getls(car(data)))));
       return(strcat(ls2ary(cdr(data),
                            array),
                     test));
