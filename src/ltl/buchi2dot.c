@@ -20,9 +20,9 @@ void buchi2dot(linked_list *nodes, const char *filename) {
         linked_list prop_list;
 
         initbuf(&buf);
-        fprintf(file, "\"%i\" [label=\"%s\" style=filled,color=%s];\n",
+        fprintf(file, "\"%li\" [label=\"%s\" style=filled,color=%s];\n",
             // (int)n, buchi_node2long_string(n, &buf),
-            (int)n, buchi_node2string(n),
+            (intptr_t)n, buchi_node2string(n),
             (n->is_accept_state ? "green" : "red"));
 
         initbuf(&buf);
@@ -31,8 +31,8 @@ void buchi2dot(linked_list *nodes, const char *filename) {
         clear_linked_list(&prop_list);
         
         for (i = n->incoming.first; i != NULL; i = i->next) {
-            fprintf(file, "\"%i\" -> \"%i\" [label=\"%s\"];\n",
-                (int)i->data, (int)n, buf.buf);
+            fprintf(file, "\"%li\" -> \"%li\" [label=\"%s\"];\n",
+                (intptr_t)i->data, (intptr_t)n, buf.buf);
         }
     }
     

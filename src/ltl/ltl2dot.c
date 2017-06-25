@@ -17,17 +17,17 @@ static bool ltl2dotfile(ltl_token *t, visit_state s, void *data) {
     
     switch (t->type) {
         case LTL_SYMBOL:
-            fprintf(file, "\"%i\" [label=\"%s\" style=filled,color=yellow];\n", (int)t, ltl_token_details2string(t, &buf));
+            fprintf(file, "\"%ld\" [label=\"%s\" style=filled,color=yellow];\n", (intptr_t)t, ltl_token_details2string(t, &buf));
             break;
         case LTL_UNARY_OP:
         case LTL_BRACKETS:
-            fprintf(file, "\"%i\" [label=\"%s\" style=filled,color=green];\n", (int)t, ltl_token_details2string(t, &buf));
-            fprintf(file, "\"%i\" -> \"%i\";\n", (int)t, (int)t->info.arg);
+            fprintf(file, "\"%ld\" [label=\"%s\" style=filled,color=green];\n", (intptr_t)t, ltl_token_details2string(t, &buf));
+            fprintf(file, "\"%ld\" -> \"%ld\";\n", (intptr_t)t, (intptr_t)t->info.arg);
             break;
         case LTL_BINARY_OP:
-            fprintf(file, "\"%i\" [label=\"%s\" style=filled,color=green];\n", (int)t, ltl_token_details2string(t, &buf));
-            fprintf(file, "\"%i\" -> \"%i\";\n", (int)t, (int)t->info.left);
-            fprintf(file, "\"%i\" -> \"%i\";\n", (int)t, (int)t->info.right);
+            fprintf(file, "\"%ld\" [label=\"%s\" style=filled,color=green];\n", (intptr_t)t, ltl_token_details2string(t, &buf));
+            fprintf(file, "\"%li\" -> \"%li\";\n", (intptr_t)t, (intptr_t)t->info.left);
+            fprintf(file, "\"%li\" -> \"%li\";\n", (intptr_t)t, (intptr_t)t->info.right);
             break;
         case LTL_UNKNOWN_TYPE:
             assert(FALSE);
