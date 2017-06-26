@@ -32,14 +32,14 @@ void dotest(char *ltl) {
         free(l.lit);
     } while ( l.type != EOT );
 
-   ltl2dot(painfo.top, "ltl-tree.dot");
+//   ltl2dot(painfo.top, "ltl-tree.dot");
 //   initbuf(&buf);
 //   printf("%s\n", ltl_token2string(painfo.top, &buf));
 
     painfo.top = ltl_normalize(painfo.top);
 //    printf("normalizer done...");
     
-    ltl2dot(painfo.top, "ltl-tree-norm.dot");
+//    ltl2dot(painfo.top, "ltl-tree-norm.dot");
 //    initbuf(&buf);
 //    printf("normalized: %s\n", ltl_token2string(painfo.top, &buf));
     
