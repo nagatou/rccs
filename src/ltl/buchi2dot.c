@@ -37,4 +37,5 @@ void buchi2dot(linked_list *nodes, const char *filename) {
     }
     
     fprintf(file, "}\n");
+    fflush(file);
 }
