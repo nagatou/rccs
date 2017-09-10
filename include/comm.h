@@ -173,6 +173,7 @@ extern token addattr(token tk,...);
 /*--- driver ---*/
 extern void driver(void);
 extern int getval(element_t);
+extern char *getstr(element_t);
 extern token gettk(element_t);
 extern list_t getls(element_t);
 /*--- primitive action ---*/

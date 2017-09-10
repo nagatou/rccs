@@ -536,7 +536,7 @@ static char *ls2ary(list_t data,char *array)
    if (isempty(data))
       return(array);
    else{
-      char *test = (char *)(intptr_t)(getval(car(getls(car(data)))));
+      char *test = (getstr(car(getls(car(data)))));
       return(strcat(ls2ary(cdr(data),
                            array),
                     test));
