@@ -217,7 +217,7 @@ token gettk(element_t el)
 char *getstr(element_t el)
 {
    token tk=NIL;
-   intptr_t ret=ERROR;
+   char *ret=NIL;
 
 #  ifdef DEBUG_EVAL
    printf("getval->");
@@ -225,19 +225,16 @@ char *getstr(element_t el)
    tk = gettk(el);
    if (tk->token_name==VALUE){
       switch(tk->attr.value.type){
-         case ICONST:
-            ret = tk->attr.value.fld.iconst.int_v;
-            break;
          case STR:
-            ret = (char *)(tk->attr.value.fld.strings.str);
+            ret = (tk->attr.value.fld.strings.str);
             break;
          default:
-            return((intptr_t)error(FATAL|ETK,"invalid element(getval209) token=%s, token_name=%d\n", tk, tk->token_name));
+            return((char *)error(FATAL|ETK,"invalid element(getval209) token=%s, token_name=%d\n", tk, tk->token_name));
       }
       return(ret);
    }
    else
-      return((intptr_t)error(FATAL|ETK,"invalid element(getval158) token=%s, token_name=%d\n", tk, tk->token_name));
+      return((char *)error(FATAL|ETK,"invalid element(getval158) token=%s, token_name=%d\n", tk, tk->token_name));
 }
 int getval(element_t el)
 {
