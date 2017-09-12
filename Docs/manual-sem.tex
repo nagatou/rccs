@@ -53,12 +53,12 @@ We show the operational semantics of RCCS in \figref{fig:semRCCS}
 \multicolumn{2}{c}{
 \inference[Output(2)]
 {(a\leftarrow\vec{v})\not\in ch}
-{[(\sim a(\vec{v})\colon P),env_1,k[(Q,env_2)\|\hole],ch]\trans{\sim a}[Q,env_2,k[\hole\|(P,env_1)],ch[a\leftarrow\vec{v}]]}
+{[(\sim a(\vec{v})\colon P),env,k[Q\|\hole],ch]\trans{\sim a}[Q,env,k[\hole\|(P,env)],ch[a\leftarrow\vec{v}]]}
 }\\\\
 \multicolumn{2}{c}{
 \inference[Output(3)]
 {(a\leftarrow\vec{v})\not\in ch}
-{[(\sim a(\vec{v})\colon P),env_1,k[\hole\|(Q,env_2)],ch]\trans{\sim a}[Q,env_2,k[(P,env_1)\|\hole],ch[a\leftarrow\vec{v}]]}
+{[(\sim a(\vec{v})\colon P),env,k[\hole\|Q],ch]\trans{\sim a}[Q,env,k[(P,env)\|\hole],ch[a\leftarrow\vec{v}]]}
 }\\\\
 \multicolumn{2}{c}{
 \inference[Input]
@@ -67,39 +67,39 @@ We show the operational semantics of RCCS in \figref{fig:semRCCS}
 }\\\\
 \multicolumn{2}{c}{
 \inference[Sum(1)]
-{[P,env_{1},k,ch]\trans{\alpha}[P',env_{1}',k',ch']}
-{[(P,env_{1})\mbox{++}(Q,env_2),env,k,ch]\trans{\alpha}[P',env_{1}',k',ch']}
+{[P,env,k,ch]\trans{\alpha}[P',env',k',ch']}
+{[P\mbox{++}Q,env,k,ch]\trans{\alpha}[P',env',k',ch']}
 } \\\\
 \multicolumn{2}{c}{
 \inference[Sum(2)]
-{[Q,env_{2},k,ch]\trans{\alpha}[Q',env_{2}',k',ch']}
-{[((P,env_{1})\mbox{++}(Q,env_{2})),env,k,ch]\trans{\alpha}[Q',env_{2}',k',ch']}
+{[Q,env,k,ch]\trans{\alpha}[Q',env',k',ch']&P=0}
+{[P\mbox{++}Q,env,k,ch]\trans{\alpha}[Q',env',k',ch']}
 }\\\\
 \multicolumn{2}{c}{
 \inference[Com(1)]
-{[P,env_1,k,ch]\trans{\alpha}[P',env_{1}',k[\hole\|Q],ch']}
-{[(P,env_1)||(Q,env_2),env,k,ch]\trans{\alpha}[P',env_1',k[\hole\|Q],ch']}
+{[P,env,k,ch]\trans{\alpha}[P',env',k[\hole\|(Q,env)],ch']}
+{[P\|Q,env,k,ch]\trans{\alpha}[P',env',k[\hole\|(Q,env)],ch']}
 }\\\\
 \multicolumn{2}{c}{
 \inference[Com(2)]
-{[Q,env_2,k,ch]\trans{\alpha}[Q',env_{2}',k[P\|\hole],ch']}
-{[((P,env_1)||(Q,env_2),env,k,ch]\trans{\alpha}[Q',env_{2}',k[P\|\hole],ch']}
+{[Q,env,k,ch]\trans{\alpha}[Q',env',k[(P,env)\|\hole],ch']&P=0}
+{[P\|Q,env,k,ch]\trans{\alpha}[Q',env',k[(P,env)\|\hole],ch']}
 }\\\\
 \multicolumn{2}{c}{
 \inference[Com(3)]
-{[P,env_{1},k[\hole\|(Q,env_{2})],ch]\trans{\overline{\alpha}}[P',env_{1}',k',ch']\\
- [Q,env_{2},env,k[(P,env_{1})\|\hole],ch]\trans{\alpha}[Q',env_{2}',k'',ch'']}
-{[(P,env_1)\|(Q,env_2),k,ch]\trans{(\overline{\alpha},\alpha)}[(k[(P',env_{1}')\|(Q',env_{2}')]),\hole,ch]}
+{[P,env,k[\hole\|(Q,env)],ch]\trans{\overline{\alpha}}[P',env',k',ch']\\
+ [Q,env,k[(P,env)\|\hole],ch]\trans{\alpha}[Q',env'',k'',ch'']}
+{[P\|Q,env,k,ch]\trans{(\overline{\alpha},\alpha)}[k[P'\|Q'],env''',\hole,ch''']}
 }\\\\
 \multicolumn{2}{c}{
-\inference[Instance]
-{}
-{[A(\langle v\rangle),env[A\leftarrow P(\langle x\rangle)],k,ch]\trans{}[(k[(P,env[A\leftarrow P][\langle x\rangle\leftarrow\langle v\rangle])]),env[A\leftarrow P(\langle x\rangle)],\hole,ch]}
+\inference[Closure]
+{[P,env',k,ch]\trans{\alpha}[P',env',k,ch]}
+{[(P,env'),env,k,ch]\trans{\alpha}[(P',env'),env,k,ch]}
 }\\\\
 \multicolumn{2}{c}{
 \inference[Constant]
 {[A(\vec{v}),env[A\leftarrow P(\vec{x})],k,ch]\trans{}[(P,env[A\leftarrow P(\vec{x})][\vec{x}\leftarrow\vec{v}]),env[A\leftarrow P(\vec{x})],k,ch]\\
-[P(\vec{x}),env[A\leftarrow P][\vec{x}\leftarrow\vec{v}],k,ch]\trans{\alpha}[P',env[A\leftarrow P(\vec{x})][\vec{x}\leftarrow\vec{v}],k,ch]}
+[(P(\vec{x}),env[A\leftarrow P][\vec{x}\leftarrow\vec{v}]),env[A\leftarrow P],k,ch]\trans{\alpha}[(P',env[A\leftarrow P(\vec{x})][\vec{x}\leftarrow\vec{v}]),env[A\leftarrow P],k,ch]}
 {[A(\vec{v}),env[A\leftarrow P(\vec{x})],k,ch]\trans{\alpha}[(P',env[A\leftarrow P(\vec{x})][\vec{x}\leftarrow\vec{v}]),env[A\leftarrow P(\vec{x})],k,ch]}
 }\\\\
 \inference[If(1)]
