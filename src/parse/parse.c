@@ -866,7 +866,7 @@ static list_t a_fix_exp(void)
             if ((lah->token_name == COMP_OP)&&(lah->attr.op.type == EQ)){
                lah = scanner(&lah);
                syp = a_fact();
-               ret = (cons(*makelet(TOKEN,makesym(AGENT_OP,REC)),
+               ret = (cons(*makelet(TOKEN,makesym(AGENT_OP,CLS)),
                            dotpair(*makelet(TOKEN,addattr(id,A_VAR)),
                                    *makelet(LIST,syp))));
                if (!((lah->token_name == PARENTHE)&&(lah->attr.par.fr_or_af == AF)))

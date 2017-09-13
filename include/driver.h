@@ -27,7 +27,7 @@ static int g_counter_for_counterexamples=0;
 #  define DEPTH_LIMIT 64 
 #endif
 #ifndef MAX_COUNTEREXAMPLES
-#  define MAX_COUNTEREXAMPLES 3
+#  define MAX_COUNTEREXAMPLES 3 
 #endif
 
 /***************************************************
@@ -87,8 +87,8 @@ EXTERN char *primoptbl[PRIMOP_SIZE]={
    #endif
 
 /*** function decroletar ***/
-static list_t driver_loop(list_t);
-static list_t eval(list_t,list_t,list_t,queue_t);
+static list_t driver_loop(list_t,list_t);
+static list_t eval(list_t,list_t,list_t,queue_t,list_t);
 static list_t evalval(element_t ,list_t,queue_t);
 static list_t evalval_ls(list_t,list_t,queue_t);
 #endif

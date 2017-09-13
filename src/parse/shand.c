@@ -300,7 +300,7 @@ token makesym(token_t name_type,...)
             case RES:  /*** agent of ***/
             case REL:  /*** agent of ***/
             case CON:  /*** agent of ***/
-            case REC:  /*** agent of ***/
+            case CLS:  /*** agent of ***/
             case NOT:  /*** boolean op ***/
             case DEF:  /*** agent of ***/
             case DEFINIT:  /*** agent of ***/
@@ -936,9 +936,9 @@ void prtsym(int fun,token sym,...)
                if (fun==PRN)
                   printf("CON");
                break;
-            case REC:
+            case CLS:
                if (fun==PRN)
-                  printf("REC");
+                  printf("CLS");
                break;
             case CO:
                if (fun==PRN)

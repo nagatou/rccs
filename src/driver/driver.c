@@ -610,7 +610,7 @@ static bool isprimagnt(element_t el) /* B022 */
  *                                                   *
  *  token ret --- pointer to list                    *
  *****************************************************/
-static list_t n_load(list_t args,list_t env,queue_t ch)
+static list_t n_load(list_t args,list_t env,queue_t ch,list_t procedures)
 {
 #  ifdef DEBUG_EVAL
    printf("load->");
@@ -622,9 +622,9 @@ static list_t n_load(list_t args,list_t env,queue_t ch)
              gettk(car(args))->attr.value.fld.strings.str);
       source_file = bkup;
    }
-   return(driver_loop(env));
+   return(driver_loop(procedures,env));
 }
-static list_t primagnteval(element_t agent,list_t args,list_t env,queue_t ch)
+static list_t primagnteval(element_t agent,list_t args,list_t env,queue_t ch,list_t procedures)
 {
    token lval=NIL;
 
@@ -638,7 +638,7 @@ static list_t primagnteval(element_t agent,list_t args,list_t env,queue_t ch)
        (lval->attr.id.type==A_CON)&&
        ((strcmp(lval->attr.id.spl_ptr,"load")==0)||
         (strcmp(lval->attr.id.spl_ptr,"LOAD")==0))){
-      return(n_load(args,env,ch));
+      return(n_load(args,env,ch,procedures));
    }
    if ((lval->token_name==ID)&&
        (lval->attr.id.type==A_CON)&&
@@ -667,7 +667,7 @@ static list_t primagnteval(element_t agent,list_t args,list_t env,queue_t ch)
  *        | (DEF  a-cons   val-var-ls rand)          *
  *        | (IF   bool-exp rand       rand)          *
  *        | (CON  a-cons   val-exp-ls     )          *
- *        | (REC  a-var    rand           )          *
+ *        | (CLS  a-var    rand           )          *
  *        | (BIND label    port           )          *
  *        | (REL  rand    (rel-ls)        )          *
  *        | (RES  rand     label-ls       )          *
@@ -705,7 +705,8 @@ static bool isaccept(list_t p)
 static elementp derivatives1(element_t rate,
                              element_t label,
                              list_t env,
-                             queue_t ch)
+                             queue_t ch,
+                             list_t procedures)
 {
 #  ifdef DEBUG_ENV
    printf("derivatives1->");
@@ -744,7 +745,7 @@ static elementp derivatives1(element_t rate,
          return((elementp)error(FATAL|EEL,"invalid primitive agent expression(derivatives1402) (%s)\n", rate));
    }
 }
-static elementp derivatives(list_t exp,list_t env,queue_t ch)
+static elementp derivatives(list_t exp,list_t env,queue_t ch,list_t procedures)
 {
 #  ifdef DEBUG_EXP2
    printf("derivatives->");
@@ -755,14 +756,15 @@ static elementp derivatives(list_t exp,list_t env,queue_t ch)
          return(derivatives1(car(exp),
                              car(cdr(exp)),
                              env,
-                             ch));
+                             ch,
+                             procedures));
          break;
       case SUM:{
          elementp ret=(elementp)NIL;
-         if ((ret=derivatives(getls(car(cdr(exp))),env,ch))!=(elementp)NIL)
+         if ((ret=derivatives(getls(car(cdr(exp))),env,ch,procedures))!=(elementp)NIL)
             return(ret);
          else{
-            if ((elementp)NIL!=(ret=derivatives(getls(car(cdr(cdr(exp)))),env,ch)))
+            if ((elementp)NIL!=(ret=derivatives(getls(car(cdr(cdr(exp)))),env,ch,procedures)))
                return(ret);
             else
                return((elementp)NIL);
@@ -771,10 +773,10 @@ static elementp derivatives(list_t exp,list_t env,queue_t ch)
       }
       case COM:{
          elementp ret=(elementp)NIL;
-         if ((ret=derivatives(getls(car(cdr(exp))),env,ch))!=(elementp)NIL)
+         if ((ret=derivatives(getls(car(cdr(exp))),env,ch,procedures))!=(elementp)NIL)
             return(ret);
          else{
-            if ((elementp)NIL!=(ret=derivatives(getls(car(cdr(cdr(exp)))),env,ch)))
+            if ((elementp)NIL!=(ret=derivatives(getls(car(cdr(cdr(exp)))),env,ch,procedures)))
                return(ret);
             else
                return((elementp)NIL);
@@ -792,23 +794,26 @@ static elementp derivatives(list_t exp,list_t env,queue_t ch)
          if (isprimagnt(car(cdr(exp))))
             return((elementp)!NIL);
          else{
-            if (isempty(getls(car(cdr(cdr(exp))))))     /* B027 */
-               return(derivatives(getls(car(cdr(lookup_env(car(cdr(exp)),env)))),/* B043*/
-                                  env,                /* B027 */
-                                  ch)); /* B043 */
-            else                                        /* B027 */
-               return(derivatives(getls(car(cdr(lookup_env(car(cdr(exp)),env)))), /* B043 */
-                                  n_boundls(getls(car(lookup_env(car(cdr(exp)),env))), /* B043 */
+            if (isempty(getls(car(cdr(cdr(exp))))))
+               return(derivatives(getls(car(cdr(lookup_env(car(cdr(exp)),procedures)))),
+                                  env,
+                                  ch,
+                                  procedures));
+            else
+               return(derivatives(getls(car(cdr(lookup_env(car(cdr(exp)),procedures)))),
+                                  n_boundls(getls(car(lookup_env(car(cdr(exp)),procedures))),
                                             getls(car(cdr(cdr(exp)))),
                                             env),
-                                   ch)); /* B043 */
+                                  ch,
+                                  procedures));
          }
          break;
       }
-      case REC:
+      case CLS:
          return(derivatives(getls(car(cdr(exp))),
                             cdr(cdr(exp)),
-                            ch));
+                            ch,
+                            procedures));
          break;
       case REL:
       case RES:
@@ -818,12 +823,12 @@ static elementp derivatives(list_t exp,list_t env,queue_t ch)
          return((elementp)error(FATAL|ELS,"invalid agent expression(derivatives483) (%s)\n", exp));
    }
 }
-static bool istrans(list_t exp,list_t env,queue_t ch)
+static bool istrans(list_t exp,list_t env,queue_t ch,list_t procedures)
 {
 #  ifdef DEBUG_EVAL_A
    printf("istrans->");
 #  endif
-   if (derivatives(exp,env,ch)==(elementp)NIL)
+   if (derivatives(exp,env,ch,procedures)==(elementp)NIL)
       return((bool)FALSE);
    else
       return((bool)TRUE);
@@ -975,9 +980,17 @@ static list_t resume(const list_t exp,list_t continuation)
       }
    }
 }
+static list_t make_cls(list_t exp, list_t env)
+{
+   if (getop(car(exp))==CLS)
+      return(exp);
+   else
+      return(cons(*makelet(TOKEN,regsym("dummy_CLS",AGENT_OP,CLS)),
+                  cons(*makelet(LIST,exp),env)));
+}
 typedef enum {LEFT,RIGHT,SWITCH} mkcont_t;
 #ifdef OUT_MOST
-static list_t make_cont_out_most1(mkcont_t op,const list_t exp,list_t continuation)
+static list_t make_cont_out_most1(mkcont_t op,const list_t exp,list_t continuation,list_t env)
 {
 #  ifdef DEBUG_CONT
    printf("make_cont_out_most1->");
@@ -988,14 +1001,16 @@ static list_t make_cont_out_most1(mkcont_t op,const list_t exp,list_t continuati
          switch(op){
             case RIGHT:
                return(cons(car(exp),
-                           cons(*makelet(LIST,getls(car(cdr(exp)))),
+//                           cons(*makelet(LIST,getls(car(cdr(exp)))),
+                           cons(*makelet(LIST,make_cls(getls(car(cdr(exp))),env)),
                                 cons(*makelet(LIST,makenull(NIL)),
                                      makenull(NIL)))));
                break;
             case LEFT:
                return(cons(car(exp),
                            cons(*makelet(LIST,makenull(NIL)),
-                                cons(*makelet(LIST,getls(car(cdr(cdr(exp))))),
+//                                cons(*makelet(LIST,getls(car(cdr(cdr(exp))))),
+                                cons(*makelet(LIST,make_cls(getls(car(cdr(cdr(exp)))),env)),
                                      makenull(NIL)))));
                break;
             case SWITCH:
@@ -1007,7 +1022,7 @@ static list_t make_cont_out_most1(mkcont_t op,const list_t exp,list_t continuati
          return(exp);
    }
 }
-static list_t make_cont_out_most(mkcont_t op,const list_t exp,list_t continuation)
+static list_t make_cont_out_most(mkcont_t op,const list_t exp,list_t continuation,list_t env)
 {
 #  ifdef DEBUG_CONT
    printf("make_cont_out_most->");
@@ -1041,12 +1056,12 @@ static list_t make_cont_out_most(mkcont_t op,const list_t exp,list_t continuatio
          }
          break;
       case RIGHT:{
-         list_t inner_most = make_cont_out_most1(op,exp,continuation);
+         list_t inner_most = make_cont_out_most1(op,exp,continuation,env);
          return(resume(inner_most,continuation));
          break;
       }
       case LEFT:{
-         list_t inner_most = make_cont_out_most1(op,exp,continuation);
+         list_t inner_most = make_cont_out_most1(op,exp,continuation,env);
          return(resume(inner_most,continuation));
          break;
       }
@@ -1090,10 +1105,10 @@ static list_t make_cont_switch(const list_t exp,list_t continuation)
 {
    return(make_cont_switch1(exp,continuation,makenull(NIL)));
 }
-static list_t make_cont1(enum mkcont_t op,list_t exp,list_t continuation)
+static list_t make_cont1(enum mkcont_t op,list_t exp,list_t continuation,list_t env)
 {
 #  ifdef DEBUG_CONT
-   printf("make_cont->");
+   printf("make_cont1->");
 #  endif
    switch(op){
       case SWITCH:
@@ -1101,7 +1116,7 @@ static list_t make_cont1(enum mkcont_t op,list_t exp,list_t continuation)
          break;
       case RIGHT:
          return(resume(cons(car(exp),
-                            (cons(car(cdr(exp)),
+                            (cons(*makelet(LIST,make_cls(getls(car(cdr(exp))),env)),
                                   (cons(*makelet(LIST,makenull(NIL)),
                                         makenull(NIL)))))),
                        continuation));
@@ -1109,7 +1124,7 @@ static list_t make_cont1(enum mkcont_t op,list_t exp,list_t continuation)
       case LEFT:
          return(resume(cons(car(exp),
                             (cons(*makelet(LIST,makenull(NIL)),
-                                  (cons(car(cdr(cdr(exp))),
+                                  (cons(*makelet(LIST,make_cls(getlst(car(cdr(cdr(exp)))),env)),
                                         makenull(NIL)))))),
                        continuation));
          break;
@@ -1118,12 +1133,12 @@ static list_t make_cont1(enum mkcont_t op,list_t exp,list_t continuation)
    }
 }
 #endif
-static list_t make_cont(mkcont_t op,list_t exp,list_t continuation)
+static list_t make_cont(mkcont_t op,list_t exp,list_t continuation, list_t env)
 {
 #  ifdef OUT_MOST
-   return(make_cont_out_most(op,exp,continuation));
+   return(make_cont_out_most(op,exp,continuation,env));
 #  else
-   return(make_cont1(op,exp,continuation));
+   return(make_cont1(op,exp,continuation,env));
 #  endif
 }
 static int gettype(element_t args) /* B028 */
@@ -1587,18 +1602,14 @@ static list_t evalval_ls(list_t val_ls,list_t env,queue_t ch)/* B010 */
                    evalval_ls(cdr(val_ls),env,ch)));           /* B010 */
    }                                                       /* B010 */
 }                                                          /* B010 */
-static list_t make_cls(list_t exp, list_t env)
-{
-   return(cons(*makelet(TOKEN,regsym("dummy_REC",AGENT_OP,REC)),
-               cons(*makelet(LIST,exp),env)));
-}
 static list_t evalprefix(element_t rate,
                         element_t label,
                         list_t val_ls,
                         list_t body,
                         list_t env,
                         list_t cont,
-                        queue_t ch)
+                        queue_t ch,
+                        list_t procedures)
 {
    list_t data=NIL;
    list_t at_once=makenull(NIL);
@@ -1616,7 +1627,7 @@ static list_t evalprefix(element_t rate,
 #        endif
          if (isouter_action(label)){
             if (isaccept_for_eval(label)||isothers(label))
-               return(eval(resume(body,cont),env,makenull(NIL),ch)); /* Ignore accept and others */
+               return(eval(resume(body,cont),env,makenull(NIL),ch,procedures)); /* Ignore accept and others */
             else
                data = n_recv(label);
          }
@@ -1639,7 +1650,8 @@ static list_t evalprefix(element_t rate,
          return(eval(resume(make_cls(body,n_boundls(val_ls,data,env)),cont),
                      env,
                      makenull(NIL),
-                     new_ch));
+                     new_ch,
+                     procedures));
          break;
       }
 /*   (SEND label    val-exp-ls rand)          */
@@ -1653,36 +1665,40 @@ static list_t evalprefix(element_t rate,
             if (!isempty(cont))
                return(eval(resume(makenull(NIL),cont),
                            env,
-                           make_cont(SWITCH,make_cls(body,env),cont),
-                           ch));
+                           make_cont(SWITCH,make_cls(body,env),cont,env),
+                           ch,
+                           procedures));
             else
                return(eval(resume(make_cls(body,env),cont),
                            env,
                            makenull(NIL),
-                           ch));
+                           ch,
+                           procedures));
          }
          else{ /* is a inner-action */
             if (!isempty(cont))
                return(eval(resume(makenull(NIL),cont),
                            env,
-                           make_cont(SWITCH,make_cls(body,env),cont),
+                           make_cont(SWITCH,make_cls(body,env),cont,env),
                            n_bound_ch(*makelet(LIST,cons(label,makenull(NIL))),
                                       *makelet(LIST,evalval_ls(val_ls,env,ch)),
-                                      ch)));
+                                      ch),
+                           procedures));
             else
-               return(eval(resume(make_cls(body,env),cont),
+               return(eval(resume(body,cont),
                            env,
                            makenull(NIL),
                            n_bound_ch(*makelet(LIST,cons(label,makenull(NIL))),
                                       *makelet(LIST,evalval_ls(val_ls,env,ch)),
-                                      ch)));
+                                      ch),
+                           procedures));
          }
          break;
       default:
          return((list_t)error(FATAL|EEL,"invalid primitive agent expression(evalprefix301) (%s)\n", rate));
    }
 }
-static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch)
+static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch,list_t procedures)
 {
 #  ifdef DEBUG_EXP
    printf("eval->");
@@ -1706,14 +1722,15 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch)
          if (isaccept(exp))
             if (!(g_step_exec==FALSE)&&(!isempty_buf(&formula)))
                return(exp);
-         if (istrans(exp,env,ch))
+         if (istrans(exp,env,ch,procedures))
             return(evalprefix(car(exp),
                               car(cdr(exp)),
                               getls(car(cdr(cdr(exp)))),
                               getls(car(cdr(cdr(cdr(exp))))),
                               env,
                               cont,
-                              ch));
+                              ch,
+                              procedures));
          else{
             if (isempty(cont))
                return(exp);
@@ -1721,7 +1738,8 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch)
                return(eval(resume(make_cls(exp,env),cont),
                            env,
                            makenull(NIL),
-                           ch));
+                           ch,
+                           procedures));
          }
          break;
 /*   (SUM  rand     rand           )          */
@@ -1737,33 +1755,34 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch)
             switch(toupper(n_getc_stdin())){
                case 'C':{
                   interactive_mode=OFF;
-                  return(eval(exp,env,cont,ch));
+                  return(eval(exp,env,cont,ch,procedures));
                   break;
                }
                case 'L':{
-                  return(eval(getls(car(cdr(exp))),env,cont,ch));
+                  return(eval(getls(car(cdr(exp))),env,cont,ch,procedures));
                   break;
                }
                case 'R':
                default:
-                  return(eval(getls(car(cdr(cdr(exp)))),env,cont,ch));
+                  return(eval(getls(car(cdr(cdr(exp)))),env,cont,ch,procedures));
                   break;
             }
          }
          else{
-            if (istrans(getls(car(cdr(exp))),env,ch))
-               return(eval(getls(car(cdr(exp))),env,cont,ch));
+            if (istrans(getls(car(cdr(exp))),env,ch,procedures))
+               return(eval(getls(car(cdr(exp))),env,cont,ch,procedures));
             else{
-               if (istrans(getls(car(cdr(cdr(exp)))),env,ch))
-                  return(eval(getls(car(cdr(cdr(exp)))),env,cont,ch));
-               else{                           /* B024 */
-                  if (isempty(cont))  /* B042 */
-                     return(exp);     /* B042 */
-                  else                /* B042 */
-                     return(eval(resume(exp,cont),/* B024 *//* B035 */
-                                 env,             /* B024 *//* B035 */
-                                 makenull(NIL), /* B024 *//* B035 */
-                                 ch));
+               if (istrans(getls(car(cdr(cdr(exp)))),env,ch,procedures))
+                  return(eval(getls(car(cdr(cdr(exp)))),env,cont,ch,procedures));
+               else{
+                  if (isempty(cont))
+                     return(exp);
+                  else
+                     return(eval(resume(exp,cont),
+                                 env,
+                                 makenull(NIL),
+                                 ch,
+                                 procedures));
                }
             }
          }
@@ -1782,39 +1801,43 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch)
             switch(toupper(n_getc_stdin())){
                case 'C':{
                   interactive_mode=OFF;
-                  return(eval(exp,env,cont,ch));
+                  return(eval(exp,env,cont,ch,procedures));
                   break;
                }
                case 'L':{
                   return(eval(getls(car(cdr(exp))),
                               env,
-                              make_cont(LEFT,exp,cont),
-                              ch));
+                              make_cont(LEFT,exp,cont,env),
+                              ch,
+                              procedures));
                   break;
                }
                case 'R':
                default:{
                   return(eval(getls(car(cdr(cdr(exp)))),
                               env,
-                              make_cont(RIGHT,exp,cont),
-                              ch));
+                              make_cont(RIGHT,exp,cont,env),
+                              ch,
+                              procedures));
                   break;
                }
             }
          }
          else{
-            if (istrans(getls(car(cdr(exp))),env,ch)){
+            if (istrans(getls(car(cdr(exp))),env,ch,procedures)){
                return(eval(getls(car(cdr(exp))),
                            env,
-                           make_cont(LEFT,exp,cont),
-                           ch));
+                           make_cont(LEFT,exp,cont,env),
+                           ch,
+                           procedures));
             }
             else{
-               if (istrans(getls(car(cdr(cdr(exp)))),env,ch)){
+               if (istrans(getls(car(cdr(cdr(exp)))),env,ch,procedures)){
                   return(eval(getls(car(cdr(cdr(exp)))),
                               env,
-                              make_cont(RIGHT,exp,cont),
-                              ch));
+                              make_cont(RIGHT,exp,cont,env),
+                              ch,
+                              procedures));
                }
                else{
                   if (isempty(cont))
@@ -1823,7 +1846,8 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch)
                      return(eval(resume(exp,cont),
                                  env,
                                  makenull(NIL),
-                                 ch));
+                                 ch,
+                                 procedures));
                }
             }
          }
@@ -1887,28 +1911,29 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch)
             if ((cond=evalval(car(cdr(exp)),env,ch))== (list_t)NIL)
                return(resume(getls(car(cdr(cdr(cdr(exp))))),cont));
             if (getval(car(cond))) /* B023 */
-               return(eval(getls(car(cdr(cdr(exp)))),env,cont,ch));/* B043 */
+               return(eval(getls(car(cdr(cdr(exp)))),env,cont,ch,procedures));
             else
-               return(eval(getls(car(cdr(cdr(cdr(exp))))),env,cont,ch));/* B043 */
+               return(eval(getls(car(cdr(cdr(cdr(exp))))),env,cont,ch,procedures));
          }
          break;
       }
-/*   (REC  body env)          */
-      case REC:  /*** Notice that REC is used as a closure ***/
+/*   (CLS  body env)          */
+      case CLS:  /*** Notice that CLS is used as a closure ***/
 #        ifdef DEBUG_EVAL
          printf("rec->");
          fflush(stdout);
 #        endif
-         if (istrans(getls(car(cdr(exp))),cdr(cdr(exp)),ch))
+         if (istrans(getls(car(cdr(exp))),cdr(cdr(exp)),ch,procedures))
             return(eval(getls(car(cdr(exp))),
                         cdr(cdr(exp)),
                         cont,
-                        ch));
+                        ch,
+                        procedures));
          else{
             if (isempty(cont))
                return(exp);
             else
-               return(eval(resume(exp,cont),env,makenull(NIL),ch));
+               return(eval(resume(exp,cont),env,makenull(NIL),ch,procedures));
          }
          break;
 /*   (CON  a-cons   val-exp-ls     )          */
@@ -1924,36 +1949,41 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch)
                return(eval(resume(exp,cont),
                            env,
                            makenull(NIL),
-                           ch));
+                           ch,
+                           procedures));
             else
                return(primagnteval(car(cdr(exp)),
                                  getls(car(cdr(cdr(exp)))),
                                  env,
-                                 ch));
+                                 ch,
+                                 procedures));
          }
          if (isprimagnt(car(cdr(exp)))){
             if (isempty(getls(car(cdr(cdr(exp))))))
                return(primagnteval(car(cdr(exp)),
                                  getls(car(cdr(cdr(exp)))),
                                  env,
-                                 ch));
+                                 ch,
+                                 procedures));
             else
                return(primagnteval(car(cdr(exp)),
                                  getls(car(evalval_ls(getls(car(cdr(cdr(exp)))),
                                                       env,
                                                       ch))),
                                  env,
-                                 ch));
+                                 ch,
+                                 procedures));
          }
          else{
-            return(eval(resume(make_cls(getls(car(cdr(lookup_env(car(cdr(exp)),env)))),
-                                        n_boundls(getls(car(lookup_env(car(cdr(exp)),env))),
+            return(eval(resume(make_cls(getls(car(cdr(lookup_env(car(cdr(exp)),procedures)))),
+                                        n_boundls(getls(car(lookup_env(car(cdr(exp)),procedures))),
                                                   evalval_ls(getls(car(cdr(cdr(exp)))),env,ch),
                                                   env)),
                                cont),
                         env,
                         makenull(NIL),
-                        ch));
+                        ch,
+                        procedures));
          }
          break;
 /*   (REL  rand    (rel-ls)        )          */
@@ -2007,7 +2037,7 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch)
 //         else{
 //            list_t ret=(list_t)NIL;
 //            if (isempty_buf(&formula))
-//               n_print(eval(form,env,makenull(NIL),make_ch()));/*B043*/
+//               n_print(eval(form,env,makenull(NIL),make_ch(),procedures));
 //            else{
 //               verifier(form,env,makenull(NIL),makenull(NIL),make_ch());
 //            }
@@ -2017,7 +2047,7 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch)
 //      }
 //   }
 //}
-static list_t driver_loop(list_t env)
+static list_t driver_loop(list_t procedures,list_t env)
 {
    list_t form=NIL;
    int ret=0;
@@ -2044,7 +2074,7 @@ static list_t driver_loop(list_t env)
          }
          else{
             if (isdef(car(form))){
-               env=n_bound(car(cdr(form)),*makelet(LIST,dotpair(car(cdr(cdr(form))),car(cdr(cdr(cdr(form)))))),env);
+               procedures=n_bound(car(cdr(form)),*makelet(LIST,dotpair(car(cdr(cdr(form))),car(cdr(cdr(cdr(form)))))),procedures);
                goto LOOP;
             }
             else{
@@ -2059,17 +2089,17 @@ static list_t driver_loop(list_t env)
                   }
                   else{
                      if (isempty_buf(&formula))
-                        n_print(eval(form,env,makenull(NIL),make_ch()));
+                        n_print(eval(form,env,makenull(NIL),make_ch(),procedures));
                      else{
                         list_t ASSERTION = cons(*makelet(TOKEN,regsym("dummy_CON",AGENT_OP,CON)),
                                                  dotpair(*makelet(TOKEN,addattr(regsym(INIT_NODE_NAME,ID),A_CON)),
                                                          *makelet(LIST,makenull(NIL))));
-                        verifier((initial_form=form),env,makenull(NIL),ASSERTION,make_ch());
+                        verifier((initial_form=form),env,makenull(NIL),ASSERTION,make_ch(),procedures);
                         gc(&memory_control_table);
                         if (!isempty_buf(&formula)){
                            end_tt = clock();
                            if (!(end_tt==(clock_t)-1))
-                              printf("\n\n%ld states explored in %10f seconds(2).\n",g_state_counter,((double)(end_tt-begin_tt)/CLOCKS_PER_SEC));
+                              printf("\n\n%d states explored in %10f seconds(2).\n",g_state_counter,((double)(end_tt-begin_tt)/CLOCKS_PER_SEC));
                         }
                      }
                      goto LOOP;
@@ -2085,7 +2115,7 @@ static list_t driver_loop(list_t env)
          if (!isempty_buf(&formula)){
             end_tt = clock();
             if (!(end_tt==(clock_t)-1))
-               printf("\n\n%ld states explored in %10f seconds(1).\n",g_state_counter,((double)(end_tt-begin_tt)/CLOCKS_PER_SEC));
+               printf("\n\n%d states explored in %10f seconds(1).\n",g_state_counter,((double)(end_tt-begin_tt)/CLOCKS_PER_SEC));
          }
          goto LOOP;
       }
@@ -2107,11 +2137,11 @@ void driver1(void)
             if (dotfile_condition==TRUE)
                dotest(formula.buf);
             seed.ptr = 0; /* initialize just the pointer to the top of seed buffer, do not clean an input buffer.*/
-            driver_loop(makenull(NIL));
+            driver_loop(makenull(NIL),makenull(NIL));
          }
       }
       else
-         driver_loop(makenull(NIL));
+         driver_loop(makenull(NIL),makenull(NIL));
    }
    else
       return;

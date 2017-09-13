@@ -64,7 +64,7 @@ typedef enum {
 /*** enumrating field type for operators ***/
    DEF=70,DEFINIT,IF,LET,FIX,BIND,
 /*** enumrating field type for AGENT_OP ***/
-   PRE=80,SUM,COM,RES,REL,CON,REC,CO,SEND,RECV,
+   PRE=80,SUM,COM,RES,REL,CON,CLS,CO,SEND,RECV,
 /*** enumrating field type for COMP_OP ***/
    EQ=90,GR,GT,LE,LT,
 /*** enumrating field type for BOOL_OP ***/
