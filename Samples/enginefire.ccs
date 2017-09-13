@@ -6,7 +6,7 @@
 ; 5. If warning persists, fire shot two
 ; 6. If warning clears, shutdown engine
 ;; Mode: RCCS
-;; Formulae: -f "<> (engineFire=0)"
+;; Formulae: -k -f "<> (engineFire=0)"
 ;; fire size: {0:none, 1:minor, 2:major}
 ;; location: {"none", "left", "right"}
 

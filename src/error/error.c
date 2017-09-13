@@ -53,6 +53,9 @@ void * error(error_code_t code,const char *format,...)/*B028*/
                  prtelt(*makelet(TOKEN,
                                 va_arg(args,token)));
                  break;
+               case ECHAR:
+                 printf("%s", va_arg(args,char*));
+                 break;
                default:
                  printf("%s",va_arg(args,char*));
             }
