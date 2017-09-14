@@ -1,0 +1,93 @@
+;$Id: errorfree.ccs,v 1.13 2013/07/18 12:41:16 nagatou Exp $
+;;
+;; Everything, e.g. person, resource, software etc., becomes processes.
+;; Each process has attributes which represent constant values for running the work.
+;;
+;; Mode:: RCCS
+;; Formula::
+;;           -k -f "[] <>  (name_on_receipt_Lab=name_on_label_Lab)" ; Goal 
+;;           -k -f "<> [] ! (name_on_receipt_Lab=name_on_label_Lab)"
+
+(definit (name_on_receipt_Lab,name_on_label_Lab)("Charlie","Charlie"))
+;;;
+;;; Nurse
+;
+(define TakeSample ()
+  (recovery_spitz(name_on_label):
+     recovery_patient(name_on_receipt):
+       ~extract_blood:
+         ~take_sample_to_lab(name_on_receipt,name_on_label):
+           Nurse))
+(define ErrCompareReceipt ()
+  (sit_down(name_on_receipt_by_patient):
+    (compare_receipt(name_on_receipt):
+       (if(name_on_receipt_by_patient=name_on_receipt)
+          (~recovery_patient(name_on_receipt):ZERO)
+          (~recovery_patient(name_on_receipt):ZERO))
+     ++~recovery_patient(name_on_receipt_by_patient):ZERO)))
+(define ErrConfirmLabel (name_on_spitz)
+  (~recovery_spitz(name_on_spitz):ZERO
+   ++confirm_label(name_on_label):
+       (if(name_on_label=name_on_receipt)
+          (~recovery_spitz(name_on_label):ZERO)
+          (~recovery_spitz(name_on_label):ZERO))))
+(define Nurse ()
+  (give_receipt_to_nurse(receipt_id_Nurse,name_on_receipt_Nurse):
+     give_label(receipt_id_on_label_Nurse,name_on_label_Nurse):
+       ~prepare_spitz(name_on_label_Nurse):
+          put_label_on_spitz(name_on_spitz):
+            ~make_system_read_label(receipt_id_on_label_Nurse,name_on_label_Nurse):
+              (ErrConfirmLabel(name_on_spitz)
+               ||ErrCompareReceipt
+               ||TakeSample)))
+;;;
+;;; Receipt System
+;
+(define Receipt (receipt_id_Receipt)
+  (make_system_read_card(patient_name_Receipt):
+     ~give_receipt(receipt_id_Receipt,patient_name_Receipt):
+       ~give_label(receipt_id_Receipt,patient_name_Receipt):
+         make_system_read_label(read_receipt_id,read_patient_name):
+           ~call_receipt_id(read_receipt_id):
+             (~confirm_label(read_patient_name):
+               ~compare_receipt(read_patient_name):
+                 Receipt(receipt_id_Receipt+1))))
+;;;
+;;; Clerk
+;
+(define Clerk ()
+  (give_id_card(patient_name_on_card_Clerk):
+    ~make_system_read_card(patient_name_on_card_Clerk):
+      give_receipt(receipt_id_Clerk,name_on_receipt_Clerk):
+        ~give_receipt_to_patient(receipt_id_Clerk,name_on_receipt_Clerk):
+           ~give_receipt_to_nurse(receipt_id_Clerk,name_on_receipt_Clerk):
+              Clerk))
+;;;
+;;; Patient
+;
+(define ErrAskName(patient_name_on_receipt)
+  ((~sit_down("Bob"):extract_blood:Patient(patient_name))
+    ++(~sit_down(patient_name_on_receipt):extract_blood:Patient(patient_name))))
+;  ((~sit_down("Bob"):extract_blood:ZERO)
+;    ++(~sit_down(patient_name_on_receipt):extract_blood:ZERO)))
+(define Patient (patient_name)
+  (~give_id_card(patient_name):
+      give_receipt_to_patient(patient_id_on_receipt_Patient,name_on_receipt_Patient):
+        call_receipt_id(called_id):
+          ErrAskName(name_on_receipt_Patient)))
+;;;
+;; Spitz
+;
+(define Spitz ()
+  (prepare_spitz(name_on_label_Spitz):
+    ((~put_label_on_spitz("Charlie"): Spitz)
+     ++(~put_label_on_spitz(name_on_label_Spitz): Spitz))))
+;;;
+;;; Lab
+;
+(define Lab()
+  (take_sample_to_lab(name_on_receipt_Lab,name_on_label_Lab): Lab))
+;;;
+;;; Instances
+;
+(Patient("Alice")||Receipt(10)||Clerk||Spitz||Lab||Nurse)
