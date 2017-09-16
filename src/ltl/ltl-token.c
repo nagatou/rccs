@@ -256,6 +256,8 @@ char *ltl_token_details2string(ltl_token *token, buffer *buf) {
         ins_buf(buf, tmp);
     } else if (token->details == LTL_BOOLVALUE) {
         ins_buf(buf, (token->info.boolvalue == TRUE ? "tt" : "ff"));
+    } else if (token->details == LTL_STRINGVALUE) {
+        ins_buf(buf, token->info.id);
     } else {
         char *s;
         switch (token->details) {
@@ -294,6 +296,8 @@ static char *ltl_token_details2css(ltl_token *token, buffer *buf) {
         ins_buf(buf, tmp);
     } else if (token->details == LTL_BOOLVALUE) {
         ins_buf(buf, (token->info.boolvalue == TRUE ? "TRUE" : "FALSE"));
+    } else if (token->details == LTL_STRINGVALUE) {
+        ins_buf(buf, token->info.id);
     } else {
         char *s;
         switch (token->details) {

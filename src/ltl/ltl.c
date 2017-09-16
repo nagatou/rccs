@@ -23,7 +23,7 @@ char *ltl2ccs(const char *const ltlsrc, buffer* buf) {
         ltl_parse(&painfo, &l);
         free(l.lit);
     } while ( l.type != EOT );
-    
+
     painfo.top = ltl_normalize(painfo.top);
     
     initbuf(&ba);

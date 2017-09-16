@@ -39,6 +39,7 @@ static ltl_token_type get_token_type(ltl_lexeme *lexeme) {
         case TERM_ID:
         case TERM_DIGITS:
         case TERM_BOOLEAN:
+        case TERM_STRING:
             return LTL_SYMBOL;
 
         default:
@@ -70,6 +71,7 @@ static ltl_token_details get_token_details(ltl_lexeme *lexeme) {
         case TERM_ID:               return LTL_ID;
         case TERM_DIGITS:           return LTL_INTVALUE;
         case TERM_BOOLEAN:          return LTL_BOOLVALUE;
+        case TERM_STRING:           return LTL_STRINGVALUE;
 
         case CLOSEBRACKET_PATH_TERM:
             error(FATAL|ECHAR,"syntax error: unmatched closing bracket\n");
@@ -101,6 +103,8 @@ static ltl_token *new_ltl_token_from_lexeme(ltl_lexeme *lexeme, ltl_token *paren
             t->info.intvalue = lexeme->info.termint;
         } else if (t->details == LTL_BOOLVALUE) {
             t->info.boolvalue = lexeme->info.termbool;
+        } else if (t->details == LTL_STRINGVALUE) {
+            t->info.stringvalue = strdup(lexeme->lit);
         }
     }
     return t;
@@ -180,9 +184,9 @@ void ltl_parse(ltl_parser_state *state, ltl_lexeme *lexeme) {
                 break;
             
             case LTL_UNKNOWN_DETAIL:
+//                error(SYNTAX|ECHAR,"unexpected token\n");
                 printf("unexpected token\n");
                 exit(1); // TODO check error handling
-//                error(SYNTAX|ECHAR,"unexpected token\n");
         }
     }
     else { 
@@ -201,9 +205,9 @@ void ltl_parse(ltl_parser_state *state, ltl_lexeme *lexeme) {
                 state->top = state->last = t;
             }
             else {
+//                error(SYNTAX|ECHAR,"syntax error: unexpected symbol: %s\n", lexeme->lit);
                 printf("syntax error: unexpected symbol: %s\n", lexeme->lit);
                 exit(1); // TODO check error handling
-//                error(SYNTAX|ECHAR,"syntax error: unexpected symbol: %s\n", lexeme->lit);
             }
         }
     }

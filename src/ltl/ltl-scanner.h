@@ -35,6 +35,7 @@ typedef enum {
     TERM_ID,
     TERM_DIGITS,
     TERM_BOOLEAN,
+    TERM_STRING,
     EOT = -1,
 } ltl_lexeme_type;
 

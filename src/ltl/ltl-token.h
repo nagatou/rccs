@@ -12,7 +12,6 @@ typedef enum {
     LTL_UNARY_OP = 1,
     LTL_BINARY_OP = 2,
     LTL_BRACKETS = 3,
-    LTL_STRING = 4,
     LTL_UNKNOWN_TYPE = -1
 } ltl_token_type;
 
@@ -20,6 +19,7 @@ typedef enum {
     LTL_ID              = 0,
     LTL_INTVALUE,
     LTL_BOOLVALUE,
+    LTL_STRINGVALUE,
     LTL_GLOBALLY        = 100,  /* [] / A   */
     LTL_FUTURE,                 /* <> / F   */
     LTL_NOT,                    /* !        */
@@ -57,6 +57,7 @@ typedef struct _ltl_token {
         char* id;           // literal ID
         int intvalue;       // integer value
         bool boolvalue;     // boolean value
+        char* stringvalue;  // character sequence literal
     } info;
 } ltl_token;
 
