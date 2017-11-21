@@ -64,8 +64,8 @@ ltl_lexeme get_next_lexeme(ltl_scanner_info *info) {
         int len = 1;
         lexeme.type = TERM_STRING;
         while (!(info->src[len]=='"')) { ++len; }
-        lexeme.lit = _strndup(info->src, len+1);
-        info->src += len+1;    // +1 for last double quote
+        lexeme.lit = _strndup((info->src)+1, len-1);
+        info->src += len+1;    // +1 for the last double quote
         return lexeme;
     }
     

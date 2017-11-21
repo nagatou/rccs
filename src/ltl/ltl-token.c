@@ -257,7 +257,9 @@ char *ltl_token_details2string(ltl_token *token, buffer *buf) {
     } else if (token->details == LTL_BOOLVALUE) {
         ins_buf(buf, (token->info.boolvalue == TRUE ? "tt" : "ff"));
     } else if (token->details == LTL_STRINGVALUE) {
-        ins_buf(buf, token->info.id);
+        ins_buf(buf, "\\\"");
+        append_str_buf(buf, token->info.id);
+        append_str_buf(buf, "\\\"");
     } else {
         char *s;
         switch (token->details) {
@@ -287,7 +289,7 @@ char *ltl_token_details2string(ltl_token *token, buffer *buf) {
     return buf->buf;
 }
 
-static char *ltl_token_details2css(ltl_token *token, buffer *buf) {
+static char *ltl_token_details2ccs(ltl_token *token, buffer *buf) {
     if (token->details == LTL_ID) {
         ins_buf(buf, token->info.id);
     } else if (token->details == LTL_INTVALUE) {
@@ -297,7 +299,9 @@ static char *ltl_token_details2css(ltl_token *token, buffer *buf) {
     } else if (token->details == LTL_BOOLVALUE) {
         ins_buf(buf, (token->info.boolvalue == TRUE ? "TRUE" : "FALSE"));
     } else if (token->details == LTL_STRINGVALUE) {
-        ins_buf(buf, token->info.id);
+        ins_buf(buf, "\"");
+        append_str_buf(buf, token->info.id);
+        append_str_buf(buf, "\"");
     } else {
         char *s;
         switch (token->details) {
@@ -326,7 +330,7 @@ char *ltl_token2string(ltl_token *token, buffer *buf) {
 }
 
 char *ltl_token2css_syntax(ltl_token *token, buffer *buf) {
-    return _ltl_token2string(token, buf, &ltl_token_details2css);
+    return _ltl_token2string(token, buf, &ltl_token_details2ccs);
 }
 
 char *ltl_token_list2string(linked_list *list, buffer *buf) {
