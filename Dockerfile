@@ -1,4 +1,4 @@
-FROM debian:latest
+FROM debian:wheezy
 MAINTAINER PRESYSTEMS Inc.
 RUN apt-get update && apt-get install -y git libglib2.0-dev gcc make
 
