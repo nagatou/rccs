@@ -69,7 +69,19 @@
 
 \begin{document}
   \begin{titlepage}
-\maketitle
+%\maketitle
+\vspace*{3cm}
+\begin{center}
+\includegraphics[scale=0.7]{logo-theta.jpg}
+\includegraphics[scale=0.4]{bell.pdf}\\[5cm]
+% title
+{\LARGE Welcome to the world of \NHK\\
+{\small\textemdash Install Manual and Specification\textemdash}}\\[1cm]
+% author
+{\large Naoyuki Nagatou\thanks{PRESYSTEMS Inc. Copyright 2014 Naoyuki Nagatou}\\%
+\small PRESYSTEMS Inc.\\[6pt]
+\small nagatou@presystems.xyz}
+\end{center}
 %
 %%% ABSTRACTION
 %
@@ -452,8 +464,14 @@ Process \(\ZERO\) and \({\mathop{\mathrm{STOP}}\nolimits}\) are a special proces
 The process means an initial state of an automaton for a LTL formula given by users.
 {\tt ABORT} terminates the whole process for an automaton, but users cannot use in a model.
 Those special processes do not distinguish between upper letters and lower letters.
+
+{\tt bind} and {\tt define} are special forms.
+{\tt bind} is used to connect external systems.
+For example, to connect servers or clients via socket interface,
+ and to bind an action to a command in source codes via GDB debugger.
+{\tt ID} in form {\tt (bind ID String)} becomes an action in agent expressions.
 \subsection{Scope}
-In expression (define P (x) body), the scope of x becomes body.
+In expression ({\tt define} P (x) body), the scope of x becomes body.
 In expression (\bijection{a}(x)\(\colon\) body), the scope of x becomes body.
 \subsection{Syntax of the Description Language}\label{sec:RCCSsyntax}
 \input{ss02-grm}
