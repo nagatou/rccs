@@ -1,6 +1,6 @@
 FROM debian:wheezy
 MAINTAINER PRESYSTEMS Inc.
-RUN apt-get update && apt-get install -y git libglib2.0-dev gcc make
+RUN apt-get update && apt-get install -y git libglib2.0-dev gcc make vim
 
 WORKDIR /root
 RUN git clone https://github.com/nagatou/rccs
