@@ -12,3 +12,4 @@ RUN cd rccs/src \
     && chown -fR rccsuser:rccsuser /home/rccsuser 
 ENV HOME /home/rccsuser
 USER rccsuser
+ENTRYPOINT ["/bin/bash"]
