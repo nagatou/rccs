@@ -1,8 +1,8 @@
-1. install
+1. Install and Start
   Compiling this needs glib-1.2. You need to install it before doing this.
 Please refer the manual to install glib-1.2.
 
-  i) After installing glib-1.2, 
+  i) After installing glib-1.2,
     > tar -xvzf rccs.tar.gz
 
   ii) type the following
@@ -10,13 +10,22 @@ Please refer the manual to install glib-1.2.
 
   iii) similarly,
     > make rccs
+    > make install
+    > rccs
 
-If you cannot compile then please edit the make file for your configuration.
-Perhaps, glib is installed into a different place.
+If you cannot compile it, then please edit the makefile for your configuration.
+Perhaps, glib is installed in a different place.
 
-2. Licence
-  N. Nagatou keeps the copyright licence of all files in nhk#.
-Users can employ the tool according to GPL v3.
+2. Docker Container
+  Prepare the Docker daemon, then type the following.
+    > docker pull presystems/rccs
+    > docker run -it --rm presystems/rccs
+  in the container,
+    $ rccs
+
+3. License
+  N. Nagatou keeps the copyright license of all files in NHK#.
+Users can employ the tool according to GPL v3 and later.
 
 --
-Copyright 2001 Naoyuki Nagatou
+Copyright 2001-2018 Naoyuki Nagatou
