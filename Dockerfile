@@ -1,6 +1,6 @@
 FROM debian:wheezy
-MAINTAINER PRESYSTEMS Inc.
-RUN groupadd -r rccsuser && useradd -r -g rccsuser -b /home/rccsuser rccsuser
+MAINTAINER PRESYSTEMS Inc. <promotion@presystems.xyz>
+RUN groupadd -r rccsuser && useradd -r -m -g rccsuser -d /home/rccsuser rccsuser
 RUN apt-get update && apt-get install -y git libglib2.0-dev gcc make vim
 
 WORKDIR /home/rccsuser
