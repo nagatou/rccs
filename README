@@ -19,7 +19,7 @@ Perhaps, glib is installed in a different place.
 2. Docker Container
   Prepare the Docker daemon, then type the following.
     > docker pull presystems/rccs
-    > docker run -it --rm presystems/rccs --net=none
+    > docker run -it --rm presystems/rccs
   in the container,
     $ rccs
 
