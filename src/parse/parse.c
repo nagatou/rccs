@@ -813,10 +813,13 @@ static list_t ex_a_fact(void)
       syp = agent_exp();
       if ((lah->token_name == PARENTHE)&&(lah->attr.par.fr_or_af == AF)){
          lah = scanner(&lah);
-         return(syp);
+         if (lah == NIL)
+            return((list_t)error(WARNING,"syntax error: come up to EOF(ex_a_fact817)\n"));
+         else
+            return(syp);
       }
       else
-         return((list_t)error(WARNING|ETK,"syntax error(ex_a_fact839) %s\n", lah));
+         return((list_t)error(WARNING|ETK,"syntax error(ex_a_fact822): %s\n", lah));
    }
 }
 

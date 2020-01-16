@@ -116,7 +116,7 @@ static void regprimact(char *coname[],char *name[])
    for(i=0;i<PRIMCONAME_SIZE;i++)
       registry1(primconametbl[i],cvrtname(primconametbl[i]),"",FILE_SYS);
    for(i=0;i<PRIMNAME_SIZE;i++)
-      registry1(primnametbl[i],cvrtname(primconametbl[i]),"",FILE_SYS);
+      registry1(primnametbl[i],cvrtname(primnametbl[i]),"",FILE_SYS);
 }
 void prologue(char * log)
 {

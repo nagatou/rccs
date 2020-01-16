@@ -13,7 +13,7 @@
    #define PRIMNAME_SIZE 2
    #define ACCEPT 1
 //   #define OTHERS 2
-      #ifdef PRIM
+   #ifdef PRIM
 /***************************************************
  *  class name:primitive actions                   *
  *-------------------------------------------------*
@@ -29,8 +29,8 @@
 //         "others",
       };
    #else
-   extern char *primconametbl[PRIMCONAME_SIZE];
-   extern char *primnametbl[PRIMNAME_SIZE];
+      extern char *primconametbl[PRIMCONAME_SIZE];
+      extern char *primnametbl[PRIMNAME_SIZE];
    #endif
 /*** function decroletar ***/
    extern bool isouter_action(element_t);
