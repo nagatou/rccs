@@ -14,8 +14,6 @@ TEX=pdflatex
 
 INSTALL_PATH=/usr/local/bin/
 
-#RCCS_HOME=${HOME}/rccs
-#RCCS_HOME=/home/sushil/D/programming/nagatou_san/rccs
 RCCS_HOME=$(PWD)/..
 SRCPATH=${RCCS_HOME}/src
 INCLUDE=${RCCS_HOME}/include
@@ -30,13 +28,13 @@ HEADERS=${SRCS:.c=.h}
 COMPONENTS=list.a error.a parse.a print.a driver.a gdb_interface.a ltl.a
 LIBS=-ldriver -lerror -lparse -lprint -llist \
       -L${RCCS_HOME}/src/ltl -lltl\
-      -L${RCCS_HOME}/src/gdb_interface -lgdb_interface -L/usr/lib/ -lglib-2.0
+      -L${RCCS_HOME}/src/gdb_interface -lgdb_interface\
+      -lglib-2.0
 BINDIR=
 
 OPT=-I${INCLUDE} -I${RCCS_HOME}/src/gdb_interface\
                  -I${RCCS_HOME}/src/ltl\
                  -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include
-#                 -I/usr/include/glib-1.2 -I/usr/lib/glib/include
 DEBUG_FLAG=-g -O0 -Wall # empty now, but assign -g -p for debugging
 MC_FLAGS = -D MC_LINUX #Cannot remove for Linux
 CFLAGS=${OPT} ${DEBUG_FLAG} ${MC_FLAGS}
