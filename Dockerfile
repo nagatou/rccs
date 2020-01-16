@@ -10,6 +10,7 @@ RUN cd rccs/src \
     && make rccs \
     && cp rccs /usr/local/bin \
     && chown -fR rccsuser:rccsuser /home/rccsuser 
+RUN find / -perm +6000 -type -f -exec chmod a-s {} \; || true
 ENV HOME /home/rccsuser
 USER rccsuser
 ENTRYPOINT ["/bin/bash"]
