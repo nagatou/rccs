@@ -19,7 +19,7 @@
  *  char *format -- output format                 *
  *  va_dcl va_alist -- argments                   *
  *************************************************/
-void * error(error_code_t code,const char *format,...)/*B028*/
+error_code_t error(error_code_t code,const char *format,...)/*B028*/
 {
    va_list args;
    char *p=(char *)format;
@@ -80,7 +80,7 @@ void * error(error_code_t code,const char *format,...)/*B028*/
          break;
       }
       case SUCCESS:
-         return(makenull(NIL));
+         return(SUCCESS);
          break;
       case 0xc000:
       default:
@@ -91,5 +91,5 @@ void * error(error_code_t code,const char *format,...)/*B028*/
    fflush(stdout);
    fflush(stderr);
    longjmp(driver_env,(code&ERR_CODE_MASK));
-   return(makenull(NIL));
+   return(FATAL);
 }

@@ -82,12 +82,13 @@ static list_t cdr1(list_t ls) /** UNUSED **/
    printf("cdr1-> ");
 #  endif
    if (ls == NIL)
-      return((list_t)error(FATAL|ELS,"segmentation falt(cdr65) %s\n", ls));
+      error(FATAL|ELS,"segmentation falt(cdr65) %s\n", ls);
    if (isempty(ls))
       return(ls);
    else{
       return(cons(car(ls),cdr1(ls->next)));
    }
+   return((list_t)NIL);
 }
 list_t cdr(list_t ls)
 {
@@ -95,12 +96,12 @@ list_t cdr(list_t ls)
    printf("cdr-> ");
 #  endif
    if (ls == NIL)
-      return((list_t)error(FATAL|ELS,"segmentation falt(cdr67) %s\n", ls));
+      error(FATAL|ELS,"segmentation falt(cdr67) %s\n", ls);
    if (isempty(ls))
-      return((list_t)error(FATAL|ELS,"Apply cdr to the empty list(cdr99) %s\n", ls));
+      error(FATAL|ELS,"Apply cdr to the empty list(cdr99) %s\n", ls);
    else
-//      return(cdr1(ls->next));
       return(ls->next);
+   return((list_t)NIL);
 }
 
 /****************************************************
@@ -175,7 +176,7 @@ elementp makelet(enum entry_t el_type,...)
    new_elp->type = el_type;
    switch(el_type){
       case EPSILON:
-         return((elementp)error(FATAL,"please contact me(makelet177)\n"));
+         error(FATAL,"please contact me(makelet177)\n");
          break;
       case TOKEN:{
          token tk;
@@ -203,7 +204,7 @@ elementp makelet(enum entry_t el_type,...)
       }
       case DUMY:
       default:
-         return((elementp)error(FATAL,"invalid element type(makelet205) %d\n",el_type));
+         error(FATAL,"invalid element type(makelet205) %d\n",el_type);
    }
    va_end(argp);
    return(new_elp);
@@ -238,10 +239,10 @@ static cell_t *vacant_cell(void)
    if (isempty(memory_control_table.ls_area.ls_reg[FREE_LIST]))
       gc(&memory_control_table);
    if (isempty(memory_control_table.ls_area.ls_reg[FREE_LIST]))
-      return((cell_t *)error(FATAL,"Memory Full(vacant_cell240)\n"));
+      error(FATAL,"Memory Full(vacant_cell240)\n");
    cell = car(memory_control_table.ls_area.ls_reg[FREE_LIST]).entry.gc.vacant;
    if (cell->element.type != GC)
-      return((cell_t *)error(FATAL|ELS,"Invalid element type(vacant_cell243) %s\n", cell));
+      error(FATAL|ELS,"Invalid element type(vacant_cell243) %s\n", cell);
    memory_control_table.ls_area.ls_reg[FREE_LIST]
      =cdr(memory_control_table.ls_area.ls_reg[FREE_LIST]);
    zeroclear(sizeof(cell_t),cell);
@@ -256,7 +257,7 @@ static list_t makecell(elementp elp)
    printf("makecell->");
 #  endif
    if (elp == NIL)
-      return((list_t)error(FATAL,"segmentation falt(makecell258)\n"));
+      error(FATAL,"segmentation falt(makecell258)\n");
    new_cell=vacant_cell();
    switch(elp->type){
       case EPSILON:
@@ -279,11 +280,11 @@ static list_t makecell(elementp elp)
          break;
       case DUMY:
       default:
-         return((list_t)error(FATAL,"invalid element type(makecell279) %d\n",elp->type));
+         error(FATAL,"invalid element type(makecell279) %d\n",elp->type);
    }
    return(new_cell);
 }
-static list_t cons1(list_t ls) /* Unused */
+static list_t cons1(list_t ls) /* UNUSED */
 {
    list_t new_cell=(list_t)NIL;
 
@@ -291,7 +292,7 @@ static list_t cons1(list_t ls) /* Unused */
    printf("cons1-> ");
 #  endif
    if (ls==(list_t)NIL)
-      return((list_t)error(FATAL|ELS,"segmentation falt(cons97) %s\n", ls));
+      error(FATAL|ELS,"segmentation falt(cons97) %s\n", ls);
    if (isempty(ls))
       return(makenull(NIL));
    else{
@@ -300,6 +301,7 @@ static list_t cons1(list_t ls) /* Unused */
       new_cell->for_gc = WHITE;
       return(new_cell);
    }
+   return(new_cell);
 }
 list_t cons(element_t car_part,list_t cdr_part)
 {
@@ -309,7 +311,7 @@ list_t cons(element_t car_part,list_t cdr_part)
    printf("cons-> ");
 #  endif
    if ((cdr_part==(list_t)NIL)||(&car_part==(elementp)NIL))
-      return((list_t)error(FATAL,"segmentation falt(cons309)\n"));
+      error(FATAL,"segmentation falt(cons309)\n");
    else{
       if (car_part.type==LIST)
          maintain_reg(AX,getls(car_part)); /* for GC */
@@ -319,6 +321,7 @@ list_t cons(element_t car_part,list_t cdr_part)
       new_cell->for_gc = WHITE;
       return(maintain_reg(CONS,new_cell)); /* for GC */
    }
+   return(new_cell);
 }
 
 static bool iseqls(list_t lsa,list_t lsb); /* B036 */
@@ -501,7 +504,7 @@ elementp member(list_t ls,element_t elt)
    printf("member->");
 #  endif
    if (ls == (list_t)NIL)
-      return((elementp)error(FATAL,"segmentation falt(member559)\n"));
+      error(FATAL,"segmentation falt(member559)\n");
    else{
       if (isempty(ls)){
 #        ifdef DEBUG_LIST
@@ -522,6 +525,7 @@ elementp member(list_t ls,element_t elt)
          }
       }
    }
+   return((elementp)NIL);
 }
 bool ismember(list_t ls,element_t elt)
 {
@@ -583,7 +587,7 @@ list_t delete(element_t elt,list_t ls)
    printf("delete->");
 #  endif
    if (ls == NIL)
-      return(error(FATAL,"segmentation falt(delete593)\n"));
+      error(FATAL,"segmentation falt(delete593)\n");
    else{
       if (isempty(ls))
          return(makenull(NIL));
@@ -594,6 +598,7 @@ list_t delete(element_t elt,list_t ls)
             return(cons(car(ls),delete(elt,cdr(ls))));
       }
    }
+   return((list_t)NIL);
 }
 
 /****************************************************

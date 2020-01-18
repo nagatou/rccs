@@ -39,18 +39,21 @@ static list_t n_abort(list_t history) /*** does not use ***/
    printf("n_abort->");
 #  endif
    if (history==(list_t)NIL)
-      return((list_t)error(FATAL,"Segmentation fault(n_abort370).\n"));
+      error(FATAL,"Segmentation fault(n_abort370).\n");
    else{
       if (isempty_buf(&formula))
-         return((list_t)error(FATAL,"I detect one sequence aginst the policy.\n"));
+         error(FATAL,"I detect one sequence aginst the policy.\n");
       else
-         return((list_t)error(WARNING|ELS,"I detect one sequence aginst the property:\n %s",history));
+         error(WARNING|ELS,"I detect one sequence aginst the property:\n %s",history);
    }
+   return((list_t)NIL);
 }
 static list_t make_current_state(list_t exp,list_t cont,list_t assertion, list_t ch,list_t env)
 {
-   if (exp==(list_t)NIL||cont==(list_t)NIL||assertion==(list_t)NIL||ch==(list_t)NIL)
-      return((list_t)error(FATAL,"segmentation fault(make_current_state36)\n"));
+   if (exp==(list_t)NIL||cont==(list_t)NIL||assertion==(list_t)NIL||ch==(list_t)NIL){
+      error(FATAL,"segmentation fault(make_current_state36)\n");
+      return((list_t)NIL);
+   }
    else
       return(cons(*makelet(LIST,resume(exp,cont)),
                    cons(*makelet(LIST,assertion),
@@ -61,8 +64,10 @@ static list_t mark(list_t state,list_t stack,bool side_effect)
 #  ifdef DEBUG_VERIFIER1
    printf("mark->");
 #  endif
-   if ((state==(list_t)NIL)||(stack==(list_t)NIL))
-      return((list_t)error(FATAL,"Segmentation fault(mark33).\n"));
+   if ((state==(list_t)NIL)||(stack==(list_t)NIL)){
+      error(FATAL,"Segmentation fault(mark33).\n");
+      return((list_t)NIL);
+   }
    else{
       if (side_effect==TRUE){
          if (ismember(getls(car(stack)),*makelet(LIST,state)))
@@ -83,8 +88,10 @@ static list_t on_stack(list_t state,list_t stack)
 #  ifdef DEBUG_VERIFIER1
    printf("on_stack->");
 #  endif
-   if ((state==(list_t)NIL)||(stack==(list_t)NIL))
-      return((list_t)error(FATAL,"Segmentation fault(on_stack49).\n"));
+   if ((state==(list_t)NIL)||(stack==(list_t)NIL)){
+      error(FATAL,"Segmentation fault(on_stack49).\n");
+      return((list_t)NIL);
+   }
    else
       return(mark(state,stack,(bool)TRUE));
 }
@@ -243,7 +250,7 @@ static list_t secondDFS1(element_t rate,
                   new_ch = delete(*makelet(LIST,at_once),ch);
                   break;
                default:
-                  return((list_t)error(FATAL,"Invalid channel type(secondDFS1:181)\n"));
+                  error(FATAL,"Invalid channel type(secondDFS1:181)\n");
             }
          }
          if (ismember_of_stack(for_secondDFS,make_current_state(_MODEL,cont,assertion,ch,env))) /* don't explore same states */
@@ -325,8 +332,9 @@ static list_t secondDFS1(element_t rate,
          }
          break;
       default:
-         return((list_t)error(FATAL|EEL,"invalid primitive agent expression(secondDFS263) (%s)\n", rate));
+         error(FATAL|EEL,"invalid primitive agent expression(secondDFS263) (%s)\n", rate);
    }
+   return((list_t)NIL);
 }
 static list_t secondDFS(list_t exp,
                        list_t assertion,
@@ -469,15 +477,16 @@ static list_t secondDFS(list_t exp,
          break;
 /*   (REL  rand    (rel-ls)        )          */
       case REL:
-         return((list_t)error(FATAL|ELS,"sorry. operater REL has not been implemented yet. (%s)\n", exp));
+         error(FATAL|ELS,"sorry. operater REL has not been implemented yet. (%s)\n", exp);
          break;
 /*   (RES  rand    label-ls  co-env)          */
       case RES:
-         return((list_t)error(FATAL|ELS,"sorry. operater RES has not been implemented yet. (%s)\n", exp));
+         error(FATAL|ELS,"sorry. operater RES has not been implemented yet. (%s)\n", exp);
          break;
       default:
-         return((list_t)error(FATAL|ELS,"invalid primitive agent expression(secondDFS1597) (%s)\n", exp));
+         error(FATAL|ELS,"invalid primitive agent expression(secondDFS1597) (%s)\n", exp);
    }
+   return((list_t)NIL);
 }
 static list_t n_accept(list_t exp,
                        list_t assertion,
@@ -595,7 +604,7 @@ static list_t firstDFS1(element_t rate,
                   new_ch = delete(*makelet(LIST,at_once),ch);
                   break;
                default:
-                  return((list_t)error(FATAL,"Invalid channel type(firstDFS1:687)\n"));
+                  error(FATAL,"Invalid channel type(firstDFS1:687)\n");
             }
          }
          ret=firstDFS2(resume(make_cls(body,n_boundls(val_ls,data,env)),cont),
@@ -671,8 +680,9 @@ static list_t firstDFS1(element_t rate,
          }
          break;
       default:
-         return((list_t)error(FATAL|EEL,"invalid primitive agent expression(firstDFS1608) (%s)\n", rate));
+         error(FATAL|EEL,"invalid primitive agent expression(firstDFS1608) (%s)\n", rate);
    }
+   return((list_t)NIL);
 }
 static list_t firstDFS(list_t exp,
                        list_t assertion,
@@ -801,14 +811,14 @@ static list_t firstDFS(list_t exp,
          break;
 /*   (REL  rand    (rel-ls)        )          */
       case REL:
-         return((list_t)error(FATAL|ELS,"sorry. operater REL has not been implemented yet. (%s)\n", exp));
+         error(FATAL|ELS,"sorry. operater REL has not been implemented yet. (%s)\n", exp);
          break;
 /*   (RES  rand    label-ls  co-env)          */
       case RES:
-         return((list_t)error(FATAL|ELS,"sorry. operater RES has not been implemented yet. (%s)\n", exp));
+         error(FATAL|ELS,"sorry. operater RES has not been implemented yet. (%s)\n", exp);
          break;
       default:
-         return((list_t)error(FATAL|ELS,"invalid primitive agent expression(firstDFS1597) (%s)\n", exp));
+         error(FATAL|ELS,"invalid primitive agent expression(firstDFS1597) (%s)\n", exp);
    }
    return(for_firstDFS);
 }
@@ -826,21 +836,27 @@ list_t verifier(list_t exp,
    if ((exp==(list_t)NIL)||
        (env==(list_t)NIL)||
        (ch==(queue_t)NIL)||
-       (cont==(list_t)NIL))
-      return((list_t)error(FATAL,"Segmentation fault(verifier832).\n"));
+       (cont==(list_t)NIL)){
+      error(FATAL,"Segmentation fault(verifier832).\n");
+      return((list_t)NIL);
+   }
    else{
       g_emptyness=FALSE;
       if (isempty(firstDFS(exp,assertion,env,cont,makenull(NIL),make_que(),make_que(),ch,procedures,0))){
          if (g_emptyness==TRUE)
             return(makenull(NIL));
-         else
-            return((list_t)error(SUCCESS,"Emptyness: FALSE\n"));
+         else{
+            error(SUCCESS,"Emptyness: FALSE\n");
+            return((list_t)NIL);
+         }
       }
       else{
          if (g_emptyness==TRUE)
             return(makenull(NIL));
-         else
-            return((list_t)error(SUCCESS,"Emptyness: FALSE\n"));
+         else{
+            error(SUCCESS,"Emptyness: FALSE\n");
+            return((list_t)NIL);
+         }
       }
    }
 }

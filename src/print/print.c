@@ -23,7 +23,7 @@
  *              fail:ERROR                          *
  *  listp list - any list                           * 
  ****************************************************/
-static char *operators(buffer *buf,const element_t el)
+static splp operators(buffer *buf,const element_t el)
 {
 #  ifdef DEBUG_PRINT
    printf("operators[");
@@ -31,13 +31,14 @@ static char *operators(buffer *buf,const element_t el)
    printf("]->");
 #  endif
    if (buf==(buffer *)NIL)
-      return((splp)error(FATAL,"Segmentation fault(operators32)\n"));
+      error(FATAL,"Segmentation fault(operators32)\n");
    else{
       prtsym(BUF,gettk(el),buf);
       return(buf->buf);
    }
+   return((splp)NIL);
 }
-static char *label(buffer *buf,const element_t el)
+static splp label(buffer *buf,const element_t el)
 {
 #  ifdef DEBUG_PRINT
    printf("label");
@@ -45,11 +46,12 @@ static char *label(buffer *buf,const element_t el)
    printf("]->");
 #  endif
    if (buf==(buffer *)NIL)
-      return((splp)error(5,"Segmentation fault(label30)\n"));
+      error(5,"Segmentation fault(label30)\n");
    else{
       operators(buf,el);
       return(buf->buf);
    }
+   return((splp)NIL);
 }
 static splp bool_exp(buffer *buf,const element_t el);
 static splp val_exp(buffer *buf,const element_t el)
@@ -62,7 +64,7 @@ static splp val_exp(buffer *buf,const element_t el)
    printf("]->");
 #  endif
    if ((buf==(buffer *)NIL)||(ls==(list_t)NIL))
-      return((splp)error(FATAL,"Segmentation fault(val_exp63)\n"));
+      error(FATAL,"Segmentation fault(val_exp63)\n");
    else{
       if (car(ls).type==TOKEN){
          switch(gettk(car(ls))->token_name){
@@ -79,7 +81,7 @@ static splp val_exp(buffer *buf,const element_t el)
                      break;
                   case SEQ:
                   default:
-                     return((splp)error(FATAL,"invalid field type[%d](val_exp80)\n",car(ls).entry.tk->attr.op.type));
+                     error(FATAL,"invalid field type[%d](val_exp80)\n",car(ls).entry.tk->attr.op.type);
                }
                break;
             case BOOL_OP:
@@ -90,13 +92,14 @@ static splp val_exp(buffer *buf,const element_t el)
                label(buf,car(ls));
                break;
             default:
-               return((splp)error(FATAL,"invalid token[%d](val_exp91)\n",gettk(car(ls))->token_name));
+               error(FATAL,"invalid token[%d](val_exp91)\n",gettk(car(ls))->token_name);
          }
       }
       else
-         return((splp)error(FATAL,"Invalid element type(val_exp95)\n"));
+         error(FATAL,"Invalid element type(val_exp95)\n");
       return(buf->buf);
    }
+   return((splp)NIL);
 }
 static splp val_exp_ls2(buffer *buf,const list_t ls)
 {
@@ -106,7 +109,7 @@ static splp val_exp_ls2(buffer *buf,const list_t ls)
    printf("]->");
 #  endif
    if ((buf==(buffer *)NIL)||(ls==(list_t)NIL))
-      return((splp)error(FATAL,"Segmentation fault(val_exp_ls2101)\n"));
+      error(FATAL,"Segmentation fault(val_exp_ls2101)\n");
    else{
       if (isempty(ls))
          return(buf->buf);
@@ -117,6 +120,7 @@ static splp val_exp_ls2(buffer *buf,const list_t ls)
          return(buf->buf);
       }
    }
+   return((splp)NIL);
 }
 static splp val_exp_ls1(buffer *buf,const list_t ls)
 {
@@ -126,13 +130,14 @@ static splp val_exp_ls1(buffer *buf,const list_t ls)
    printf("]->");
 #  endif
    if ((buf==(buffer *)NIL)||(ls==(list_t)NIL))
-      return((splp)error(FATAL,"Segmentation fault(val_exp_ls1121)\n"));
+      error(FATAL,"Segmentation fault(val_exp_ls1121)\n");
    else{
       val_exp_ls2(buf,cdr(ls));
       val_exp(buf,car(ls));
       return(ins_buf(buf,")"));
       return(buf->buf);
    }
+   return((splp)NIL);
 }
 static splp val_exp_ls(buffer *buf,const element_t el)
 {
@@ -144,13 +149,14 @@ static splp val_exp_ls(buffer *buf,const element_t el)
    printf("]->");
 #  endif
    if ((buf==(buffer *)NIL)||(ls==(list_t)NIL))
-      return((splp)error(FATAL,"Segmentation fault(val_exp_ls139)\n"));
+      error(FATAL,"Segmentation fault(val_exp_ls139)\n");
    else{
       if (isempty(ls))
          return(buf->buf);
       ins_buf(buf,"(");
       return(val_exp_ls1(buf,getls(el)));
    }
+   return((splp)NIL);
 }
 static splp val_var(buffer *buf,const element_t el)
 {
@@ -162,10 +168,11 @@ static splp val_var(buffer *buf,const element_t el)
    printf("]->");
 #  endif
    if ((buf==(buffer *)NIL)||(ls==(list_t)NIL))
-      return((splp)error(FATAL,"Segmentation fault(val_var157)\n"));
+      error(FATAL,"Segmentation fault(val_var157)\n");
    else{
       return(operators(buf,car(ls)));
    }
+   return((splp)NIL);
 }
 static splp val_var_ls2(buffer *buf,const list_t ls)
 {
@@ -175,7 +182,7 @@ static splp val_var_ls2(buffer *buf,const list_t ls)
    printf("]->");
 #  endif
    if ((buf==(buffer *)NIL)||(ls==(list_t)NIL))
-      return((splp)error(FATAL,"Segmentation fault(val_var_ls170)\n"));
+      error(FATAL,"Segmentation fault(val_var_ls170)\n");
    else{
       if (isempty(ls))
          return(buf->buf);
@@ -186,6 +193,7 @@ static splp val_var_ls2(buffer *buf,const list_t ls)
          return(buf->buf);
       }
    }
+   return((splp)NIL);
 }
 static splp val_var_ls1(buffer *buf,const list_t ls)
 {
@@ -195,13 +203,14 @@ static splp val_var_ls1(buffer *buf,const list_t ls)
    printf("]->");
 #  endif
    if ((buf==(buffer *)NIL)||(ls==(list_t)NIL))
-      return((splp)error(FATAL,"Segmentation fault(val_var_ls190)\n"));
+      error(FATAL,"Segmentation fault(val_var_ls190)\n");
    else{
       val_var_ls2(buf,cdr(ls));
       val_var(buf,car(ls));
       return(ins_buf(buf,")"));
       return(buf->buf);
    }
+   return((splp)NIL);
 }
 static splp val_var_ls(buffer *buf,const element_t el)
 {
@@ -211,7 +220,7 @@ static splp val_var_ls(buffer *buf,const element_t el)
    printf("val_var_ls-> ");
 #  endif
    if ((buf==(buffer *)NIL)||(ls==(list_t)NIL))
-      return((splp)error(FATAL,"Segmentation fault(val_var_ls206)\n"));
+      error(FATAL,"Segmentation fault(val_var_ls206)\n");
    else{
       if (isempty(ls))
          return(buf->buf);
@@ -219,6 +228,7 @@ static splp val_var_ls(buffer *buf,const element_t el)
       val_var_ls1(buf, getls(el));
       return(buf->buf);
    }
+   return((splp)NIL);
 }
 static splp bool_exp(buffer *buf,const element_t el)
 {
@@ -232,9 +242,9 @@ static splp bool_exp(buffer *buf,const element_t el)
 #  endif
 
    if (ls==(list_t)NIL)
-      return((splp)error(FATAL,"Segmentation fault(bool_exp225)\n"));
+      error(FATAL,"Segmentation fault(bool_exp225)\n");
    if (buf==(buffer *)NIL)
-      return((splp)error(FATAL,"Segmentation fault(bool_exp227)\n"));
+      error(FATAL,"Segmentation fault(bool_exp227)\n");
    else{
       switch(gettk(car(ls))->token_name){
          case KEY_WORD:
@@ -267,7 +277,7 @@ static splp bool_exp(buffer *buf,const element_t el)
                   bool_exp(buf,car(getls(car(cdr(ls)))));
                   break;
                default:
-                  return((splp)error(FATAL,"invalid field type(bool_exp255) (%d)\n", car(ls).entry.tk->attr.op.type));
+                  error(FATAL,"invalid field type(bool_exp255) (%d)\n", car(ls).entry.tk->attr.op.type);
             }
             break;
          case VALUE:
@@ -275,10 +285,11 @@ static splp bool_exp(buffer *buf,const element_t el)
             label(buf,car(ls));
             break;
          default:
-            return((splp)error(FATAL,"Invalid token type(bool_exp263) (token_name=%d)\n", car(ls).entry.tk->token_name));
+            error(FATAL,"Invalid token type(bool_exp263) (token_name=%d)\n", car(ls).entry.tk->token_name);
       }
       return(buf->buf);
    }
+   return((splp)NIL);
 }
 static splp operand(buffer *buf,const list_t ls)
 {
@@ -288,7 +299,7 @@ static splp operand(buffer *buf,const list_t ls)
    printf("]->");
 #  endif
    if ((buf==(buffer *)NIL)||(ls==(list_t)NIL))
-      return((splp)error(FATAL,"Segmentation fault(operand276)\n"));
+      error(FATAL,"Segmentation fault(operand276)\n");
    else{
       if (isempty(ls)){
          ins_buf(buf,"()");
@@ -349,7 +360,7 @@ static splp operand(buffer *buf,const list_t ls)
             case RES:
             case REL:
             default:
-               return((splp)error(FATAL,"Please contact me(operand331). (%d)\n", car(ls).entry.tk->attr.op.type));
+               error(FATAL,"Please contact me(operand331). (%d)\n", car(ls).entry.tk->attr.op.type);
                break;
          }
       }
@@ -360,6 +371,7 @@ static splp operand(buffer *buf,const list_t ls)
       ins_buf(buf,")");
       return(buf->buf);
    }
+   return((splp)NIL);
 }
 int n_print(const list_t ls)
 {
@@ -370,14 +382,14 @@ int n_print(const list_t ls)
    int ret;
 
    if (ls==(list_t)NIL)
-      return((intptr_t)error(FATAL,"Segmentation fault(print350)\n"));
+      error(FATAL,"Segmentation fault(print350)\n");
    else{
       initbuf(&output);
-//      printf("\n");
       operand(&output,ls);
       ret = fprintf(stdout,"%s\n",output.buf);
       fflush(stdout);
       return(ret);
    }
 #  endif
+   return(0);
 }

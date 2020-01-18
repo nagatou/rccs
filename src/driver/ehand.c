@@ -241,10 +241,11 @@ static hsp anly_addr(splp addr)
 #  ifdef DEBUG_EHAND
    printf("anly_addr->");
 #  endif
-   if ((rslt=(hsp)(malloc(sizeof(hs_t))))==NIL)
-      return((hsp)error(FATAL,"allocation error(anly_addr282)\n"));
+   if ((rslt=(hsp)(malloc(sizeof(hs_t))))==NIL){
+      error(FATAL,"allocation error(anly_addr282)\n");
+      return((hsp)NIL);
+   }
    else{
-//      aly_addr_host(addr,rslt->host,rslt->service);
       anly_cs(addr,rslt->cs,rslt->host,rslt->service);
       return(rslt);
    }
@@ -277,8 +278,10 @@ static bindLSp makeLS(splp label,int socket,splp host,int qualifier)
 #  ifdef DEBUG_EHAND
    printf("makeLS->");
 #  endif
-   if ((new_LS=(bindLSp)(malloc(sizeof(bindLS_t))))==NIL)
-      return((bindLSp)error(FATAL,"allocation error(makeLS318)\n"));
+   if ((new_LS=(bindLSp)(malloc(sizeof(bindLS_t))))==NIL){
+      error(FATAL,"allocation error(makeLS318)\n");
+      return((bindLSp)NIL);
+   }
    else{
       new_LS->label = label;
       new_LS->pair.qualifier = qualifier;
@@ -293,8 +296,10 @@ static bindLSp apdLS1(bindLSp crrt,splp label,int socket,splp host,bindLSp pre,i
 #  ifdef DEBUG_EHAND
    printf("apdLS1->");
 #  endif
-   if (pre==NIL)
-      return((bindLSp)error(FATAL,"Segmentation fault(apdLS1333)."));
+   if (pre==NIL){
+      error(FATAL,"Segmentation fault(apdLS1333).");
+      return((bindLSp)NIL);
+   }
    if (crrt==NIL){
       return((pre->next = makeLS(label,socket,host,qualifier)));
    }
@@ -328,7 +333,8 @@ bindLSp registry1(splp label,int socket,splp host,int qualifier)
                       socket,
                       host,
                       qualifier));
-   return((bindLSp)error(FATAL,"invalid label(registry1367)\n"));
+   error(FATAL,"invalid label(registry1367)\n");
+   return((bindLSp)NIL);
 }
 static bindLSp registry(element_t label,int socket,splp host,int qualifier)
 {
@@ -346,7 +352,8 @@ static bindLSp registry(element_t label,int socket,splp host,int qualifier)
                        host,
                        qualifier));
    }
-   return((bindLSp)error(FATAL,"invalid label(registry383)\n"));
+   error(FATAL,"invalid label(registry383)\n");
+   return((bindLSp)NIL);
 }
 
 /**************************************************
@@ -372,7 +379,8 @@ bindLSp retrieval1(element_t label)
       else
          return(ety);
    }
-   return((bindLSp)error(FATAL,"invalid label(retrieval409)\n"));
+   error(FATAL,"invalid label(retrieval409)\n");
+   return((bindLSp)NIL);
 }
 static int retrieval(element_t label)
 {
@@ -398,8 +406,10 @@ filename_lineno_pair_t *retrieve_filename_lineno_pair(element_t label)
 #  ifdef DEBUG_MONITOR
    printf("retrieve_filename_lineno_pair->");
 #  endif
-   if (ety==(bindLSp)(NIL))
-      return((filename_lineno_pair_t *)error(FATAL,"invalid label(retrieve436)\n"));
+   if (ety==(bindLSp)(NIL)){
+      error(FATAL,"invalid label(retrieve436)\n");
+      return((filename_lineno_pair_t *)NIL);
+   }
    else
       return(&(ety->pair));
 }
@@ -417,8 +427,10 @@ char *n_tolower(char *lah,buffer *buf)
 #  ifdef DEBUG_PARSE
    printf("n_tolower->");
 #  endif
-   if ((lah == (char *)NIL)||(buf == (buffer *)NIL))
-      return((char *)error(FATAL,"Segmentation fault(n_tolower1129)\n"));
+   if ((lah == (char *)NIL)||(buf == (buffer *)NIL)){
+      error(FATAL,"Segmentation fault(n_tolower1129)\n");
+      return((char *)NIL);
+   }
    else{   
       int len=strlen(lah);
       int c=0;
@@ -502,8 +514,10 @@ list_t n_bind(element_t label,element_t host)
       free(host_serv);
       return(makenull(NIL));
    }
-   else
-      return((list_t)error(FATAL,"unbound(n_bind164): "));
+   else{
+      error(FATAL,"unbound(n_bind164): ");
+      return((list_t)NIL);
+   }
 }
 
 /**************************************************
@@ -567,8 +581,10 @@ list_t n_send(element_t label,list_t data)
    if (pair->qualifier == BREAK_POINT){
       if (!isempty_buf(&target))
          mc_send(label,ls2int(data,&send_buf));
-      else
-         return((list_t)error(WARNING|EEL,"Cannot send the data for the target(n_send571).\n"));
+      else{
+         error(WARNING|EEL,"Cannot send the data for the target(n_send571).\n");
+         return((list_t)NIL);
+      }
    }
    else{
       ls2ary(data,send_buf.buf);

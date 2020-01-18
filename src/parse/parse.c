@@ -509,10 +509,10 @@ static list_t ex_relabel_seq_left(list_t inp)
             syp = relabel_seq_left(inp1);
          }
          else
-            return((list_t)error(WARNING|ETK,"syntax error(relabel_seq526) %s\n", lah));
+            error(WARNING|ETK,"syntax error(relabel_seq526) %s\n", lah);
       }
       else
-         return((list_t)error(WARNING|ETK,"syntax error(relabel_seq529) %s\n", lah));
+         error(WARNING|ETK,"syntax error(relabel_seq529) %s\n", lah);
    }
    else{
       if ((lah->token_name == AGENT_OP)&&(lah->attr.op.type == CO)){
@@ -603,10 +603,10 @@ static list_t relabel_seq(void)
             syp = relabel_seq_left(inp);
          }
          else
-            return((list_t)error(WARNING|ETK,"syntax error(relabel_seq621) %s\n", lah));
+            error(WARNING|ETK,"syntax error(relabel_seq621) %s\n", lah);
       }
       else
-         return((list_t)error(WARNING|ETK,"syntax error(relabel_seq624) %s\n", lah));
+         error(WARNING|ETK,"syntax error(relabel_seq624) %s\n", lah);
    }
    else{
       if ((lah->token_name == AGENT_OP)&&(lah->attr.op.type == CO)){
@@ -625,19 +625,19 @@ static list_t relabel_seq(void)
                      syp = relabel_seq_left(inp);
                   }
                   else
-                     return((list_t)error(WARNING|ETK,"syntax error(relabel_seq643) %s\n", lah));
+                     error(WARNING|ETK,"syntax error(relabel_seq643) %s\n", lah);
                }
                else
-                  return((list_t)error(WARNING|ETK,"syntax error(relabel_seq646) %s\n", lah));
+                  error(WARNING|ETK,"syntax error(relabel_seq646) %s\n", lah);
             }
             else
-               return((list_t)error(WARNING|ETK,"syntax error(relabel_seq649) %s\n", lah));
+               error(WARNING|ETK,"syntax error(relabel_seq649) %s\n", lah);
          }
          else
-            return((list_t)error(WARNING|ETK,"syntax error(relabel_seq652) %s\n", lah));
+            error(WARNING|ETK,"syntax error(relabel_seq652) %s\n", lah);
       }
       else
-         return((list_t)error(WARNING|ETK,"syntax error(relabel_seq655) %s\n", lah));
+         error(WARNING|ETK,"syntax error(relabel_seq655) %s\n", lah);
    }
    return(syp);
 }
@@ -785,11 +785,12 @@ static list_t id_seq(void)
             return(id_seq_left(inp));
          }
          else
-            return((list_t)error(WARNING|ETK,"syntax error(id_seq807) %s\n", lah));
+            error(WARNING|ETK,"syntax error(id_seq807) %s\n", lah);
       }
       else
-         return((list_t)error(WARNING|ETK,"syntax error(id_seq810) %s\n", lah));
+         error(WARNING|ETK,"syntax error(id_seq810) %s\n", lah);
    }
+   return((list_t)NIL);
 }
 
 /*****************************************************
@@ -815,13 +816,14 @@ static list_t ex_a_fact(void)
       if ((lah->token_name == PARENTHE)&&(lah->attr.par.fr_or_af == AF)){
          lah = scanner(&lah);
          if (lah == NIL)
-            return((list_t)error(WARNING,"syntax error: come up to EOF(ex_a_fact817)\n"));
+            error(WARNING,"syntax error: come up to EOF(ex_a_fact817)\n");
          else
             return(syp);
       }
       else
-         return((list_t)error(WARNING|ETK,"syntax error(ex_a_fact822): %s\n", lah));
+         error(WARNING|ETK,"syntax error(ex_a_fact822): %s\n", lah);
    }
+   return((list_t)NIL);
 }
 
 /*****************************************************
@@ -840,8 +842,10 @@ static list_t a_fact(void)
       lah = scanner(&lah);
       return(ex_a_fact());
    }
-   else
-      return((list_t)error(WARNING|ETK,"syntax error %s(a_fact850)\n",lah));
+   else{
+      error(WARNING|ETK,"syntax error %s(a_fact850)\n",lah);
+      return((list_t)NIL);
+   }
 }
 
 /*****************************************************
@@ -874,16 +878,16 @@ static list_t a_fix_exp(void)
                            dotpair(*makelet(TOKEN,addattr(id,A_VAR)),
                                    *makelet(LIST,syp))));
                if (!((lah->token_name == PARENTHE)&&(lah->attr.par.fr_or_af == AF)))
-                  return((list_t)error(WARNING|ETK,"syntax error(a_fix_exp896) %s\n", lah));
+                  error(WARNING|ETK,"syntax error(a_fix_exp896) %s\n", lah);
             }
             else
-               return((list_t)error(WARNING|ETK,"syntax error(a_fix_exp899) %s\n", lah));
+               error(WARNING|ETK,"syntax error(a_fix_exp899) %s\n", lah);
          }
          else
-            return((list_t)error(WARNING|ETK,"syntax error(a_fix_exp902) %s\n", lah));
+            error(WARNING|ETK,"syntax error(a_fix_exp902) %s\n", lah);
       }
       else
-         return((list_t)error(WARNING|ETK,"syntax error(a_fix_exp905) %s\n", lah));
+         error(WARNING|ETK,"syntax error(a_fix_exp905) %s\n", lah);
    }
    else
       ret = (a_fact());
@@ -922,10 +926,10 @@ static list_t ex_a_unary_exp(void)
                                    *makelet(LIST,syp1))));
             }
             else
-               return((list_t)error(WARNING|ETK,"syntax error(ex_a_unary_exp945) %s\n", lah));
+               error(WARNING|ETK,"syntax error(ex_a_unary_exp945) %s\n", lah);
          }
          else
-            return((list_t)error(WARNING|ETK,"syntax error(ex_a_unary_exp948) %s\n", lah));
+            error(WARNING|ETK,"syntax error(ex_a_unary_exp948) %s\n", lah);
       }
       else{
          if ((lah->token_name == AGENT_OP)&&(lah->attr.op.type == PRE)){
@@ -937,11 +941,12 @@ static list_t ex_a_unary_exp(void)
                                 *makelet(LIST,syp1))));
          }
          else
-            return((list_t)error(WARNING|ETK,"syntax error(ex_a_unary_exp951) %s\n", lah));
+            error(WARNING|ETK,"syntax error(ex_a_unary_exp951) %s\n", lah);
       }
    }
    else
-      return((list_t)error(WARNING|ETK,"syntax error %s(ex_a_unary_exp954) %s\n", lah));
+      error(WARNING|ETK,"syntax error %s(ex_a_unary_exp954) %s\n", lah);
+   return((list_t)NIL);
 }
 
 /*****************************************************
@@ -984,7 +989,8 @@ static list_t ex_a_unary_exp_id_val_seq(token id)
       return(ex_a_unary_exp_id_val_seq2(id,syp)); /* B010 */
    }
    else
-      return((list_t)error(WARNING|ETK,"syntax error(ex_a_unary_exp_id_val_seq1002) %s\n", lah));
+      error(WARNING|ETK,"syntax error(ex_a_unary_exp_id_val_seq1002) %s\n", lah);
+   return((list_t)NIL);
 }
 
 /*****************************************************
@@ -1084,10 +1090,10 @@ static list_t a_label_exp_left(list_t inp)
                return(a_label_exp_left(inp1));
             }
             else
-               return((list_t)error(WARNING|ETK,"syntax error(a_label_exp_left1096) %s\n", lah));
+               error(WARNING|ETK,"syntax error(a_label_exp_left1096) %s\n", lah);
          }
          else
-            return((list_t)error(WARNING|ETK,"syntax error(a_label_exp_left1099) %s\n", lah));
+            error(WARNING|ETK,"syntax error(a_label_exp_left1099) %s\n", lah);
          break;
       case BRACE:
          if (lah->attr.par.fr_or_af == FR){
@@ -1100,14 +1106,15 @@ static list_t a_label_exp_left(list_t inp)
                return(a_label_exp_left(inp1));
             }
             else
-               return((list_t)error(WARNING|ETK,"syntax error(a_label_exp_left1115) %s\n", lah));
+               error(WARNING|ETK,"syntax error(a_label_exp_left1115) %s\n", lah);
          }
          else
-            return((list_t)error(WARNING|ETK,"syntax error(a_label_exp_left1118) %s\n", lah));
+            error(WARNING|ETK,"syntax error(a_label_exp_left1118) %s\n", lah);
          break;
       default:
          return(inp);
    }
+   return((list_t)NIL);
 }
 
 /*****************************************************
@@ -1156,13 +1163,14 @@ static list_t a_binary_exp_left(list_t inp)
                                                       *makelet(LIST,syp)));
                return(a_binary_exp_left(inp1));
                break;
-               default:
-               return((list_t)error(WARNING|ETK,"syntax error(a_binary_exp_left1174) %s\n", lah));
+            default:
+               error(WARNING|ETK,"syntax error(a_binary_exp_left1174) %s\n", lah);
          }
          break;
       default:
          return(inp);
    }
+   return((list_t)NIL);
 }
 
 /*****************************************************
@@ -1228,14 +1236,14 @@ static list_t agent_exp(void)
                                            *makelet(LIST,syp1)))));
                }
                else
-                  return((list_t)error(WARNING|ETK,"syntax error(agent_exp1253) %s\n", lah));
+                  error(WARNING|ETK,"syntax error(agent_exp1253) %s\n", lah);
             }
          }
          else
-            return((list_t)error(WARNING|ETK,"syntax error(agent_exp1257) %s\n", lah));
+            error(WARNING|ETK,"syntax error(agent_exp1257) %s\n", lah);
       }
       else
-         return((list_t)error(WARNING|ETK,"syntax error(agent_exp1260) %s\n", lah));
+         error(WARNING|ETK,"syntax error(agent_exp1260) %s\n", lah);
    }
    else{
       if ((lah->token_name == KEY_WORD)&&
@@ -1254,13 +1262,13 @@ static list_t agent_exp(void)
                               dotpair(*makelet(TOKEN,addattr(id,ACT,LAB,NAME)),
                                       *makelet(TOKEN,id1))));
                else
-                  return((list_t)error(WARNING|ETK,"syntax error(agent_exp1286) %s\n", lah));
+                  error(WARNING|ETK,"syntax error(agent_exp1286) %s\n", lah);
             }
             else
-               return((list_t)error(WARNING|ETK,"syntax error(agent_exp1289) %s\n", lah));
+               error(WARNING|ETK,"syntax error(agent_exp1289) %s\n", lah);
          }
          else
-            return((list_t)error(WARNING|ETK,"syntax error(agent_exp1292) %s\n", lah));
+            error(WARNING|ETK,"syntax error(agent_exp1292) %s\n", lah);
       }
       else{
          if ((lah->token_name==KEY_WORD)&&(strcmp(lah->attr.keywd.str,"if")==0)){
@@ -1280,10 +1288,10 @@ static list_t agent_exp(void)
                                             *makelet(LIST,syp1)))));
                } /*** end of ) ***/
                else
-                  return((list_t)error(WARNING|ETK,"syntax error(agent_exp1315) %s\n", lah));
+                  error(WARNING|ETK,"syntax error(agent_exp1315) %s\n", lah);
             } /*** end of ( ***/
             else
-               return((list_t)error(WARNING|ETK,"syntax error(agent_exp1318) %s\n", lah));
+               error(WARNING|ETK,"syntax error(agent_exp1318) %s\n", lah);
          } /*** end of if ***/
          else{
             if ((lah->token_name==KEY_WORD)&&(strcmp(lah->attr.keywd.str,"definit")==0)){
@@ -1309,19 +1317,19 @@ static list_t agent_exp(void)
                                                      *makelet(LIST,syp1))));
                            }
                            else
-                              return((list_t)error(WARNING|ETK,"syntax error(agent_exp1307) %s\n", lah));
+                              error(WARNING|ETK,"syntax error(agent_exp1307) %s\n", lah);
                         }
                         else
-                           return((list_t)error(WARNING|ETK,"syntax error(agent_exp1310) %s\n", lah));
+                           error(WARNING|ETK,"syntax error(agent_exp1310) %s\n", lah);
                      }
                      else
-                        return((list_t)error(WARNING|ETK,"syntax error(agent_exp1313) %s\n", lah));
+                        error(WARNING|ETK,"syntax error(agent_exp1313) %s\n", lah);
                   }
                   else
-                     return((list_t)error(WARNING|ETK,"syntax error(agent_exp1316) %s\n", lah));
+                     error(WARNING|ETK,"syntax error(agent_exp1316) %s\n", lah);
                }
                else
-                  return((list_t)error(WARNING|ETK,"syntax error(agent_exp1319) %s\n", lah));
+                  error(WARNING|ETK,"syntax error(agent_exp1319) %s\n", lah);
             }
          } /*** end of definit ***/
       } /*** end of bind ***/
@@ -1352,8 +1360,9 @@ static list_t start(void)
          return(syp);
       }
       else
-         return((list_t)error(WARNING|ETK,"syntax error %s(start1348)\n",lah));
+         error(WARNING|ETK,"syntax error %s(start1348)\n",lah);
    }
+   return((list_t)NIL);
 }
 
 /*****************************************************
@@ -1372,8 +1381,10 @@ static list_t ex_start(void)
       lah = scanner(&lah);
       return(start());
    }
-   else
-      return((list_t)error(WARNING|ETK,"syntax error(ex_start1369) %s\n", lah));
+   else{
+      error(WARNING|ETK,"syntax error(ex_start1369) %s\n", lah);
+      return((list_t)NIL);
+   }
 }
 
 /*****************************************************

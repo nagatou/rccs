@@ -52,7 +52,8 @@ list_t make_ch(void)
       case C_STACK:
          return(makenull(NIL));
       default:
-         return((list_t)error(FATAL,"cannot genelate a channel buffer(make_cht54)\n"));
+         error(FATAL,"cannot genelate a channel buffer(make_cht54)\n");
+         return((list_t)NIL);
    }
 }
 /*******************
@@ -68,8 +69,10 @@ static list_t set_cdr(list_t ls,list_t cdr_part)
 #  ifdef DEBUG_CHANNEL
    printf("set_cdr->");
 #  endif
-   if ((cdr_part==(list_t)NIL)||(ls == (list_t)NIL))
-      return((list_t)error(FATAL,"Segmentation falt(set_cdr51)\n"));
+   if ((cdr_part==(list_t)NIL)||(ls == (list_t)NIL)){
+      error(FATAL,"Segmentation falt(set_cdr51)\n");
+      return((list_t)NIL);
+   }
    ls->next=cdr_part;
    return(maintain_reg(CONS,ls));
 }
@@ -79,10 +82,10 @@ static list_t set_car(list_t ls, element_t el)
    printf("set_car->");
 #  endif
    if (ls == (list_t)NIL)
-      return((list_t)error(FATAL,"Segmentation falt(set_car57)\n"));
+      error(FATAL,"Segmentation falt(set_car57)\n");
    switch(el.type){
       case EPSILON:
-         return((list_t)error(FATAL,"Cannot set into ()(set_car58)\n"));
+         error(FATAL,"Cannot set into ()(set_car58)\n");
       case TOKEN:{
          elementp car_part = &(ls->element);
          car_part->type = el.type;
@@ -98,7 +101,7 @@ static list_t set_car(list_t ls, element_t el)
       case GC:
       case DUMY:
       default:
-         return((list_t)error(FATAL,"invalid element type(set_car72)\n"));
+         error(FATAL,"invalid element type(set_car72)\n");
    }
    return(ls);
 }
@@ -107,10 +110,14 @@ static queue_t enque1(list_t buf,list_t qel)
 #  ifdef DEBUG_CHANNEL
    printf("enque1->");
 #  endif
-   if ((buf==(queue_t)NIL)||(qel==(list_t)NIL))
-      return((list_t)error(FATAL,"Segmentation falt(enque1:96)\n"));
-   if (isempty(buf))
-      return((list_t)error(FATAL,"Q-buffer is empty(enque1:98)\n"));
+   if ((buf==(queue_t)NIL)||(qel==(list_t)NIL)){
+      error(FATAL,"Segmentation falt(enque1:96)\n");
+      return((queue_t)NIL);
+   }
+   if (isempty(buf)){
+      error(FATAL,"Q-buffer is empty(enque1:98)\n");
+      return((queue_t)NIL);
+   }
    else{
       if (isempty(cdr(buf)))
          return(set_cdr(buf,qel));
@@ -126,7 +133,7 @@ static queue_t enque(queue_t que,element_t el)
    printf("enque->");
 #  endif
    if (que==(list_t)NIL)
-      return((list_t)error(FATAL,"Segmentation falt(enque79)\n"));
+      error(FATAL,"Segmentation falt(enque79)\n");
    if (isempty_que(que)){
       set_car(que,*makelet(LIST,ls));
       set_cdr(que,ls);
@@ -142,8 +149,10 @@ queue_t q_append(queue_t que,element_t el)
 #  ifdef DEBUG_CHANNEL
    printf("q_append->");
 #  endif
-   if (que==(queue_t)NIL)
-      return((queue_t)error(FATAL,"Segmentation falt(q_append115)\n"));
+   if (que==(queue_t)NIL){
+      error(FATAL,"Segmentation falt(q_append115)\n");
+      return((queue_t)NIL);
+   }
    else
       return(enque(que,el));
 }
@@ -161,19 +170,20 @@ static list_t deque(queue_t que)
 #  ifdef DEBUG_CHANNEL
    printf("deque->");
 #  endif
-   if (que==(queue_t)NIL)
-      return((list_t)error(FATAL,"Segmentation falt(deque107)\n"));
-   if (isempty(que))
-      return((list_t)error(FATAL,"Invalid an empty list(deque109)\n"));
+   if (que==(queue_t)NIL){
+      error(FATAL,"Segmentation falt(deque107)\n");
+      return((list_t)NIL);
+   }
+   if (isempty(que)){
+      error(FATAL,"Invalid an empty list(deque109)\n");
+      return((list_t)NIL);
+   }
    if (isempty_que(que))
       return(que);
-   {
-//      list_t tmp = getls(car(getls(car(que))));
-      set_car(que,*makelet(LIST,cdr(getls(car(que)))));
-      if (isempty_que(que))
-         set_cdr(que,makenull(NIL));
-      return(que);
-   }
+   set_car(que,*makelet(LIST,cdr(getls(car(que)))));
+   if (isempty_que(que))
+      set_cdr(que,makenull(NIL));
+   return(que);
 }
 /*******************
 *  gets a front element in a queue

@@ -28,9 +28,9 @@
 
 #  define NIL NULL
 #  ifndef BOOL
+#     define BOOL
       typedef enum {FALSE=0,TRUE=!0,OTHERWISE=2,ERROR=0,OFF=0,ON=!0} bool;
 #  endif
-#  define BOOL
 /*** UNUSED
    typedef int bool;
 #  ifndef FALSE

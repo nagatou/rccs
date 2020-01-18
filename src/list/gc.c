@@ -31,10 +31,10 @@ void *create_heap_area(size_t capacity)
    void *area=(void *)NIL;
 
    if ((area=malloc(capacity))==(void *)NIL)
-      return((void *)
-             error(FATAL,"Cannot allocate. the available memory on your system is not enough.(create_heap_area34)\n"));
+      error(FATAL,"Cannot allocate. the available memory on your system is not enough.(create_heap_area34)\n");
    else
       return(area);
+   return(area);
 }
 #define PID_MAX_LENGTH 5
 //#pragma weak __libc_stack_end;
@@ -137,9 +137,9 @@ static list_t gc_push(cell_t *top,list_t stack)
    printf("gc_push->");
 #  endif
    if ((stack==(list_t)NIL)||(top==(list_t)NIL))
-      return((list_t)error(FATAL,"Segmentation fault(gc_push111)\n"));
+      error(FATAL,"Segmentation fault(gc_push111)\n");
    if ((memory_control_table.ls_area.area > top)&&(top > memory_control_table.ls_area.area_top))
-      return((list_t)error(FATAL,"cannot access over the attached heap area(gc_push139)\n"));
+      error(FATAL,"cannot access over the attached heap area(gc_push139)\n");
    else{
       if (top==&epsilon)
          return(stack);
@@ -158,10 +158,11 @@ static list_t gc_push(cell_t *top,list_t stack)
             case NON_GC:
                return(stack);
             default:
-               return((list_t)error(FATAL,"invalid cell(gc_push153) %d",top->for_gc));
+               error(FATAL,"invalid cell(gc_push153) %d",top->for_gc);
          }
       }
    }
+   return((list_t)NIL);
 }
 static list_t gc_pop(list_t stack)
 {
@@ -169,9 +170,10 @@ static list_t gc_pop(list_t stack)
    printf("gc_pop->");
 #  endif
    if ((stack==(list_t)NIL)||(stack->ref==(list_t)NIL))
-      return((list_t)error(FATAL,"Segmentation fault(gc_pop125)\n"));
+      error(FATAL,"Segmentation fault(gc_pop125)\n");
    else
       return(stack->ref);
+   return((list_t)NIL);
 }
 static list_t gc_init(list_t reg[],MBCT *table)
 {
@@ -180,13 +182,13 @@ static list_t gc_init(list_t reg[],MBCT *table)
 #  endif
    get_mem_map(table);
    if (reg==(list_t *)NIL)
-      return((list_t)error(FATAL,"segmentation fault(gc_init115)\n"));
+      error(FATAL,"segmentation fault(gc_init115)\n");
    else{
       int i=0;
       list_t top=memory_control_table.ls_area.ls_reg[STACK];
       list_t *ptr=(list_t *)table->stack_seg.stack_top;
       if ((ptr==(list_t *)NIL)||(table==(MBCT *)NIL))
-         return((list_t)error(FATAL,"Segmentation fault(gc_init182)\n"));
+         error(FATAL,"Segmentation fault(gc_init182)\n");
       for(;ptr<(list_t *)table->stack_seg.stack_bottom;ptr++){
          if ((table->ls_area.area <= (*ptr))&&((*ptr) <= table->ls_area.area_top)){
             if ((*ptr)!=&epsilon){
@@ -204,10 +206,11 @@ static list_t gc_init(list_t reg[],MBCT *table)
             }
          }
          else
-            return((list_t)error(FATAL,"segmentation fault(gc_init132)\n"));
+            error(FATAL,"segmentation fault(gc_init132)\n");
       }
       return(top);
    }
+   return((list_t)NIL);
 }
 list_t maintain_reg(register_num_t number,list_t val)
 {
@@ -216,14 +219,14 @@ list_t maintain_reg(register_num_t number,list_t val)
    fflush(stdout);
 #  endif
    if ((memory_control_table.ls_area.area > val)&&(val > memory_control_table.ls_area.area_top))
-      return((list_t)error(FATAL,"cannot access over the attached heap area(maintain_reg220)\n"));
+      error(FATAL,"cannot access over the attached heap area(maintain_reg220)\n");
    if (memory_control_table.ls_area.ls_reg[number]==(list_t)NIL)
-      return((list_t)error(FATAL,"segmentation fault(maintain_reg187)\n"));
+      error(FATAL,"segmentation fault(maintain_reg187)\n");
    if (val==(list_t)NIL)
       return(val);
    else{
       if ((0>=number)||(number>=NUMBEROFREG))
-         return((list_t)error(FATAL,"segmentation fault(maintain_reg191)\n"));
+         error(FATAL,"segmentation fault(maintain_reg191)\n");
       else{
          if (!isempty(memory_control_table.ls_area.ls_reg[number])){
             if (!isempty(val)){
@@ -244,10 +247,10 @@ list_t maintain_reg(register_num_t number,list_t val)
          }
       }
    }
+   return((list_t)NIL);
 }
 static MBCT *gc_mark(MBCT *,cell_t *);
 static MBCT *gc_mark11(MBCT *table,cell_t *P,list_t top);
-//static MBCT *gc_mark12(MBCT *,cell_t *,list_t );
 static MBCT *gc_mark2(MBCT *table,cell_t *P,cell_t *Q,list_t top)
 {
 #  ifdef DEBUG_GC
@@ -257,14 +260,14 @@ static MBCT *gc_mark2(MBCT *table,cell_t *P,cell_t *Q,list_t top)
       switch(Q->for_gc){
          case WHITE:
             return(gc_mark11(table,cdr(P),gc_push(Q,top)));
-//            return(gc_mark2(table,cdr(P),gc_push(Q,top)));
             break;
          case GLAY:
          case BLACK:
             return(gc_mark11(table,cdr(P),top));
             break;
          default:
-            return((MBCT *)error(FATAL,"Contact us. Invalid color for GC(gc_mark2205).\n"));
+            error(FATAL,"Contact us. Invalid color for GC(gc_mark2205).\n");
+            return((MBCT *)NIL);
       }
    }
    else
@@ -297,7 +300,8 @@ static MBCT *gc_mark11(MBCT *table,cell_t *P,list_t top)
             return(gc_mark11(table,cdr(P),top));
             break;
          default:
-            return((MBCT *)error(FATAL,"Contact us. Invalid color for GC(gc_mark2237).\n"));
+            error(FATAL,"Contact us. Invalid color for GC(gc_mark2237).\n");
+            return((MBCT *)NIL);
       }
    }
 }
@@ -353,12 +357,10 @@ printf("\nMark: cell=%p,type=%d ->\n",P,P->element.type);
                      case NON_GC:
                         break;
                      default:
-                        return((MBCT *)error(FATAL,"Contact us. Invalid color for GC(gc_mark_tail307).\n"));
+                        error(FATAL,"Contact us. Invalid color for GC(gc_mark_tail307).\n");
                   }
                }
                if (P->element.type==LIST){
-if (P->element.type==3)
-printf("\nMark: cell=%p,type=%d ->\n",P,P->element.type);
                   cell_t *Q = getls(car(P));
                   if ((Q!=&epsilon)&&(Q!=(cell_t *)NIL)){
                      switch(Q->for_gc){
@@ -370,18 +372,18 @@ printf("\nMark: cell=%p,type=%d ->\n",P,P->element.type);
                         case NON_GC:
                            break;
                         default:
-                           return((MBCT *)error(FATAL,"Contact us. Invalid color for GC(gc_mark_tail326): %d.\n",Q->for_gc));
+                           error(FATAL,"Contact us. Invalid color for GC(gc_mark_tail326): %d.\n",Q->for_gc);
                      }
                   }
                }
                break;
             case WHITE:
-               return((MBCT *)error(FATAL,"Why its color is WHITE (gc_mark_tail336).\n"));
+               error(FATAL,"Why its color is WHITE (gc_mark_tail336).\n");
             case BLACK:
             case NON_GC:
                break;
             default:
-               return((MBCT *)error(FATAL,"Contact us. Invalid color for GC(gc_mark_tail341): %d.\n",P->for_gc));
+               error(FATAL,"Contact us. Invalid color for GC(gc_mark_tail341): %d.\n",P->for_gc);
          }
       }
    }

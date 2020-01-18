@@ -130,7 +130,7 @@ static list_t n_bound(element_t var,element_t val,list_t env)
    printf("n_bound->");
 #  endif
    if (pair==(list_t)NIL)
-      return((list_t)error(FATAL,"Segmentation falt(n_bound115)\n"));
+      error(FATAL,"Segmentation falt(n_bound115)\n");
    return(cons(*makelet(LIST,pair),env));
 }
 static list_t n_bound_ch(element_t var,element_t val,queue_t ch)
@@ -139,7 +139,7 @@ static list_t n_bound_ch(element_t var,element_t val,queue_t ch)
    printf("n_bound_ch->");
 #  endif
    if (ch==(queue_t)NIL)
-      return((list_t)error(FATAL,"Segmentation error(n_bound_ch106)\n"));
+      error(FATAL,"Segmentation error(n_bound_ch106)\n");
    switch(channel_order){
       case C_QUEUE:
          return(q_append(ch,
@@ -151,8 +151,9 @@ static list_t n_bound_ch(element_t var,element_t val,queue_t ch)
          return(n_bound(var,val,ch));
          break;
       default:
-         return((list_t)error(FATAL,"Invalid channel type(n_bound_ch118)\n"));
+         error(FATAL,"Invalid channel type(n_bound_ch118)\n");
    }
+   return((list_t)NIL);
 }
 static list_t n_boundls_ch(list_t rls,list_t lls,queue_t que)
 {
@@ -163,16 +164,17 @@ static list_t n_boundls_ch(list_t rls,list_t lls,queue_t que)
       if (isempty(lls))
          return(que);
       else
-         return((list_t)error(WARNING|ELS,"unbound(n_boundls_ch131) %s\n", lls));
+         error(WARNING|ELS,"unbound(n_boundls_ch131) %s\n", lls);
    }
    else{
       if (isempty(lls))
-         return((list_t)error(WARNING|ELS,"unbound(n_boundls_ch135) %s\n", rls));
+         error(WARNING|ELS,"unbound(n_boundls_ch135) %s\n", rls);
       else{
          list_t tmp2=n_bound_ch(car(rls),car(lls),que);
          return(n_boundls_ch(cdr(rls),cdr(lls),tmp2));
       }
    }
+   return((list_t)NIL);
 }
 static list_t n_boundls(list_t rls,list_t lls,list_t env)
 {
@@ -183,16 +185,17 @@ static list_t n_boundls(list_t rls,list_t lls,list_t env)
       if (isempty(lls))
          return(env);
       else
-         return((list_t)error(WARNING|ELS,"unbound(n_boundls1110) %s\n", lls));
+         error(WARNING|ELS,"unbound(n_boundls1110) %s\n", lls);
    }
    else{
       if (isempty(lls))
-         return((list_t)error(WARNING|ELS,"unbound(n_boundls1114) %s\n", rls));
+         error(WARNING|ELS,"unbound(n_boundls1114) %s\n", rls);
       else{
          list_t tmp2=n_bound(car(rls),car(lls),env);
          return(n_boundls(cdr(rls),cdr(lls),tmp2));
       }
    }
+   return((list_t)NIL);
 }
 list_t getls(element_t el)
 {
@@ -201,8 +204,10 @@ list_t getls(element_t el)
 #  endif
    if (el.type == LIST)
       return(el.entry.list);
-   else
-      return(error(FATAL,"invalid element_t(getls193) %d.\n",el.type));
+   else{
+      error(FATAL,"invalid element_t(getls193) %d.\n",el.type);
+      return((list_t)NIL);
+   }
 }
 token gettk(element_t el)
 {
@@ -211,8 +216,10 @@ token gettk(element_t el)
 #  endif
    if (el.type == TOKEN)
       return(el.entry.tk);
-   else
-      return((token)(error(FATAL|EEL,"invalid element_t(gettk195) element=%s, type=%d\n", el, el.type)));
+   else{
+      error(FATAL|EEL,"invalid element_t(gettk195) element=%s, type=%d\n", el, el.type);
+      return((token)NIL);
+   }
 }
 char *getstr(element_t el)
 {
@@ -229,12 +236,12 @@ char *getstr(element_t el)
             ret = (tk->attr.value.fld.strings.str);
             break;
          default:
-            return((char *)error(FATAL|ETK,"invalid element(getval209) token=%s, token_name=%d\n", tk, tk->token_name));
+            error(FATAL|ETK,"invalid element(getval209) token=%s, token_name=%d\n", tk, tk->token_name);
       }
-      return(ret);
    }
    else
-      return((char *)error(FATAL|ETK,"invalid element(getval158) token=%s, token_name=%d\n", tk, tk->token_name));
+      error(FATAL|ETK,"invalid element(getval158) token=%s, token_name=%d\n", tk, tk->token_name);
+   return(ret);
 }
 int getval(element_t el)
 {
@@ -272,7 +279,7 @@ static list_t lookup21(const element_t name,list_t lvals,list_t rvals)
       element_t lval = car(lvals);
       switch(lval.type){
          case GC:
-            return((list_t)error(FATAL|EEL,"%s already released by GC(lookup21187).\n", lval));
+            error(FATAL|EEL,"%s already released by GC(lookup21187).\n", lval);
             break;
          case TOKEN:
             if ((name.entry.tk->token_name==ID)&&(lval.entry.tk->token_name==ID)){
@@ -288,10 +295,10 @@ static list_t lookup21(const element_t name,list_t lvals,list_t rvals)
             return(lookup21(name,cdr(lvals),cdr(rvals)));
             break;
          default:
-            return((list_t)error(FATAL|EEL,"Invalid token types(lookup21:246): %s\n", lval));
-      
+            error(FATAL|EEL,"Invalid token types(lookup21:246): %s\n", lval);
       }
    }
+   return((list_t)NIL);
 }
 static list_t lookup2(const element_t name,list_t vals)
 {
@@ -299,7 +306,7 @@ static list_t lookup2(const element_t name,list_t vals)
    printf("lookup2->");
 #  endif
    if (vals==(list_t)NIL)
-      return((list_t)error(FATAL,"Segmentation fault(lookup2201).\n"));
+      error(FATAL,"Segmentation fault(lookup2201).\n");
    if (isempty(vals))
       return((list_t)NIL);
    else
@@ -314,7 +321,7 @@ static list_t lookup1(const element_t name,list_t env)
    printf("lookup1->");
 #  endif
    if (env==(list_t)NIL)
-      return((list_t)error(FATAL,"Segmentation fault(lookup1238).\n"));
+      error(FATAL,"Segmentation fault(lookup1238).\n");
    if (isempty(env))
       return((list_t)NIL);
    else{
@@ -328,7 +335,7 @@ static list_t lookup1(const element_t name,list_t env)
          case TOKEN:
             switch(lval.type){
                case GC:
-                  return((list_t)error(FATAL|EEL,"%s already released by GC(lookup1234).\n", lval));
+                  error(FATAL|EEL,"%s already released by GC(lookup1234).\n", lval);
                   break;
                case TOKEN:
 //                  if ((name.entry.tk->token_name==ID)&&(lval.entry.tk->token_name==ID)){
@@ -342,7 +349,8 @@ static list_t lookup1(const element_t name,list_t env)
                      return(lookup1(name,cdr(env)));
                   break;
                case LIST:{
-                  list_t ret = lookup2(name,value); //                  list_t ret = lookup2(name,getls(car(env)));
+                  list_t ret = lookup2(name,value);
+//                  list_t ret = lookup2(name,getls(car(env)));
                   if (ret==(list_t)NIL)
                      return(lookup1(name,cdr(env)));
                   else
@@ -350,13 +358,13 @@ static list_t lookup1(const element_t name,list_t env)
                   break;
                }
                default:
-                  return((list_t)error(FATAL|EEL,"Invalid token types(lookup1206): %s\n", lval));
+                  error(FATAL|EEL,"Invalid token types(lookup1206): %s\n", lval);
             }
             break;
          case LIST:
             switch(lval.type){
                case GC:
-                  return((list_t)error(FATAL|EEL,"%s already released by GC(lookup1212).\n", lval));
+                  error(FATAL|EEL,"%s already released by GC(lookup1212).\n", lval);
                   break;
                case TOKEN:
                   return(lookup1(name,cdr(env)));
@@ -368,16 +376,17 @@ static list_t lookup1(const element_t name,list_t env)
                      return(lookup1(name,cdr(env)));
                   break;
                default:
-                  return((list_t)error(FATAL|EEL,"Invalid token types(lookup1224): %s\n", lval));
+                  error(FATAL|EEL,"Invalid token types(lookup1224): %s\n", lval);
             }
             break;
          case GC:
-            return((list_t)error(FATAL|EEL,"%s already released by GC(lookup1228).\n", name));
+            error(FATAL|EEL,"%s already released by GC(lookup1228).\n", name);
             break;
          default:
-            return((list_t)error(FATAL|EEL,"Invalid token types(lookup1231): %s\n", name));
+            error(FATAL|EEL,"Invalid token types(lookup1231): %s\n", name);
       }
    }
+   return((list_t)NIL);
 }
 static list_t lookup_ch1(queue_t ch, element_t name)
 {
@@ -386,7 +395,7 @@ static list_t lookup_ch1(queue_t ch, element_t name)
    printf("lookup_ch1->");
 #  endif
    if (ch==(queue_t)NIL)
-      return((list_t)error(FATAL,"Segmentation falt(lookup_ch1304)\n"));
+      error(FATAL,"Segmentation falt(lookup_ch1304)\n");
    switch(channel_order){
       case C_QUEUE:
          if (isempty_que(ch))
@@ -397,12 +406,12 @@ static list_t lookup_ch1(queue_t ch, element_t name)
             return((list_t)NIL);
          break;
       default:
-         return((list_t)error(FATAL,"Invalid channel type(lookup_ch1359)\n"));
+         error(FATAL,"Invalid channel type(lookup_ch1359)\n");
    }
    if ((name.type==TOKEN)&&(name.entry.tk->token_name==ID)){
       if (!isempty_buf(&target)){
          if (mc_get_value(name.entry.tk->attr.id.spl_ptr,&tmp)==(char *)NIL)
-            return((list_t)error(WARNING|EEL,"unbound(driver.c:lookup_ch1318): %s\n",name));
+            error(WARNING|EEL,"unbound(driver.c:lookup_ch1318): %s\n",name);
          else
             return(cons(*makelet(TOKEN,regsym(tmp.buf,VALUE,ICONST)),makenull(NIL)));
       }
@@ -423,12 +432,13 @@ static list_t lookup_ch1(queue_t ch, element_t name)
                   return(ret);
             }
             default:
-               return((list_t)error(FATAL,"Invalid channel type(lookup_ch1359)\n"));
+               error(FATAL,"Invalid channel type(lookup_ch1359)\n");
          }
       }
    }
    else
-      return((list_t)error(FATAL|EEL,"Invalid token(lookup_ch1390): %s\n",name));
+      error(FATAL|EEL,"Invalid token(lookup_ch1390): %s\n",name);
+   return((list_t)NIL);
 }
 static list_t lookup_ch(queue_t ch, element_t name)
 {
@@ -437,9 +447,8 @@ static list_t lookup_ch(queue_t ch, element_t name)
    printf("lookup_ch->");
 #  endif
    if (ret==(list_t)NIL)
-      return((list_t)error(WARNING|EEL,"unbound(driver.c:lookup_ch395): %s\n",name));
-   else
-      return(ret);
+      error(WARNING|EEL,"unbound(driver.c:lookup_ch395): %s\n",name);
+   return(ret);
 }
 #ifdef DEBUG_MC
 static char *mc_get_value(char *tk,buffer *dmy)
@@ -458,13 +467,14 @@ static list_t lookup(element_t name,list_t env,queue_t ch)
          if (!(g_step_exec==FALSE)&&(!isempty_buf(&formula)))
             return(ret);
          else
-            return((list_t)error(WARNING|EEL,"unbound(driver.c:lookup406): %s\n",name));
+            error(WARNING|EEL,"unbound(driver.c:lookup406): %s\n",name);
       }
       else
          return(ret);
    }
    else
       return(ret);
+   return(ret);
 }
 static list_t lookup_env(element_t name,list_t env)
 {
@@ -475,9 +485,8 @@ static list_t lookup_env(element_t name,list_t env)
    printf("]->");
 #  endif
    if (ret == (list_t)NIL)
-      return((list_t)error(WARNING|EEL,"unbound(driver.c:lookup_env430): %s\n",name));
-   else
-      return(ret);
+      error(WARNING|EEL,"unbound(driver.c:lookup_env430): %s\n",name);
+   return(ret);
 }
 static bool istrans_in_act(element_t name,list_t env,queue_t ch)
 {
@@ -646,10 +655,9 @@ static list_t primagnteval(element_t agent,list_t args,list_t env,queue_t ch,lis
         (strcmp(lval->attr.id.spl_ptr,"QUIT")==0))){
       printf("\nBye bye!!\n"), /* B007 */
       longjmp(terminate_driver_env,1);
-//      epilogue(); /* B021 */
-//      exit(0);                 /* B007 */
    }
-   return((list_t)error(FATAL|EEL,"invalid primitive agent expression(primagnteval349) (%s)\n", lval));
+   error(FATAL|EEL,"invalid primitive agent expression(primagnteval349) (%s)\n", lval);
+   return((list_t)NIL);
 }
 
 /*****************************************************
@@ -702,7 +710,7 @@ static bool isaccept(list_t p)
    else
       return(FALSE);
 }
-static elementp derivatives1(element_t rate,
+static bool derivatives1(element_t rate,
                              element_t label,
                              list_t env,
                              queue_t ch,
@@ -716,36 +724,37 @@ static elementp derivatives1(element_t rate,
       case RECV:
          if (isouter_action(label)){
             if (isaccept_for_eval(label))
-               return(&label);
+               return(TRUE);
             if (isothers(label))
-               return(&label);
+               return(TRUE);
             if (istrans_out_act(label))
-               return(&label);
+               return(TRUE);
             else
-               return((elementp)NIL);
+               return(FALSE);
          }
          else{
             if (istrans_in_act(label,env,ch))
-               return(&label);
+               return(TRUE);
             else
-               return((elementp)NIL);
+               return(FALSE);
          }
          break;
       case SEND:
          if (isouter_action(label))
-            return(&label);
+            return(TRUE);
          else{
             if (istrans_in_act(label,env,ch))
-               return((elementp)NIL);
+               return(FALSE);
             else
-               return(&label);
+               return(TRUE);
          }
          break;
       default:
-         return((elementp)error(FATAL|EEL,"invalid primitive agent expression(derivatives1402) (%s)\n", rate));
+         error(FATAL|EEL,"invalid primitive agent expression(derivatives1402) (%s)\n", rate);
+         return(FALSE);
    }
 }
-static elementp derivatives(list_t exp,list_t env,queue_t ch,list_t procedures)
+static bool derivatives(list_t exp,list_t env,queue_t ch,list_t procedures)
 {
 #  ifdef DEBUG_EXP2
    printf("derivatives->");
@@ -760,40 +769,20 @@ static elementp derivatives(list_t exp,list_t env,queue_t ch,list_t procedures)
                              procedures));
          break;
       
-      case SUM:{
-         elementp ret=(elementp)NIL;
-         if ((ret=derivatives(getls(car(cdr(exp))),env,ch,procedures))!=(elementp)NIL)
-            return(ret);
-         else{
-            if ((elementp)NIL!=(ret=derivatives(getls(car(cdr(cdr(exp)))),env,ch,procedures)))
-               return(ret);
-            else
-               return((elementp)NIL);
-         }
+      case SUM:
+      case COM:
+         return(derivatives(getls(car(cdr(exp))),env,ch,procedures));
          break;
-      }
-      case COM:{
-         elementp ret=(elementp)NIL;
-         if ((ret=derivatives(getls(car(cdr(exp))),env,ch,procedures))!=(elementp)NIL)
-            return(ret);
-         else{
-            if ((elementp)NIL!=(ret=derivatives(getls(car(cdr(cdr(exp)))),env,ch,procedures)))
-               return(ret);
-            else
-               return((elementp)NIL);
-         }
-         break;
-      }
       case IF:
-         return((elementp)!NIL);
+         return(TRUE);
          break;
       case CON:{
          if (isabort(exp))
-            return((elementp)!NIL);
-         if (eqstop(exp))         /* B035 */
-            return((elementp)NIL);/* B035 */
+            return(TRUE);
+         if (eqstop(exp))
+            return(FALSE);
          if (isprimagnt(car(cdr(exp))))
-            return((elementp)!NIL);
+            return(TRUE);
          else{
             if (isempty(getls(car(cdr(cdr(exp))))))
                return(derivatives(getls(car(cdr(lookup_env(car(cdr(exp)),procedures)))),
@@ -818,23 +807,19 @@ static elementp derivatives(list_t exp,list_t env,queue_t ch,list_t procedures)
          break;
       case REL:
       case RES:
-         return((elementp)NIL);
+         return(FALSE);
          break;
       default:
-         return((elementp)error(FATAL|ELS,"invalid agent expression(derivatives483) (%s)\n", exp));
+         error(FATAL|ELS,"invalid agent expression(derivatives483) (%s)\n", exp);
    }
+   return(FALSE);
 }
 static bool istrans(list_t exp,list_t env,queue_t ch,list_t procedures)
 {
-   elementp ret=(elementp)NIL;
 #  ifdef DEBUG_EVAL_A
    printf("istrans->");
 #  endif
-   ret=derivatives(exp,env,ch,procedures);
-   if (ret==(elementp)NIL)
-      return((bool)FALSE);
-   else
-      return((bool)TRUE);
+   return(derivatives(exp,env,ch,procedures));
 }
 static list_t resume2(list_t continuation)
 {
@@ -1018,7 +1003,8 @@ static list_t make_cont_out_most1(mkcont_t op,const list_t exp,list_t continuati
                break;
             case SWITCH:
             default:
-               return((list_t)error(FATAL,"Please contact me(make_cont_out_most1885): %d\n",op));
+               error(FATAL,"Please contact me(make_cont_out_most1885): %d\n",op);
+               return((list_t)NIL);
          }
          break;
       default:
@@ -1069,7 +1055,8 @@ static list_t make_cont_out_most(mkcont_t op,const list_t exp,list_t continuatio
          break;
       }
       default:
-         return((list_t)error(FATAL,"Please contact me(make_cont_out_most957): %d\n",op));
+         error(FATAL,"Please contact me(make_cont_out_most957): %d\n",op);
+         return((list_t)NIL);
    }
 }
 #else
@@ -1164,7 +1151,7 @@ static list_t applytomins(list_t args) /* B028 */
                                     regsym(cvtia(gettk(car(getls(car(args))))->attr.value.fld.iconst.int_v-gettk(car(getls(car(cdr(args)))))->attr.value.fld.iconst.int_v),VALUE,ICONST)),
                            makenull(NIL)));
             default:
-               return((list_t)error(FATAL|ELS,"operands are imcompatible type(applytomins592) (%s)\n", args));
+               error(FATAL|ELS,"operands are imcompatible type(applytomins592) (%s)\n", args);
          }
          break;
       case STR:
@@ -1179,12 +1166,13 @@ static list_t applytomins(list_t args) /* B028 */
                             makenull(NIL)));
             }
             default:
-               return((list_t)error(FATAL|ELS,"operands are imcompatible type(applytomins611) (%s)\n", args));
+               error(FATAL|ELS,"operands are imcompatible type(applytomins611) (%s)\n", args);
          }
          break;
       default:
-         return((list_t)error(FATAL|ELS,"is not implimented value types in(applytomins615) (%s)\n", args));
+         error(FATAL|ELS,"is not implimented value types in(applytomins615) (%s)\n", args);
    }
+   return((list_t)NIL);
 }
 static list_t applytoplus(list_t args) /* B028 */
 {
@@ -1199,7 +1187,7 @@ static list_t applytoplus(list_t args) /* B028 */
                                     regsym(cvtia(gettk(car(getls(car(args))))->attr.value.fld.iconst.int_v+gettk(car(getls(car(cdr(args)))))->attr.value.fld.iconst.int_v),VALUE,ICONST)),
                             makenull(NIL)));
             default:
-               return((list_t)error(FATAL|ELS,"operands are imcompatible type(applytoplus636) (%s)\n", args));
+               error(FATAL|ELS,"operands are imcompatible type(applytoplus636) (%s)\n", args);
          }
          break;
       case STR:
@@ -1214,12 +1202,13 @@ static list_t applytoplus(list_t args) /* B028 */
                            makenull(NIL)));
             }
             default:
-               return((list_t)error(FATAL|ELS,"operands are imcompatible type(applytoplus655) (%s)\n", args));
+               error(FATAL|ELS,"operands are imcompatible type(applytoplus655) (%s)\n", args);
          }
          break;
       default:
-         return((list_t)error(FATAL|ELS,"isn't implimented value types in(applytoplus659) (%s)\n", args));
+         error(FATAL|ELS,"isn't implimented value types in(applytoplus659) (%s)\n", args);
    }
+   return((list_t)NIL);
 }
 static list_t applytonot(list_t args) /* B028 */
 {
@@ -1233,7 +1222,8 @@ static list_t applytonot(list_t args) /* B028 */
          break;
       case STR:
       default:
-         return((list_t)error(FATAL|ELS,"isn't implimented value types in(applytonot678) (%s)\n", args));
+         error(FATAL|ELS,"isn't implimented value types in(applytonot678) (%s)\n", args);
+         return((list_t)NIL);
    }
 }
 static list_t applytoor(list_t args) /* B028 */
@@ -1251,13 +1241,14 @@ static list_t applytoor(list_t args) /* B028 */
                                            ICONST)),
                            makenull(NIL)));
             default:
-               return((list_t)error(FATAL|ELS,"operands are imcompatible type(applytoor699) (%s)\n", args));
+               error(FATAL|ELS,"operands are imcompatible type(applytoor699) (%s)\n", args);
          }
          break;
       case STR:
       default:
-         return((list_t)error(FATAL|ELS,"isn't implimented value types in(applytoor704) (%s)\n", args));
+         error(FATAL|ELS,"isn't implimented value types in(applytoor704) (%s)\n", args);
    }
+   return((list_t)NIL);
 }
 static list_t applytodiv(list_t args) /* B028 */
 {
@@ -1274,7 +1265,7 @@ static list_t applytodiv(list_t args) /* B028 */
                                            ICONST)),
                            makenull(NIL)));
             default:
-               return((list_t)error(FATAL|ELS,"operands are imcompatible type(applytodiv725) (%s)\n", args));
+               error(FATAL|ELS,"operands are imcompatible type(applytodiv725) (%s)\n", args);
          }
          break;
       case STR:
@@ -1289,12 +1280,13 @@ static list_t applytodiv(list_t args) /* B028 */
                            makenull(NIL)));
             }
             default:
-               return((list_t)error(FATAL|ELS,"operands are imcompatible type(applytodiv744) (%s)\n", args));
+               error(FATAL|ELS,"operands are imcompatible type(applytodiv744) (%s)\n", args);
          }
          break;
       default:
-         return((list_t)error(FATAL|ELS,"isn't implimented value types in(applytodiv748)\n", args));
+         error(FATAL|ELS,"isn't implimented value types in(applytodiv748)\n", args);
    }
+   return((list_t)NIL);
 }
 static list_t applytomult(list_t args) /* B028 */
 {
@@ -1311,13 +1303,14 @@ static list_t applytomult(list_t args) /* B028 */
                                            ICONST)),
                            makenull(NIL)));
             default:
-               return((list_t)error(FATAL|ELS,"operands are imcompatible type(applytomult769) (%s)\n", args));
+               error(FATAL|ELS,"operands are imcompatible type(applytomult769) (%s)\n", args);
          }
          break;
       case STR:
       default:
-         return((list_t)error(FATAL|ELS,"isn't implimented value types in(applytomult774) (%s)\n", args));
+         error(FATAL|ELS,"isn't implimented value types in(applytomult774) (%s)\n", args);
    }
+   return((list_t)NIL);
 }
 static list_t applytomod(list_t args) /* B028 */
 {
@@ -1334,13 +1327,14 @@ static list_t applytomod(list_t args) /* B028 */
                                                   ICONST)),
                            makenull(NIL)));
             default:
-               return((list_t)error(FATAL|ELS,"operands are imcompatible type(applytodiv795) (%s)\n", args));
+               error(FATAL|ELS,"operands are imcompatible type(applytodiv795) (%s)\n", args);
          }
          break;
       case STR:
       default:
-         return((list_t)error(FATAL|ELS,"isn't implimented value types in(applytomod800) (%s)\n", args));
+         error(FATAL|ELS,"isn't implimented value types in(applytomod800) (%s)\n", args);
    }
+   return((list_t)NIL);
 }
 static list_t applytoand(list_t args) /* B028 */
 {
@@ -1357,13 +1351,14 @@ static list_t applytoand(list_t args) /* B028 */
                                             ICONST)),
                            makenull(NIL)));
             default:
-               return((list_t)error(FATAL|ELS,"operands are imcompatible type(applytoand821) (%s)\n", args));
+               error(FATAL|ELS,"operands are imcompatible type(applytoand821) (%s)\n", args);
          }
          break;
       case STR:
       default:
-         return((list_t)error(FATAL|ELS,"isn't implimented value types in(applytoand826) (%s)\n", args));
+         error(FATAL|ELS,"isn't implimented value types in(applytoand826) (%s)\n", args);
    }
+   return((list_t)NIL);
 }
 static list_t applytoeq(list_t args) /* B028 */
 {
@@ -1376,7 +1371,7 @@ static list_t applytoeq(list_t args) /* B028 */
             case ICONST:
                return(cons(*makelet(TOKEN,regsym(cvtia(gettk(car(getls(car(args))))->attr.value.fld.iconst.int_v==gettk(car(getls(car(cdr(args)))))->attr.value.fld.iconst.int_v),VALUE,ICONST)),makenull(NIL)));
             default:
-               return((list_t)error(FATAL|ELS,"operands are imcompatible type(applyto847) (%s)\n", args));
+               error(FATAL|ELS,"operands are imcompatible type(applyto847) (%s)\n", args);
          }
          break;
       case STR:
@@ -1393,12 +1388,13 @@ static list_t applytoeq(list_t args) /* B028 */
                return(cons(*makelet(TOKEN,regsym(cvtia(result),VALUE,ICONST)),makenull(NIL)));
             }
             default:
-               return((list_t)error(FATAL|ELS,"operands are imcompatible(applytoeq868) (%s)\n", args));
+               error(FATAL|ELS,"operands are imcompatible(applytoeq868) (%s)\n", args);
          }
          break;
       default:
-         return((list_t)error(FATAL|ELS,"isn't implimented value types in(applytoeq872) (%s)\n", args));
+         error(FATAL|ELS,"isn't implimented value types in(applytoeq872) (%s)\n", args);
    }
+   return((list_t)NIL);
 }
 static list_t applytole(list_t args) /* B028 */
 {
@@ -1415,13 +1411,14 @@ static list_t applytole(list_t args) /* B028 */
                                            ICONST)),
                            makenull(NIL)));
             default:
-               return((list_t)error(FATAL|ELS,"operands are imcompatible type(applytole893) (%s)\n", args));
+               error(FATAL|ELS,"operands are imcompatible type(applytole893) (%s)\n", args);
          }
          break;
       case STR:
       default:
-         return((list_t)error(FATAL|ELS,"isn't implimented value types in(applytole898) (%s)\n", args));
+         error(FATAL|ELS,"isn't implimented value types in(applytole898) (%s)\n", args);
    }
+   return((list_t)NIL);
 }
 static list_t applytolt(list_t args) /* B028 */
 {
@@ -1438,13 +1435,14 @@ static list_t applytolt(list_t args) /* B028 */
                                            ICONST)),
                            makenull(NIL)));
             default:
-               return((list_t)error(FATAL|ELS,"operands are imcompatible type(applytolt919) (%s)\n", args));
+               error(FATAL|ELS,"operands are imcompatible type(applytolt919) (%s)\n", args);
          }
          break;
       case STR:
       default:
-         return((list_t)error(FATAL|ELS,"isn't implimented value types in(applytolt924) (%s)\n", args));
+         error(FATAL|ELS,"isn't implimented value types in(applytolt924) (%s)\n", args);
    }
+   return((list_t)NIL);
 }
 static list_t applytogr(list_t args) /* B028 */
 {
@@ -1461,13 +1459,14 @@ static list_t applytogr(list_t args) /* B028 */
                                            ICONST)),
                            makenull(NIL)));
             default:
-               return((list_t)error(FATAL|ELS,"operands are imcompatible type(applytogr945) (%s)\n", args));
+               error(FATAL|ELS,"operands are imcompatible type(applytogr945) (%s)\n", args);
          }
          break;
       case STR:
       default:
-         return((list_t)error(FATAL|ELS,"isn't implimented value types in(applytogr950) (%s)\n", args));
+         error(FATAL|ELS,"isn't implimented value types in(applytogr950) (%s)\n", args);
    }
+   return((list_t)NIL);
 }
 static list_t applytogt(list_t args) /* B028 */
 {
@@ -1484,13 +1483,14 @@ static list_t applytogt(list_t args) /* B028 */
                                            ICONST)),
                            makenull(NIL)));
             default:
-               return((list_t)error(FATAL|ELS,"operands are imcompatible type(applytogt971) (%s)\n", args));
+               error(FATAL|ELS,"operands are imcompatible type(applytogt971) (%s)\n", args);
          }
          break;
       case STR:
       default:
-         return((list_t)error(FATAL|ELS,"isn't implimented value types in(applytogt976) (%s)\n", args));
+         error(FATAL|ELS,"isn't implimented value types in(applytogt976) (%s)\n", args);
    }
+   return((list_t)NIL);
 }
 static list_t primvalop_apply(element_t valop,list_t args) /* B028 */
 {
@@ -1526,7 +1526,8 @@ static list_t primvalop_apply(element_t valop,list_t args) /* B028 */
          return(applytogt(args));
       case DEF:
       default:
-         return((list_t)error(FATAL|EEL,"please contact me(primvalop_apply1013). (%s)\n", valop));
+         error(FATAL|EEL,"please contact me(primvalop_apply1013). (%s)\n", valop);
+         return((list_t)NIL);
    }
 }
 static bool isprimvalop(element_t valop) /* B028 */
@@ -1562,8 +1563,10 @@ static list_t valapply(element_t valop,list_t args,list_t env) /* B028 */
 #  endif
    if (isprimvalop(valop))
       return(primvalop_apply(valop,args));
-   else
-      return((list_t)error(FATAL|EEL,"sorry. value operaters has not been implemented yet. (%s)\n", valop));
+   else{
+      error(FATAL|EEL,"sorry. value operaters has not been implemented yet. (%s)\n", valop);
+      return((list_t)NIL);
+   }
 }
 static list_t evalval(element_t val,list_t env,queue_t ch)                /* B010 */
 {                                                          /* B010 */
@@ -1647,7 +1650,7 @@ static list_t evalprefix(element_t rate,
                   new_ch = delete(*makelet(LIST,at_once),ch);
                   break;
                default:
-                  return((list_t)error(FATAL,"Invalid channel type(evalprefix1721)\n"));
+                  error(FATAL,"Invalid channel type(evalprefix1721)\n");
             }
          }
          return(eval(resume(make_cls(body,n_boundls(val_ls,data,env)),cont),
@@ -1698,8 +1701,9 @@ static list_t evalprefix(element_t rate,
          }
          break;
       default:
-         return((list_t)error(FATAL|EEL,"invalid primitive agent expression(evalprefix301) (%s)\n", rate));
+         error(FATAL|EEL,"invalid primitive agent expression(evalprefix301) (%s)\n", rate);
    }
+   return((list_t)NIL);
 }
 static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch,list_t procedures)
 {
@@ -1993,15 +1997,16 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch,list_t procedure
          break;
 /*   (REL  rand    (rel-ls)        )          */
       case REL:
-         return((list_t)error(FATAL|ELS,"sorry. operater REL has not been implemented yet. (%s)\n", exp));
+         error(FATAL|ELS,"sorry. operater REL has not been implemented yet. (%s)\n", exp);
          break;
 /*   (RES  rand    label-ls  co-env)          */
       case RES:
-         return((list_t)error(FATAL|ELS,"sorry. operater RES has not been implemented yet. (%s)\n", exp));
+         error(FATAL|ELS,"sorry. operater RES has not been implemented yet. (%s)\n", exp);
          break;
       default:
-         return((list_t)error(FATAL|ELS,"invalid primitive agent expression(eval1352) (%s)\n", exp));
+         error(FATAL|ELS,"invalid primitive agent expression(eval1352) (%s)\n", exp);
    }
+   return((list_t)NIL);
 }
 #include "verifier.c"
 /*****************************************************

@@ -219,11 +219,10 @@ splp ins_buf(buffer *buf,char *strings)
    printf("ins_buf[%p,%d]->",buf,buf->cnt);
 #  endif
    if ((buf==(buffer *)NIL)||(strings==(splp)NIL))
-      return((splp)error(FATAL,"Segmentation fault(ins_buf196)\n"));
-//   initbuf(buf);
+      error(FATAL,"Segmentation fault(ins_buf196)\n");
    for(i=0,c=0;i<strlen(strings);i++){
       if (((buf->cnt)+c)>=BUF_SIZE)
-         return((splp)error(FATAL,"Buffer overflow(ins_buf199) (%d)\n", (buf->cnt)+c));
+         error(FATAL,"Buffer overflow(ins_buf199) (%d)\n", (buf->cnt)+c);
       else{
          if (*(strings+i)==LF){
             strncpy((buf->buf)+(buf->cnt)+c,"/l",2);
@@ -258,9 +257,9 @@ splp append_buf(buffer *buf,char chr)
    printf("append_buf[%p,%d]->",buf,buf->cnt);
 #  endif
    if (buf==(buffer *)NIL)
-      return((splp)error(FATAL,"Segmentation fault(append_buf20)\n"));
+      error(FATAL,"Segmentation fault(append_buf20)\n");
    if (((buf->cnt)+1)>=BUF_SIZE)
-      return((splp)error(FATAL,"Buffer overflow(append_buf22)\n"));
+      error(FATAL,"Buffer overflow(append_buf22)\n");
    else{
       buf->buf[buf->cnt] = chr;
       (buf->cnt)++;
@@ -284,10 +283,10 @@ splp append_str_buf(buffer *buf,char *str)
    printf("append_str_buf[%p,%d,%s]->",buf,buf->cnt,str);
 #  endif
    if ((buf==(buffer *)NIL)||(str==(splp)NIL))
-      return((splp)error(FATAL,"Segmentation fault(append_str_buf69)\n"));
+      error(FATAL,"Segmentation fault(append_str_buf69)\n");
    for(i=0,c=0;i<strlen(str);i++){
       if (((buf->cnt)+c)>=BUF_SIZE-1)
-         return((splp)error(FATAL,"Buffer overflow(append_str_buf72)\n"));
+         error(FATAL,"Buffer overflow(append_str_buf72)\n");
       else{
          if (*(str+i)==LF){
            strncpy((buf->buf)+(buf->cnt)+c,"/l",2);
