@@ -9,8 +9,10 @@
   this file is functions for a print phase.
               Copyright (C) 1998 Naoyuki Nagatou
  ***********************************************/
-#define EXTERN
+#define EXTERN extern
 #include "comm.h"
+#include "driver.h"
+#include "list.h"
 
 /****************************************************
  *  unparse expressions.

@@ -5,6 +5,7 @@
 #define EXTERN extern
 #include "comm.h"
 #include "error.h"
+#include "primitive.h"
 
 #ifndef ERR_CODE_MASK
 #  define ERR_CODE_MASK 0xF000

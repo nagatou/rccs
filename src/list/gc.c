@@ -11,6 +11,7 @@
  ***********************************************/
 #define EXTERN extern
 #include "comm.h"
+#include "driver.h"
 
 /**************************************************
  *  Initializeing memory-block control table
@@ -85,7 +86,7 @@ void init_MBCT(MBCT *table)
 #  ifdef DEBUG_GC
    printf("init_MBCT->");
 #  endif
-   printf("The size of a cell is %d b, memory limit %d Mb\n",sizeof(cell_t),(sizeof(cell_t)*CellCapacity)/1000000);
+   printf("The size of a cell is %lu b, memory limit %lu Mb\n",sizeof(cell_t),(sizeof(cell_t)*CellCapacity)/1000000);
    table->ls_area.area = (list_t)(create_heap_area(sizeof(cell_t)*(CellCapacity)));
    table->ls_area.area_top = (list_t)(table->ls_area.area+CellCapacity);
    table->ls_area.gc_counter = 0;
@@ -329,9 +330,8 @@ static MBCT *gc_mark_tail(MBCT *table,cell_t *stack_top)
 {
    cell_t *top=stack_top;
    cell_t *P=(cell_t *)NIL;
-   cell_t *R=(cell_t *)NIL;
 
-   for(P=top,top=gc_pop(top);P!=&epsilon;R=P,P=top,top=gc_pop(top)){
+   for(P=top,top=gc_pop(top);P!=&epsilon;P=top,top=gc_pop(top)){
 #     ifdef DEBUG_GC
       printf("gc_mark_tail(%p)->\n",top);
 #     endif

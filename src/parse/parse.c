@@ -12,6 +12,7 @@
 #define EXTERN extern
 #define PARSE
 #include "comm.h"
+#include "scan.h"
 
 /*****************************************************
  *  add attributes for token                         *

@@ -13,6 +13,7 @@
 #define EXTERN extern
 #define EHAND
 #include "comm.h"
+#include "driver.h"
 #define SYSCALLS_DEC
 #include "syscall_index.h"
 

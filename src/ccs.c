@@ -11,6 +11,8 @@
  *****************************************************/
 #define EXTERN
 #include "comm.h"
+#include "driver.h"
+#include "primitive.h"
 
 #ifdef DEBUG_MC_GDB
 static int mc_init_debugger(char *target,char *args)
@@ -164,10 +166,6 @@ int main(int argi,char *argv[])
    switch(argi){
       case 1:
          log = (char *)NIL;
-         trace_on = OFF;
-         interactive_mode = OFF;
-         initbuf(&target);
-         initbuf(&formula);
          break;
       case 2:
          if (!strcmp("-h",argv[1])){

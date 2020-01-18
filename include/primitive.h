@@ -35,4 +35,6 @@
 /*** function decroletar ***/
    extern bool isouter_action(element_t);
    extern bool istrans_out_act(element_t);
+   extern void epilogue(void);
+   extern void prologue(char *);
 #endif

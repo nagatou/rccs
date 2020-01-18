@@ -7,20 +7,20 @@
                  Copyright (C) 1998 Naoyuki Nagatou
  ***************************************************/
 #ifndef RCCS_EHAND_H
-#define RCCS_EHAND_H
+#  define RCCS_EHAND_H
 
-#ifndef INADDR_NONE
-#define INADDR_NONE 0xffffffff
-#endif
-#define LINELEN 128
-#define SOCKET_ERROR -1
-#define BACKLOG 5
-#define DELAY_TIME 0
-#define PORTBASE  0
+#  ifndef INADDR_NONE
+#     define INADDR_NONE 0xffffffff
+#  endif
+#  define LINELEN 128
+#  define SOCKET_ERROR -1
+#  define BACKLOG 5
+#  define DELAY_TIME 0
+#  define PORTBASE  0
 
-//EXTERN int errno;
-//EXTERN char *sys_errlist[LINELEN];
-//EXTERN int sckt;
+//   EXTERN int errno;
+//   EXTERN char *sys_errlist[LINELEN];
+//   EXTERN int sckt;
 
 /***************************************************
  *  class name: finename_lineno_pair               *
@@ -28,30 +28,30 @@
  *-------------------------------------------------*
  *  methods:                                       *
  ***************************************************/
-enum entity_qualifier_t {
-   FILE_SYS=700,
-   BREAK_POINT,
-   SYS_CALL,
-};
-typedef int line_or_socket_t;
-typedef struct{
-   int qualifier;
-   char file_or_host[STR_LEN];
-   line_or_socket_t line_or_socket;
-} filename_lineno_pair_t;
+   enum entity_qualifier_t {
+      FILE_SYS=700,
+      BREAK_POINT,
+      SYS_CALL,
+   };
+   typedef int line_or_socket_t;
+   typedef struct{
+      int qualifier;
+      char file_or_host[STR_LEN];
+      line_or_socket_t line_or_socket;
+   } filename_lineno_pair_t;
 /***************************************************
  *  class name: host_serv                          *
  *-------------------------------------------------*
  *-------------------------------------------------*
  *  methods:                                       *
  ***************************************************/
-#define CS_LEN 7
-typedef struct {
-   char host[STR_LEN];
-   char service[STR_LEN];
-   char cs[CS_LEN];
-} hs_t;
-typedef hs_t *hsp;
+#  define CS_LEN 7
+   typedef struct {
+      char host[STR_LEN];
+      char service[STR_LEN];
+      char cs[CS_LEN];
+   } hs_t;
+   typedef hs_t *hsp;
 
 /***************************************************
  *  class name:bindLS                              *
@@ -59,12 +59,12 @@ typedef hs_t *hsp;
  *-------------------------------------------------*
  *  methods:                                       *
  ***************************************************/
-typedef struct bindLS_tt *bindLSp;
-typedef struct bindLS_tt{
-   splp label;
-   filename_lineno_pair_t pair;
-   bindLSp next;
-} bindLS_t;
+   typedef struct bindLS_tt *bindLSp;
+   typedef struct bindLS_tt{
+      splp label;
+      filename_lineno_pair_t pair;
+      bindLSp next;
+   } bindLS_t;
 
 /***************************************************
  *  class name:hash table                          *
@@ -74,15 +74,22 @@ typedef struct bindLS_tt{
  *     registory();                                *
  *     ritrieve();                                 *
  ***************************************************/
-#ifndef HASH_TBL_SIZE
-  #define HASH_TBL_SIZE 17
-#endif
-EXTERN bindLSp hash_tbl_LS[HASH_TBL_SIZE];
+#  ifndef HASH_TBL_SIZE
+#     define HASH_TBL_SIZE 17
+#  endif
+   EXTERN bindLSp hash_tbl_LS[HASH_TBL_SIZE];
 
 /*** function decroletar ***/
-#ifndef EHAND
-extern bindLSp retrieval1(element_t label);
-extern bindLSp registry1(splp ,int ,splp ,int);
-extern bool n_select(element_t label);
-#endif
+#  ifndef EHAND
+      extern bindLSp retrieval1(element_t label);
+      extern bindLSp registry1(splp ,int ,splp ,int);
+      extern bool n_select(element_t label);
+#  endif
+/*** function decroletar ***/
+   extern filename_lineno_pair_t *retrieve_filename_lineno_pair(element_t label);
+   extern char *n_tolower(char *lah,buffer *buf);
+   extern list_t n_bind(element_t,element_t);
+   extern list_t n_send(element_t,list_t);
+   extern list_t n_recv(element_t);
+
 #endif

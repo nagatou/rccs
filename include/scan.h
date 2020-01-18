@@ -7,7 +7,7 @@
                    Copyright (C) 1998 Naoyuki Nagatou
  ***************************************************/
 #ifndef RCCS_SCAN_H
-#define RCCS_SCAN_H
+#  define RCCS_SCAN_H
 
 /***************************************************
  *  class name:env                                 *
@@ -17,10 +17,11 @@
  *      setjmp();                                  *
  *      longjmp();                                 *
  ***************************************************/
-EXTERN jmp_buf scan_env;
+   EXTERN jmp_buf scan_env;
 
-#ifdef SCAN
 /*** function decroletar ***/
-static void start_state(buffer *,token *);
-#endif
+#  ifdef SCAN
+      static void start_state(buffer *,token *);
+#  endif
+   extern token scanner(token *);/***/
 #endif

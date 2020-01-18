@@ -8,8 +8,8 @@
  ***************************************************/
 
 #ifndef RCCS_DRIVER_H
-   #define RCCS_DRIVER_H
-   #ifdef EVAL
+#  define RCCS_DRIVER_H
+#  ifdef EVAL
 /***************************************************
  *  class name:g_step_exec 
  *-------------------------------------------------*
@@ -19,16 +19,17 @@
  *-------------------------------------------------*
  *  methods:              
  ***************************************************/
-static bool g_step_exec=FALSE;
-static bool g_emptyness=FALSE;
-static bool g_state_counter=0;
-static int g_counter_for_counterexamples=0;
-#ifndef DEPTH_LIMIT
-#  define DEPTH_LIMIT 64 
-#endif
-#ifndef MAX_COUNTEREXAMPLES
-#  define MAX_COUNTEREXAMPLES 3 
-#endif
+      static bool g_step_exec=FALSE;
+      static bool g_emptyness=FALSE;
+      static bool g_state_counter=0;
+      static bool g_interactive_mode_backup=OFF;
+      static int g_counter_for_counterexamples=0;
+#     ifndef DEPTH_LIMIT
+#        define DEPTH_LIMIT 64 
+#     endif
+#     ifndef MAX_COUNTEREXAMPLES
+#        define MAX_COUNTEREXAMPLES 3 
+#     endif
 
 /***************************************************
  *  class name:sort                                *
@@ -36,7 +37,7 @@ static int g_counter_for_counterexamples=0;
  *-------------------------------------------------*
  *  methods:                                       *
  ***************************************************/
-EXTERN list_t sort;
+      EXTERN list_t sort;
 
 /***************************************************
  *  class name:primitive agents                    *
@@ -44,21 +45,21 @@ EXTERN list_t sort;
  *-------------------------------------------------*
  *  methods:                                       *
  ***************************************************/
-#define STOP_ACT_SIZE 6                  /* B022 */
-EXTERN char *stopacttbl[STOP_ACT_SIZE]={ /* B022 */
-   "stop",                               /* B022 */
-   "zero",                               /* B022 */ /* E001 */
-   "Stop",                               /* B022 */
-   "abort",                              /* B022 */
-   "ABORT",                              /* B022 */
-   "Abort",                              /* B022 */
-};                                       /* B022 */
+#     define STOP_ACT_SIZE 6                  /* B022 */
+      EXTERN char *stopacttbl[STOP_ACT_SIZE]={ /* B022 */
+         "stop",                               /* B022 */
+         "zero",                               /* B022 */ /* E001 */
+         "Stop",                               /* B022 */
+         "abort",                              /* B022 */
+         "ABORT",                              /* B022 */
+         "Abort",                              /* B022 */
+      };                                       /* B022 */
                                          /* B022 */
-#define PRIMOP_SIZE 4                    /* B022 */
-EXTERN char *primoptbl[PRIMOP_SIZE]={
-   "load","LOAD",
-   "quit","QUIT",
-};
+#     define PRIMOP_SIZE 4                    /* B022 */
+      EXTERN char *primoptbl[PRIMOP_SIZE]={
+         "load","LOAD",
+         "quit","QUIT",
+      };
 
 ///***************************************************
 // *  class name:primitive operator representation set *
@@ -84,11 +85,16 @@ EXTERN char *primoptbl[PRIMOP_SIZE]={
 //   "","",
 //   "","",
 //};
-   #endif
+      static list_t driver_loop(list_t,list_t);
+      static list_t eval(list_t,list_t,list_t,queue_t,list_t);
+      static list_t evalval(element_t ,list_t,queue_t);
+      static list_t evalval_ls(list_t,list_t,queue_t);
+#  endif
 
 /*** function decroletar ***/
-static list_t driver_loop(list_t,list_t);
-static list_t eval(list_t,list_t,list_t,queue_t,list_t);
-static list_t evalval(element_t ,list_t,queue_t);
-static list_t evalval_ls(list_t,list_t,queue_t);
+   extern void driver(void);
+   extern int getval(element_t);
+   extern char *getstr(element_t);
+   extern token gettk(element_t);
+   extern list_t getls(element_t);
 #endif

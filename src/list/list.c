@@ -12,6 +12,7 @@
 #define EXTERN extern
 #define EPS
 #include "comm.h"
+#include "driver.h"
 
 /**************************************************
  *  if it is the empty list, this function return *

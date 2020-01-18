@@ -163,11 +163,11 @@ static list_t n_boundls_ch(list_t rls,list_t lls,queue_t que)
       if (isempty(lls))
          return(que);
       else
-         return((list_t)error(FATAL|ELS,"unbound(n_boundls_ch131) %s\n", lls));
+         return((list_t)error(WARNING|ELS,"unbound(n_boundls_ch131) %s\n", lls));
    }
    else{
       if (isempty(lls))
-         return((list_t)error(FATAL|ELS,"unbound(n_boundls_ch135) %s\n", rls));
+         return((list_t)error(WARNING|ELS,"unbound(n_boundls_ch135) %s\n", rls));
       else{
          list_t tmp2=n_bound_ch(car(rls),car(lls),que);
          return(n_boundls_ch(cdr(rls),cdr(lls),tmp2));
@@ -183,11 +183,11 @@ static list_t n_boundls(list_t rls,list_t lls,list_t env)
       if (isempty(lls))
          return(env);
       else
-         return((list_t)error(FATAL|ELS,"unbound(n_boundls1110) %s\n", lls));
+         return((list_t)error(WARNING|ELS,"unbound(n_boundls1110) %s\n", lls));
    }
    else{
       if (isempty(lls))
-         return((list_t)error(FATAL|ELS,"unbound(n_boundls1114) %s\n", rls));
+         return((list_t)error(WARNING|ELS,"unbound(n_boundls1114) %s\n", rls));
       else{
          list_t tmp2=n_bound(car(rls),car(lls),env);
          return(n_boundls(cdr(rls),cdr(lls),tmp2));
@@ -759,6 +759,7 @@ static elementp derivatives(list_t exp,list_t env,queue_t ch,list_t procedures)
                              ch,
                              procedures));
          break;
+      
       case SUM:{
          elementp ret=(elementp)NIL;
          if ((ret=derivatives(getls(car(cdr(exp))),env,ch,procedures))!=(elementp)NIL)
@@ -825,10 +826,12 @@ static elementp derivatives(list_t exp,list_t env,queue_t ch,list_t procedures)
 }
 static bool istrans(list_t exp,list_t env,queue_t ch,list_t procedures)
 {
+   elementp ret=(elementp)NIL;
 #  ifdef DEBUG_EVAL_A
    printf("istrans->");
 #  endif
-   if (derivatives(exp,env,ch,procedures)==(elementp)NIL)
+   ret=derivatives(exp,env,ch,procedures);
+   if (ret==(elementp)NIL)
       return((bool)FALSE);
    else
       return((bool)TRUE);
@@ -1754,6 +1757,7 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch,list_t procedure
             fflush(stdout);
             switch(toupper(n_getc_stdin())){
                case 'C':{
+                  g_interactive_mode_backup=interactive_mode;
                   interactive_mode=OFF;
                   return(eval(exp,env,cont,ch,procedures));
                   break;
@@ -1800,6 +1804,7 @@ static list_t eval(list_t exp,list_t env,list_t cont,queue_t ch,list_t procedure
             fflush(stdout);
             switch(toupper(n_getc_stdin())){
                case 'C':{
+                  g_interactive_mode_backup=interactive_mode;
                   interactive_mode=OFF;
                   return(eval(exp,env,cont,ch,procedures));
                   break;
@@ -2058,8 +2063,10 @@ static list_t driver_loop(list_t procedures,list_t env)
    printf("driver_loop->");
 #  endif
  LOOP:
-   if (source_file == stdin)
+   if (source_file == stdin){
       printf("\nRCCS>>"), fflush(stdout);
+      interactive_mode=g_interactive_mode_backup;
+   }
    begin_tt = clock();
    g_state_counter = 0;
    if ((ret=setjmp(driver_env))==0){

@@ -7,7 +7,8 @@
                    Copyright (C) 1998 Naoyuki Nagatou
  ***************************************************/
 #ifndef RCCS_PRINT_H
-#define RCCS_PRINT_H
+#  define RCCS_PRINT_H
 
 /*** function decroletar ***/
+   extern int n_print(list_t);
 #endif

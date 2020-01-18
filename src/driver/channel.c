@@ -11,6 +11,7 @@
 #define CHANNEL
 #include "comm.h"
 #include "channel.h"
+#include "driver.h"
 
 /*******************
 *  generates a header of a queue.

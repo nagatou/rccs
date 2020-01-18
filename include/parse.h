@@ -7,7 +7,7 @@
                    Copyright (C) 1998 Naoyuki Nagatou
  ***************************************************/
 #ifndef RCCS_PARSE_H
-#define RCCS_PARSE_H
+#  define RCCS_PARSE_H
 
 /***************************************************
  *  class name:env                                 *
@@ -17,7 +17,7 @@
  *      setjmp();                                  *
  *      longjmp();                                 *
  ***************************************************/
-EXTERN jmp_buf env_par;
+   EXTERN jmp_buf env_par;
 
 /***************************************************
  *  class name:lookahead                           *
@@ -26,14 +26,17 @@ EXTERN jmp_buf env_par;
  *  methods:                                       *
  *      parse();                                   *
  ***************************************************/
-EXTERN token lah;
+   EXTERN token lah;
 
-#ifdef PARSE
 /*** function decroletar ***/
-static list_t b_exp(void);
-static list_t relabel_seq_left(list_t);
-static list_t id_seq_left(list_t);
-static list_t agent_exp(void);
-static list_t a_unary_exp(void);
-#endif
+#  ifdef PARSE
+      static list_t b_exp(void);
+      static list_t relabel_seq_left(list_t);
+      static list_t id_seq_left(list_t);
+      static list_t agent_exp(void);
+      static list_t a_unary_exp(void);
+#  endif
+   extern list_t parser(list_t *,char *);
+   extern splp cvtia(int);
+   extern token addattr(token tk,...);
 #endif

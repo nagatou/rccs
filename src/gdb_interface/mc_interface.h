@@ -1,13 +1,12 @@
 #ifndef __MC_INTERFACE_H__
 #define __MC_INTERFACE_H__
 
-#include "gdb_control.h"
-
 #ifndef EXTERN
 #define EXTERN extern
+#include "comm.h"
 #endif
 
-#include "comm.h"
+#include "gdb_control.h"
 
 int mc_init_debugger(/*bindLSp hash_tbl[], */char *prog, char *args);
 int mc_set_breakpoint(const char *file, int line, char flag);
