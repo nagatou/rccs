@@ -52,7 +52,7 @@ when you don't give both -f and -d, I will run the model in the emulation mode.\
    printf("\t-m \"model\"\tNot yet: specifies a source file written in RCCS.\n");
 //   printf("\t-q \t\t:changes channels in RCCS to queue buffer.\n");
 //   printf("\t-s \t\t:changes channels in RCCS to stack buffer (Default).\n");
-   printf("\t-i \t\t:provids the interactive execution.\n");
+   printf("\t-i \t\t:provids the ability to interactivly execution.\n");
    printf("\t-g \t\t:stronG view of the semantics(Default).\n");
    printf("\t-k \t\t:weaK view of the semantics.\n");
    printf("\t-a \t\t:Create a dot file for the specified formula.\n");
@@ -101,6 +101,7 @@ static void analyse_options1(int count, int number, char *options[])
          switch(*(options[count]+1)){
             case 'i':
                interactive_mode = ON;
+               g_interactive_mode_backup = ON;
                analyse_options1(count+1,number,options);
                break;
             case 't':
@@ -112,6 +113,7 @@ static void analyse_options1(int count, int number, char *options[])
                break;
             case 'f':
                interactive_mode = OFF;
+               g_interactive_mode_backup = OFF;
                channel_order=C_STACK;
                analyse_f_option(count+1,number,options,&formula);
                break;

@@ -22,7 +22,6 @@
       static bool g_step_exec=FALSE;
       static bool g_emptyness=FALSE;
       static bool g_state_counter=0;
-      static bool g_interactive_mode_backup=OFF;
       static int g_counter_for_counterexamples=0;
 #     ifndef DEPTH_LIMIT
 #        define DEPTH_LIMIT 64 

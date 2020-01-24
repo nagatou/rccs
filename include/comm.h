@@ -87,7 +87,8 @@
    EXTERN FILE *bkup;
    EXTERN FILE *log_file;
    EXTERN int trace_on;
-   EXTERN int interactive_mode;
+   EXTERN bool interactive_mode;
+   EXTERN bool g_interactive_mode_backup;
    EXTERN buffer formula;
    EXTERN buffer target;
    typedef enum{C_QUEUE,C_STACK} channel_order_t;
