@@ -768,9 +768,16 @@ static bool derivatives(list_t exp,list_t env,queue_t ch,list_t procedures)
                              ch,
                              procedures));
          break;
-      
       case SUM:
       case COM:
+         if (derivatives(getls(car(cdr(exp))),env,ch,procedures))
+            return(TRUE);
+         else{
+            if (derivatives(getls(car(cdr(cdr(exp)))),env,ch,procedures))
+               return(TRUE);
+            else
+               return(FALSE);
+         }
          return(derivatives(getls(car(cdr(exp))),env,ch,procedures));
          break;
       case IF:
