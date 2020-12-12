@@ -619,17 +619,51 @@ static bool isprimagnt(element_t el) /* B022 */
  *                                                   *
  *  token ret --- pointer to list                    *
  *****************************************************/
+/***
+static char * n_strtok(char *str, const char *delim, buf)
+{
+   int i=0;
+   int j=i;
+
+#  ifdef DEBUG_EVAL
+   printf("n_strtok->");
+#  endif
+   for(;str[i]==NULL;i++){
+      if (str[i])==delim[0]){
+         if (str[j]==delim[0])
+   }
+}
+NEED TO REPLACE strtok() TO n_strtok()
+***/
 static list_t n_load(list_t args,list_t env,queue_t ch,list_t procedures)
 {
+   char *path;
+   char *passed;
+   buffer vpath;
+   buffer fpath;
+
 #  ifdef DEBUG_EVAL
    printf("load->");
 #  endif
-   bkup = source_file;
-   source_file = fopen(gettk(car(args))->attr.value.fld.strings.str,"r");
+   initbuf(&vpath);
+   initbuf(&fpath);
+   append_str_buf(&vpath,getenv("RCCS_VPATH"));
+   append_str_buf(&fpath,getenv("RCCS_VPATH"));
+   ins_buf(&fpath,"/");
+   append_str_buf(&fpath,gettk(car(args))->attr.value.fld.strings.str);
+   passed=strtok(gettk(car(args))->attr.value.fld.strings.str,"/");
+   for(;(path=strtok(NULL,"/"))!=NULL;passed=path){
+      ins_buf(&vpath,"/");
+      append_str_buf(&vpath,passed);
+   }
+   setenv("RCCS_VPATH",vpath.buf,TRUE);
+   backup_os_env(source_file);  
+//   source_file = fopen(gettk(car(args))->attr.value.fld.strings.str,"r");
+   source_file = fopen(fpath.buf,"r");
    if (source_file == NIL){
       printf("cann't open (%s)(n_load231)\n",
              gettk(car(args))->attr.value.fld.strings.str);
-      source_file = bkup;
+      source_file = reload_os_env();
    }
    return(driver_loop(procedures,env));
 }
@@ -1158,7 +1192,7 @@ static list_t applytomins(list_t args) /* B028 */
                                     regsym(cvtia(gettk(car(getls(car(args))))->attr.value.fld.iconst.int_v-gettk(car(getls(car(cdr(args)))))->attr.value.fld.iconst.int_v),VALUE,ICONST)),
                            makenull(NIL)));
             default:
-               error(FATAL|ELS,"operands are imcompatible type(applytomins592) (%s)\n", args);
+               error(FATAL|ELS,"operands are incompatible type(applytomins592) (%s)\n", args);
          }
          break;
       case STR:
@@ -1173,7 +1207,7 @@ static list_t applytomins(list_t args) /* B028 */
                             makenull(NIL)));
             }
             default:
-               error(FATAL|ELS,"operands are imcompatible type(applytomins611) (%s)\n", args);
+               error(FATAL|ELS,"operands are incompatible type(applytomins611) (%s)\n", args);
          }
          break;
       default:
@@ -1194,7 +1228,7 @@ static list_t applytoplus(list_t args) /* B028 */
                                     regsym(cvtia(gettk(car(getls(car(args))))->attr.value.fld.iconst.int_v+gettk(car(getls(car(cdr(args)))))->attr.value.fld.iconst.int_v),VALUE,ICONST)),
                             makenull(NIL)));
             default:
-               error(FATAL|ELS,"operands are imcompatible type(applytoplus636) (%s)\n", args);
+               error(FATAL|ELS,"operands are incompatible type(applytoplus636) (%s)\n", args);
          }
          break;
       case STR:
@@ -1209,7 +1243,7 @@ static list_t applytoplus(list_t args) /* B028 */
                            makenull(NIL)));
             }
             default:
-               error(FATAL|ELS,"operands are imcompatible type(applytoplus655) (%s)\n", args);
+               error(FATAL|ELS,"operands are incompatible type(applytoplus655) (%s)\n", args);
          }
          break;
       default:
@@ -1248,7 +1282,7 @@ static list_t applytoor(list_t args) /* B028 */
                                            ICONST)),
                            makenull(NIL)));
             default:
-               error(FATAL|ELS,"operands are imcompatible type(applytoor699) (%s)\n", args);
+               error(FATAL|ELS,"operands are incompatible type(applytoor699) (%s)\n", args);
          }
          break;
       case STR:
@@ -1272,7 +1306,7 @@ static list_t applytodiv(list_t args) /* B028 */
                                            ICONST)),
                            makenull(NIL)));
             default:
-               error(FATAL|ELS,"operands are imcompatible type(applytodiv725) (%s)\n", args);
+               error(FATAL|ELS,"operands are incompatible type(applytodiv725) (%s)\n", args);
          }
          break;
       case STR:
@@ -1287,7 +1321,7 @@ static list_t applytodiv(list_t args) /* B028 */
                            makenull(NIL)));
             }
             default:
-               error(FATAL|ELS,"operands are imcompatible type(applytodiv744) (%s)\n", args);
+               error(FATAL|ELS,"operands are incompatible type(applytodiv744) (%s)\n", args);
          }
          break;
       default:
@@ -1310,7 +1344,7 @@ static list_t applytomult(list_t args) /* B028 */
                                            ICONST)),
                            makenull(NIL)));
             default:
-               error(FATAL|ELS,"operands are imcompatible type(applytomult769) (%s)\n", args);
+               error(FATAL|ELS,"operands are incompatible type(applytomult769) (%s)\n", args);
          }
          break;
       case STR:
@@ -1334,7 +1368,7 @@ static list_t applytomod(list_t args) /* B028 */
                                                   ICONST)),
                            makenull(NIL)));
             default:
-               error(FATAL|ELS,"operands are imcompatible type(applytodiv795) (%s)\n", args);
+               error(FATAL|ELS,"operands are incompatible type(applytodiv795) (%s)\n", args);
          }
          break;
       case STR:
@@ -1358,7 +1392,7 @@ static list_t applytoand(list_t args) /* B028 */
                                             ICONST)),
                            makenull(NIL)));
             default:
-               error(FATAL|ELS,"operands are imcompatible type(applytoand821) (%s)\n", args);
+               error(FATAL|ELS,"operands are incompatible type(applytoand821) (%s)\n", args);
          }
          break;
       case STR:
@@ -1378,7 +1412,7 @@ static list_t applytoeq(list_t args) /* B028 */
             case ICONST:
                return(cons(*makelet(TOKEN,regsym(cvtia(gettk(car(getls(car(args))))->attr.value.fld.iconst.int_v==gettk(car(getls(car(cdr(args)))))->attr.value.fld.iconst.int_v),VALUE,ICONST)),makenull(NIL)));
             default:
-               error(FATAL|ELS,"operands are imcompatible type(applyto847) (%s)\n", args);
+               error(FATAL|ELS,"operands are incompatible type(applyto847) (%s)\n", args);
          }
          break;
       case STR:
@@ -1395,7 +1429,7 @@ static list_t applytoeq(list_t args) /* B028 */
                return(cons(*makelet(TOKEN,regsym(cvtia(result),VALUE,ICONST)),makenull(NIL)));
             }
             default:
-               error(FATAL|ELS,"operands are imcompatible(applytoeq868) (%s)\n", args);
+               error(FATAL|ELS,"operands are incompatible(applytoeq868) (%s)\n", args);
          }
          break;
       default:
@@ -1418,7 +1452,7 @@ static list_t applytole(list_t args) /* B028 */
                                            ICONST)),
                            makenull(NIL)));
             default:
-               error(FATAL|ELS,"operands are imcompatible type(applytole893) (%s)\n", args);
+               error(FATAL|ELS,"operands are incompatible type(applytole893) (%s)\n", args);
          }
          break;
       case STR:
@@ -1442,7 +1476,7 @@ static list_t applytolt(list_t args) /* B028 */
                                            ICONST)),
                            makenull(NIL)));
             default:
-               error(FATAL|ELS,"operands are imcompatible type(applytolt919) (%s)\n", args);
+               error(FATAL|ELS,"operands are incompatible type(applytolt919) (%s)\n", args);
          }
          break;
       case STR:
@@ -1466,7 +1500,7 @@ static list_t applytogr(list_t args) /* B028 */
                                            ICONST)),
                            makenull(NIL)));
             default:
-               error(FATAL|ELS,"operands are imcompatible type(applytogr945) (%s)\n", args);
+               error(FATAL|ELS,"operands are incompatible type(applytogr945) (%s)\n", args);
          }
          break;
       case STR:
@@ -1490,7 +1524,7 @@ static list_t applytogt(list_t args) /* B028 */
                                            ICONST)),
                            makenull(NIL)));
             default:
-               error(FATAL|ELS,"operands are imcompatible type(applytogt971) (%s)\n", args);
+               error(FATAL|ELS,"operands are incompatible type(applytogt971) (%s)\n", args);
          }
          break;
       case STR:

@@ -25,7 +25,7 @@ error_code_t error(error_code_t code,const char *format,...)/*B028*/
    char *p=(char *)format;
 
    va_start(args,format);
-   fprintf(stdout,"\n");
+   fprintf(stdout,"\nRCCS:");
    for(;*p;p++){
       if (*p != '%'){
          printf("%c",*p);

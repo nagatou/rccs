@@ -283,10 +283,10 @@ splp append_str_buf(buffer *buf,char *str)
    printf("append_str_buf[%p,%d,%s]->",buf,buf->cnt,str);
 #  endif
    if ((buf==(buffer *)NIL)||(str==(splp)NIL))
-      error(FATAL,"Segmentation fault(append_str_buf69)\n");
+      error(FATAL,"Segmentation fault(append_str_buf286)\n");
    for(i=0,c=0;i<strlen(str);i++){
       if (((buf->cnt)+c)>=BUF_SIZE-1)
-         error(FATAL,"Buffer overflow(append_str_buf72)\n");
+         error(FATAL,"Buffer overflow(append_str_buf289)\n");
       else{
          if (*(str+i)==LF){
            strncpy((buf->buf)+(buf->cnt)+c,"/l",2);
@@ -349,7 +349,7 @@ void n_end(void)
 {
    if (!(source_file==stdin)){
       fclose(source_file);
-      source_file = bkup;
+      source_file = reload_os_env();
       fflush(source_file);
    }
    if (log_file != NIL){

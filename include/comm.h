@@ -70,6 +70,7 @@
 #  include "print.h"
 #  include "gc.h"
 #  include "channel.h"
+#  include "osenv.h"
 
 /* header file for ltl */
 #  ifndef DEBUG_MC_M
@@ -84,7 +85,7 @@
 
 /*** global variables for R-CCS ***/
    EXTERN FILE *source_file;
-   EXTERN FILE *bkup;
+   EXTERN os_env_t os_env_backup;
    EXTERN FILE *log_file;
    EXTERN int trace_on;
    EXTERN bool interactive_mode;

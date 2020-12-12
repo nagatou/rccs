@@ -12,7 +12,7 @@ CHECK=
 MAKE=make
 TEX=pdflatex
 
-INSTALL_PATH=/usr/local/bin/
+INSTALL_PATH=~/bin
 
 RCCS_HOME=$(PWD)/..
 SRCPATH=${RCCS_HOME}/src
@@ -20,7 +20,7 @@ INCLUDE=${RCCS_HOME}/include
 LIBPATH=${RCCS_HOME}/lib
 
 TARGET=rccs
-VPATH=${INCLUDE}:${SRC_PATH}:${RCCS_HOME}/rrl
+VPATH=${INCLUDE}:${SRCPATH}:${RCCS_HOME}/rrl
 
 SRCS=ccs.c
 OBJS=${SRCS:.c=.o}
@@ -91,4 +91,4 @@ test : echos.c
 	${CC} -o echos echos.c -DDEBUG_EHAND ${CFLAGS} ${LIBS}
 
 install: rccs
-	cp ${SRC_PATH}/rccs ${INSTALL_PATH}
+	cp ${SRCPATH}/rccs ${INSTALL_PATH}

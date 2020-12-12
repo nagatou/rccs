@@ -16,7 +16,7 @@
  * methods:                                          *
  *    initbuf();                                     *
  *****************************************************/
-#  define BUF_SIZE STR_LEN
+#  define BUF_SIZE STR_LEN*2
    typedef struct{
       int cnt;
       char buf[BUF_SIZE];

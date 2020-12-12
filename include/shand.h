@@ -116,6 +116,8 @@
    }attribute;
    typedef struct{
       token_t token_name;
+      int occurence;
+      char file_name[STR_LEN];
       attribute attr;
    }symbol;
 

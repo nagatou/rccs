@@ -1,10 +1,10 @@
 #
 #   Makefile for the development project of R-CCS interpreter.
-#  R-CCS interpreter have reflection, mobile agent development
-#  language.
+#  R-CCS interpreter has the capability for reflection and mobile agent.
+#
 #                         Copyright (C) 1998 Naoyuki Nagatou
 #
-SRCS=driver.c ehand.c fhand.c primitive.c channel.c
+SRCS=driver.c ehand.c fhand.c primitive.c channel.c osenv.c
 OBJS=${SRCS:.c=.o}
 HEADERS=${SRCS:.c=.h}
 

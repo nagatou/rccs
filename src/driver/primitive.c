@@ -124,6 +124,8 @@ void prologue(char * log)
    printf("prologue->");
 #  endif
    printf("%s\n",copyright);
+   /*------ set environment variables for RCCS -----*/
+   init_os_env();
    /*------ initialize spell table -----*/
    initspltbl(&spl_tbl); /***/
    /*------ initialize heap area -----*/
