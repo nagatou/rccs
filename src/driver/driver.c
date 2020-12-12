@@ -619,46 +619,33 @@ static bool isprimagnt(element_t el) /* B022 */
  *                                                   *
  *  token ret --- pointer to list                    *
  *****************************************************/
-/***
-static char * n_strtok(char *str, const char *delim, buf)
-{
-   int i=0;
-   int j=i;
-
-#  ifdef DEBUG_EVAL
-   printf("n_strtok->");
-#  endif
-   for(;str[i]==NULL;i++){
-      if (str[i])==delim[0]){
-         if (str[j]==delim[0])
-   }
-}
-NEED TO REPLACE strtok() TO n_strtok()
-***/
 static list_t n_load(list_t args,list_t env,queue_t ch,list_t procedures)
 {
    char *path;
    char *passed;
    buffer vpath;
    buffer fpath;
+   buffer tmp;
 
 #  ifdef DEBUG_EVAL
    printf("load->");
 #  endif
    initbuf(&vpath);
-   initbuf(&fpath);
    append_str_buf(&vpath,getenv("RCCS_VPATH"));
-   append_str_buf(&fpath,getenv("RCCS_VPATH"));
+   initbuf(&fpath);
+   append_str_buf(&fpath,vpath.buf);
    ins_buf(&fpath,"/");
    append_str_buf(&fpath,gettk(car(args))->attr.value.fld.strings.str);
-   passed=strtok(gettk(car(args))->attr.value.fld.strings.str,"/");
+   /* obtain new vpath */
+   initbuf(&tmp);
+   append_str_buf(&tmp,gettk(car(args))->attr.value.fld.strings.str);
+   passed=strtok(tmp.buf,"/");
    for(;(path=strtok(NULL,"/"))!=NULL;passed=path){
       ins_buf(&vpath,"/");
       append_str_buf(&vpath,passed);
    }
+   backup_os_env(source_file,vpath);  
    setenv("RCCS_VPATH",vpath.buf,TRUE);
-   backup_os_env(source_file);  
-//   source_file = fopen(gettk(car(args))->attr.value.fld.strings.str,"r");
    source_file = fopen(fpath.buf,"r");
    if (source_file == NIL){
       printf("cann't open (%s)(n_load231)\n",

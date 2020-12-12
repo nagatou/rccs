@@ -3,7 +3,7 @@
 #include "osenv.h"
 #include "error.h"
 
-void backup_os_env(FILE *file_ptr)
+void backup_os_env(FILE *file_ptr, buffer buf)
 {
 #  ifdef DEBUG_EVAL
    printf("backup_os_env->");
