@@ -640,7 +640,7 @@ static list_t n_load(list_t args,list_t env,queue_t ch,list_t procedures)
    initbuf(&tmp);
    append_str_buf(&tmp,gettk(car(args))->attr.value.fld.strings.str);
    passed=strtok(tmp.buf,"/");
-   for(;(path=strtok(NULL,"/"))!=NULL;passed=path){
+   for(;(path=strtok(NIL,"/"))!=NIL;passed=path){
       ins_buf(&vpath,"/");
       append_str_buf(&vpath,passed);
    }

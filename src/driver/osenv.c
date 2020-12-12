@@ -22,8 +22,10 @@ FILE * reload_os_env(void)
 #  endif
    if (os_env_backup.top > 0)
       return(os_env_backup.bkup[--os_env_backup.top]);
-   else
-      error(FATAL,"internal fatal error.");
+   else{
+      setenv("RCCS_VPATH",os_env_backup.buf.buf,TRUE);
+      return((FILE *)error(FATAL,"internal fatal error."));
+   }
 }
 void init_os_env(void)
 {
