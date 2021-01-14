@@ -236,7 +236,7 @@ char *getstr(element_t el)
             ret = (tk->attr.value.fld.strings.str);
             break;
          default:
-            error(FATAL|ETK,"invalid element(getval209) token=%s, token_name=%d\n", tk, tk->token_name);
+            error(FATAL|ETK,"invalid element(getval239) token=%s, token_name=%d\n", tk, tk->token_name);
       }
    }
    else
@@ -261,7 +261,7 @@ int getval(element_t el)
             ret = (intptr_t)(tk->attr.value.fld.strings.str);
             break;
          default:
-            return((intptr_t)error(FATAL|ETK,"invalid element(getval209) token=%s, token_name=%d\n", tk, tk->token_name));
+            return((intptr_t)error(FATAL|ETK,"invalid element(getval264) token=%s, token_name=%d\n", tk, tk->token_name));
       }
       return(ret);
    }
