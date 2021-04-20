@@ -534,7 +534,7 @@ Furthermore,
 \item \(\sigma\models\varphi\wedge\psi\) iff \(\sigma\models\varphi\) and \(\sigma\models\psi\),
 \item \(\sigma\models\ltlbox\varphi\) iff for all \(0\leq i<|\sigma|\), \(\suffix{\sigma}{i}\models\varphi\),
 \item \(\sigma\models\ltldiammond\varphi\) iff there exists \(0\leq i<|\sigma|\) such that \(\suffix{\sigma}{i}\models\varphi\),
-\item \(\sigma\models\ltlnext\varphi\) iff \(\sigma'\models\varphi\) where \(\sigma'=\sigma\) if \(|\sigma|=1\) and \(\sigma'=\suffix{\sigma}{1}\) if \(|\sigma|>1\),
+\item \(\sigma\models\ltlnext\varphi\) iff \(\sigma'\models\varphi\) where \(\sigma'=\sigma\) if \(|\sigma| =1\) and \(\sigma'=\suffix{\sigma}{1}\) if \(|\sigma|>1\),
 \item \(\sigma\models\varphi\ltluntil\psi\) iff there exists \(0\leq k<|\sigma|\) s.t. \(\sigma\models\psi\) and for all \(j<k\), \(\sigma\models\varphi\).
   \end{itemize}
 
@@ -543,7 +543,7 @@ Given set of traces $T$ and formula \(\varphi\), \(\varphi\) is valid over $T$ i
 \subsection{Weak Semantics}
 Furthermore,
   \begin{itemize}
-\item if $p$ is a state formula, then \(\sigma\models p\) iff \(\sigma^0\lsquarebracket p\rsquarebracket=\true\) or \(|\sigma|=0\),
+\item if $p$ is a state formula, then \(\sigma\models p\) iff \(\sigma^0\lsquarebracket p\rsquarebracket=\true\) or \(|\sigma| =0\),
 \item \(\sigma\models\neg\varphi\) iff \(\sigma\not\models\varphi\),
 \item \(\sigma\models\varphi\vee\psi\) iff \(\sigma\models\varphi\) or \(\sigma\models\psi\),
 \item \(\sigma\models\varphi\wedge\psi\) iff \(\sigma\models\varphi\) and \(\sigma\models\psi\),

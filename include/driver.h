@@ -24,10 +24,10 @@
       static bool g_state_counter=0;
       static int g_counter_for_counterexamples=0;
 #     ifndef DEPTH_LIMIT
-#        define DEPTH_LIMIT 64 
+#        define DEPTH_LIMIT 128
 #     endif
 #     ifndef MAX_COUNTEREXAMPLES
-#        define MAX_COUNTEREXAMPLES 3 
+#        define MAX_COUNTEREXAMPLES 3
 #     endif
 
 /***************************************************

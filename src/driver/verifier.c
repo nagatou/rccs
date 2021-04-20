@@ -531,7 +531,7 @@ static list_t firstDFS2(list_t exp,
             else{
                g_counter_for_counterexamples=0;
                error(WARNING,"Terminate by the limit on the number of counterexample");
-               return(for_secondDFS);
+               return(for_firstDFS);
             }
          }
          else
